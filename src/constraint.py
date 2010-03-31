@@ -1,3 +1,5 @@
+# Sean Davis, Andrew Smith (Berea) 3.31.2010
+
 import constraint
 
 def printSolutions(problem):
