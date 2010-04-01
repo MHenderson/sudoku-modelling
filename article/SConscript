@@ -1,0 +1,5 @@
+Import('env')
+list = Split("""main.tex
+                abstractonly.tex""")
+env.PDF(list)
+
