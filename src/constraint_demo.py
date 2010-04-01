@@ -1,7 +1,9 @@
 # Sean Davis, Andrew Smith (Berea) 3.31.2010
+# Accessed 31 March 2010 <Andrew> 
 
 from constraint import *
 
+# Nicely prints out any constraint problem
 def printSolutions(problem):
     solution = problem.getSolutions()
     keys = solution[0].keys()
