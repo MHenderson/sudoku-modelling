@@ -1,9 +1,10 @@
+# Accessed 1 April 2010.
+# Andrew Smith, Sean Davis
+
+
 from constraint import *
 from math import sqrt, floor
 from random import randrange, seed
-
-
-    
 
 def convert_to_sage(number_string):
     answer = ""
@@ -28,19 +29,17 @@ def make_sudoku_constraint(number_string):
         if number_string[x] != "0":
             p.addConstraint(ExactSumConstraint(int(number_string[x])), [x+1])
     
-    # These constraints must be generalized
-    p.addConstraint(AllDifferentConstraint(),[1,2,3,4])
-    p.addConstraint(AllDifferentConstraint(),[5,6,7,8])
-    p.addConstraint(AllDifferentConstraint(),[9,10,11,12])
-    p.addConstraint(AllDifferentConstraint(),[13,14,15,16])
-    p.addConstraint(AllDifferentConstraint(),[1,5,9,13])
-    p.addConstraint(AllDifferentConstraint(),[2,6,10,14])
-    p.addConstraint(AllDifferentConstraint(),[3,7,11,15])
-    p.addConstraint(AllDifferentConstraint(),[4,8,12,16])
-    p.addConstraint(AllDifferentConstraint(),[1,2,5,6])
-    p.addConstraint(AllDifferentConstraint(),[3,4,7,8])
-    p.addConstraint(AllDifferentConstraint(),[9,10,13,14])
-    p.addConstraint(AllDifferentConstraint(),[11,12,15,16])
+    for x in range(possible_values):
+    # Row Constraints
+        p.addConstraint(AllDifferentConstraint(), range(1+(possible_values*x), possible_values+1+(possible_values*x)))
+    # Column Constraints
+        domain = []
+        for y in range(possible_values):
+            domain.append(x+1+(possible_values*y))
+        p.addConstraint(AllDifferentConstraint(), domain)
+
+    # Square Constraints
+
     return p
 
 # If we want a 9x9 square, the input should be 3.
@@ -52,6 +51,7 @@ def generate_blank_sudoku(size):
 
 
 # If we want a 9x9 square, the input should be 3.
+# Note that this will rarely produce solvable puzzles
 def generate_random_sudoku(size):
     answer = ""
     for x in range(0, pow(size,4)):
@@ -59,4 +59,4 @@ def generate_random_sudoku(size):
     return make_sudoku_constraint(answer)
 
 # Test case
-# c = make_sudoku_constraint("1234432131422410")
+c = make_sudoku_constraint("1234432131422410")
