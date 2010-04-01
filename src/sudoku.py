@@ -1,6 +1,4 @@
-# Accessed 1 April 2010.
-# Andrew Smith, Sean Davis
-
+# Sean Davis, Matthew Henderson, Andrew Smith (Berea) 4.1.2010
 
 from constraint import *
 from math import sqrt, floor
@@ -49,7 +47,6 @@ def generate_blank_sudoku(size):
         answer = answer + "0"
     return make_sudoku_constraint(answer)
 
-
 # If we want a 9x9 square, the input should be 3.
 # Note that this will rarely produce solvable puzzles
 def generate_random_sudoku(size):
@@ -58,5 +55,3 @@ def generate_random_sudoku(size):
         answer = answer + str(randrange(0,size*size))
     return make_sudoku_constraint(answer)
 
-# Test case
-c = make_sudoku_constraint("1234432131422410")
