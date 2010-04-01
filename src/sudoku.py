@@ -13,31 +13,37 @@ def convert_to_sage(number_string):
             answer = answer + number_string[x]
     return answer
 
+def add_row_constraints(problem, boxsize):
+    for x in range(boxsize):
+        problem.addConstraint(AllDifferentConstraint(), range(1+(boxsize*x), boxsize+1+(boxsize*x)))
+
+def add_col_constraints(problem, boxsize):
+    for x in range(boxsize):    
+        domain = []        
+        for y in range(boxsize):
+            domain.append(x+1+(boxsize*y))
+    problem.addConstraint(AllDifferentConstraint(), domain)
+
+def empty_sudoku(boxsize):
+    p = Problem()
+    p.addVariables(range(1,boxsize**4 + 1),range(1,boxsize + 1))    
+    add_row_constraints(p, boxsize)
+    add_col_constraints(p, boxsize)
+    # add_box_constraints(p, boxsize)
+    return p
+
 def make_sudoku_constraint(number_string):
     if sqrt(len(number_string)) != floor(sqrt(len(number_string))):
         print "Invalid size string"
         return False
 
-    p = Problem()
     size_of_string = len(number_string)
-    possible_values = int(sqrt(size_of_string))
-    p.addVariables(range(1,size_of_string + 1),range(1,possible_values + 1))
+    boxsize = int(sqrt(size_of_string))
+    p = empty_sudoku(boxsize)
 
     for x in range(size_of_string):
         if number_string[x] != "0":
             p.addConstraint(ExactSumConstraint(int(number_string[x])), [x+1])
-    
-    for x in range(possible_values):
-    # Row Constraints
-        p.addConstraint(AllDifferentConstraint(), range(1+(possible_values*x), possible_values+1+(possible_values*x)))
-    # Column Constraints
-        domain = []
-        for y in range(possible_values):
-            domain.append(x+1+(possible_values*y))
-        p.addConstraint(AllDifferentConstraint(), domain)
-
-    # Square Constraints
-
     return p
 
 # If we want a 9x9 square, the input should be 3.
