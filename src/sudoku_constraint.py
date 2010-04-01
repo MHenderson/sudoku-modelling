@@ -1,5 +1,6 @@
 from constraint import *
 from math import sqrt, floor
+from random import randrange, seed
 
 
     
@@ -42,11 +43,19 @@ def make_sudoku_constraint(number_string):
     p.addConstraint(AllDifferentConstraint(),[11,12,15,16])
     return p
 
-# If we want a 9x9 square, the input should be 9.
+# If we want a 9x9 square, the input should be 3.
 def generate_blank_sudoku(size): 
     answer = ""
-    for x in range(0, size*size):
+    for x in range(0, pow(size,4)):
         answer = answer + "0"
+    return make_sudoku_constraint(answer)
+
+
+# If we want a 9x9 square, the input should be 3.
+def generate_random_sudoku(size):
+    answer = ""
+    for x in range(0, pow(size,4)):
+        answer = answer + str(randrange(0,size*size))
     return make_sudoku_constraint(answer)
 
 # Test case
