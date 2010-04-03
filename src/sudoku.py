@@ -13,23 +13,47 @@ def convert_to_sage(number_string):
             answer = answer + number_string[x]
     return answer
 
+def n_rows(boxsize): return boxsize**2
+def n_cols(boxsize): return boxsize**2
+def n_boxes(boxsize): return boxsize**2
+def n_cells(boxsize): return n_rows(boxsize)*n_cols(boxsize)
+def cell(i,j,boxsize): return (i-1)*n_rows(boxsize) + j
+
+def top_left_cells(boxsize): 
+    return [cell(i,j,boxsize) for i in range(1,n_rows(boxsize),boxsize) for j in range(1,n_cols(boxsize),boxsize)]
+
+def rows(boxsize):
+    nr = n_rows(boxsize)
+    return [range(nr*(i-1)+1,nr*i+1) for i in range(1,nr+1)]
+
+def cols(boxsize):
+    nc = n_cols(boxsize)
+    ncl = n_cells(boxsize)
+    return [range(i,ncl+1-(nc-i),nc) for i in range(1,nc+1)]
+
+def boxes(boxsize):
+    nr = n_rows(boxsize)
+    nc = n_cols(boxsize)
+    return [[i+j+k for j in range(0,boxsize*nr,nc) for k in range(0,boxsize)] for i in top_left_cells(boxsize)]
+
 def add_row_constraints(problem, boxsize):
-    for x in range(boxsize):
-        problem.addConstraint(AllDifferentConstraint(), range(1+(boxsize*x), boxsize+1+(boxsize*x)))
+    for row in rows(boxsize):
+        problem.addConstraint(AllDifferentConstraint(), row)
 
 def add_col_constraints(problem, boxsize):
-    for x in range(boxsize):    
-        domain = []        
-        for y in range(boxsize):
-            domain.append(x+1+(boxsize*y))
-        problem.addConstraint(AllDifferentConstraint(), domain) # This needed to be in the 'for y' loop
+    for col in cols(boxsize):    
+        problem.addConstraint(AllDifferentConstraint(), col)
+
+def add_box_constraints(problem, boxsize):
+    for box in boxes(boxsize):
+        problem.addConstraint(AllDifferentConstraint(), box)
 
 def empty_sudoku(boxsize):
     p = Problem()
-    p.addVariables(range(1,boxsize**2 + 1),range(1,boxsize + 1))    # Adjusted the range to be boxsize^2 instead of boxsize^4.
+    p.addVariables(range(1,boxsize**4 + 1),range(1,boxsize**2 + 1)) 
     add_row_constraints(p, boxsize)
     add_col_constraints(p, boxsize)
-    # add_box_constraints(p, boxsize)
+    add_box_constraints(p, boxsize)
     return p
 	
 def constraintSolution_to_sudokuString(solution):
