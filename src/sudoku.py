@@ -22,15 +22,22 @@ def add_col_constraints(problem, boxsize):
         domain = []        
         for y in range(boxsize):
             domain.append(x+1+(boxsize*y))
-    problem.addConstraint(AllDifferentConstraint(), domain)
+        problem.addConstraint(AllDifferentConstraint(), domain) # This needed to be in the 'for y' loop
 
 def empty_sudoku(boxsize):
     p = Problem()
-    p.addVariables(range(1,boxsize**4 + 1),range(1,boxsize + 1))    
+    p.addVariables(range(1,boxsize**2 + 1),range(1,boxsize + 1))    # Adjusted the range to be boxsize^2 instead of boxsize^4.
     add_row_constraints(p, boxsize)
     add_col_constraints(p, boxsize)
     # add_box_constraints(p, boxsize)
     return p
+	
+def constraintSolution_to_sudokuString(solution):
+	# This function takes the result of getSolutionIter().next() and returns it in string format.
+    string = ""
+    for x in range(1, len(solution)+1):
+        string = string + str(solution[x])
+    return string
 
 def make_sudoku_constraint(number_string):
     if sqrt(len(number_string)) != floor(sqrt(len(number_string))):
