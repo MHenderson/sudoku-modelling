@@ -18,6 +18,8 @@ def n_cols(boxsize): return boxsize**2
 def n_boxes(boxsize): return boxsize**2
 def n_cells(boxsize): return n_rows(boxsize)*n_cols(boxsize)
 def cell(i,j,boxsize): return (i-1)*n_rows(boxsize) + j
+def cells(boxsize): return range(1, n_cells(boxsize) + 1)
+def symbols(boxsize): return range(1, n_rows(boxsize) + 1)
 
 def top_left_cells(boxsize): 
     return [cell(i,j,boxsize) for i in range(1,n_rows(boxsize),boxsize) for j in range(1,n_cols(boxsize),boxsize)]
@@ -50,7 +52,7 @@ def add_box_constraints(problem, boxsize):
 
 def empty_sudoku(boxsize):
     p = Problem()
-    p.addVariables(range(1,boxsize**4 + 1),range(1,boxsize**2 + 1)) 
+    p.addVariables(cells(boxsize), symbols(boxsize)) 
     add_row_constraints(p, boxsize)
     add_col_constraints(p, boxsize)
     add_box_constraints(p, boxsize)
