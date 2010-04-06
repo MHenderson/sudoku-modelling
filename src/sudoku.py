@@ -57,6 +57,21 @@ def empty_sudoku(boxsize):
     add_col_constraints(p, boxsize)
     add_box_constraints(p, boxsize)
     return p
+
+def puzzle(boxsize, clues):
+    # generate a Problem instance based on dictionary of clues   
+    ## create empty sudoku of boxsize
+    ## iterate over clues
+    ## for each non-zero value in clues add an exact sum constraint
+
+def random_puzzle(boxsize, solution, fixed):
+    # from 'solution' dictionary create random puzzle with 'fixed'
+    # number of clues.
+    ## for i in range(n_cells(boxsize) - fixed):
+    ### choose a random item 'x' from 'solution'
+    ### remove 'x'
+    ### (optionally check for uniqueness)
+    ## return puzzle(boxsize, solution)
 	
 def constraintSolution_to_sudokuString(solution):
 	# This function takes the result of getSolutionIter().next() and returns it in string format.
