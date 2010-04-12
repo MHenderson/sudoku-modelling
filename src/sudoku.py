@@ -2,7 +2,7 @@
 
 from constraint import *
 from math import sqrt, floor
-from random import randrange, seed
+from random import choice, randrange, seed
 
 def convert_to_sage(number_string):
     answer = ""
@@ -57,6 +57,35 @@ def empty_sudoku(boxsize):
     add_col_constraints(p, boxsize)
     add_box_constraints(p, boxsize)
     return p
+
+def puzzle(boxsize, clues):
+    # generate a Problem instance based on dictionary of clues   
+    ## create empty sudoku of boxsize
+    ## iterate over clues
+    ## for each non-zero value in clues add an exact sum constraint
+    p = empty_sudoku(boxsize)
+    for x in range(1, len(clues)+1):
+        if clues[x] != 0:
+            p.addConstraint(ExactSumConstraint(clues[x]), [x])
+    return p
+    
+
+def random_puzzle(boxsize, solution, fixed):
+    # from 'solution' dictionary create random puzzle with 'fixed'
+    # number of clues.
+    ## for i in range(n_cells(boxsize) - fixed):
+    ### choose a random item 'x' from 'solution'
+    ### remove 'x'
+    ### (optionally check for uniqueness)
+    ## return puzzle(boxsize, solution)
+    indices = []
+    for x in range(1, len(solution)+1):
+        indices.append(x)
+    for i in range(n_cells(boxsize) - fixed):
+        c = choice(indices)
+        solution[c] = 0
+        indices.remove(c)
+    return puzzle(boxsize, solution)
 	
 def constraintSolution_to_sudokuString(solution):
 	# This function takes the result of getSolutionIter().next() and returns it in string format.
@@ -71,7 +100,7 @@ def make_sudoku_constraint(number_string):
         return False
 
     size_of_string = len(number_string)
-    boxsize = int(sqrt(size_of_string))
+    boxsize = int(sqrt(sqrt(size_of_string)))
     p = empty_sudoku(boxsize)
 
     for x in range(size_of_string):
