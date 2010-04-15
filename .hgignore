@@ -4,3 +4,4 @@ syntax: glob
 *.dblite
 *.bak
 *.pyc
+doc/build/
