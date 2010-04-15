@@ -59,25 +59,13 @@ def empty_sudoku(boxsize):
     return p
 
 def puzzle(boxsize, clues):
-    # generate a Problem instance based on dictionary of clues   
-    ## create empty sudoku of boxsize
-    ## iterate over clues
-    ## for each non-zero value in clues add an exact sum constraint
     p = empty_sudoku(boxsize)
     for x in range(1, len(clues)+1):
         if clues[x] != 0:
             p.addConstraint(ExactSumConstraint(clues[x]), [x])
     return p
-    
 
 def random_puzzle(boxsize, solution, fixed):
-    # from 'solution' dictionary create random puzzle with 'fixed'
-    # number of clues.
-    ## for i in range(n_cells(boxsize) - fixed):
-    ### choose a random item 'x' from 'solution'
-    ### remove 'x'
-    ### (optionally check for uniqueness)
-    ## return puzzle(boxsize, solution)
     indices = []
     for x in range(1, len(solution)+1):
         indices.append(x)
