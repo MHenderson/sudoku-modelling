@@ -122,4 +122,22 @@ def generate_random_sudoku(size):
     for x in range(0, pow(size,4)):
         answer = answer + str(randrange(0,size*size))
     return make_sudoku_constraint(answer)
+		
+# list_to_string is implemented since the dancing links algorithm returns a list.
+def list_to_string(list):
+		output = ""
+		for i in range(len(list)):
+				output += str(list[i])
+		return output
 
+# Gets all solutions for all items provided in a file.  Uses the dancing links algorithm.  (Sage Function)
+def solve_from_file(infile, outfile):
+		solutions = []
+		input = open(infile, 'r')
+		output = open(outfile, 'w')
+		unsolved = input.readlines()
+		for x in range(len(unsolved)):
+				s = Sudoku(convert_to_sage(unsolved[x].rstrip()))
+				solutions = list(s.dlx())
+				for i in range(len(solutions)):
+						output.write(list_to_string(solutions[i]) + "\n")
