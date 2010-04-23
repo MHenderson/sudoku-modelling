@@ -1,0 +1,4 @@
+Import('env')
+list = Split("""main.tex""")
+env.PDF(list)
+
