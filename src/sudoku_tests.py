@@ -59,6 +59,6 @@ assert sudoku.boxes(3)==[[1, 2, 3, 10, 11, 12, 19, 20, 21],
                          [58, 59, 60, 67, 68, 69, 76, 77, 78], 
                          [61, 62, 63, 70, 71, 72, 79, 80, 81]]
 
-p = sudoku.empty_sudoku(2)
+p = sudoku.empty_puzzle(2)
 s = p.getSolutions()
 assert len(s)==288
