@@ -91,17 +91,10 @@ def dict_to_sudoku_string(solution):
         string = string + str(solution[x])
     return string
 
-def make_sudoku_constraint(number_string):
+def make_sudoku_constraint(number_string, boxsize):
     """Create constraint problem from 'number_string' Sudoku puzzle string."""
-    if sqrt(len(number_string)) != floor(sqrt(len(number_string))):
-        print "Invalid size string"
-        return False
-
-    size_of_string = len(number_string)
-    boxsize = int(sqrt(sqrt(size_of_string)))
     p = empty_puzzle(boxsize)
-
-    for x in range(size_of_string):
+    for x in range(n_cells(boxsize)):
         if number_string[x] != "0":
             p.addConstraint(ExactSumConstraint(int(number_string[x])), [x+1])
     return p
@@ -113,15 +106,17 @@ def list_to_string(list):
         output += str(list[i])
     return output
 
-def solve_from_file(infile, outfile):
-    """Gets all solutions for all items provided in a file.  Uses the dancing links algorithm. (Sage Function)"""
-    solutions = []
+def process_puzzle(puzzle, boxsize):
+    """Constraint processing strategy."""
+    p = make_sudoku_constraint(puzzle, boxsize)
+    return p.getSolution()
+
+def solve_from_file(infile, outfile, boxsize):
+    """Gets all solutions for all items provided in a file."""
     input = open(infile, 'r')
     output = open(outfile, 'w')
-    unsolved = input.readlines()
-    for x in range(len(unsolved)):
-        s = Sudoku(convert_to_sage(unsolved[x].rstrip()))
-        solutions = list(s.dlx())
-        for i in range(len(solutions)):
-            output.write(list_to_string(solutions[i]) + "\n")
+    puzzles = input.readlines()
+    for puzzle in puzzles:
+        s = process_puzzle(puzzle, boxsize)
+        output.write(dict_to_sudoku_string(s) + "\n")
 

@@ -2,7 +2,7 @@
 
 import sudoku
 
-c = sudoku.make_sudoku_constraint("1234432131422410")
+c = sudoku.make_sudoku_constraint("1234432131422410",2)
 
 assert sudoku.cells(2)==[1 ,2 ,3 ,4,
                          5 ,6 ,7 ,8,
