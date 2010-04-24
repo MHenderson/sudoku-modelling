@@ -5,13 +5,7 @@ from math import sqrt, floor
 from random import choice, randrange, seed
 
 def convert_to_sage(number_string):
-    answer = ""
-    for x in range(len(number_string)):
-        if number_string[x] == "0":
-            answer = answer + "."
-        else:
-            answer = answer + number_string[x]
-    return answer
+    return number_string.replace('0','.')
 
 def n_rows(boxsize): return boxsize**2
 def n_cols(boxsize): return boxsize**2
