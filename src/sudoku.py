@@ -19,7 +19,7 @@ def cells(boxsize): return range(1, n_cells(boxsize) + 1)
 def symbols(boxsize): return range(1, n_rows(boxsize) + 1)
 
 def top_left_cells(boxsize): 
-    """List of cell labels of top-left cell of each box. """
+    """List of cell labels of top-left cell of each box."""
     return [cell(i,j,boxsize) for i in range(1,n_rows(boxsize),boxsize) for j in range(1,n_cols(boxsize),boxsize)]
 
 def rows(boxsize):
@@ -109,7 +109,7 @@ def list_to_string(list):
 def process_puzzle(puzzle, boxsize):
     """Constraint processing strategy."""
     p = make_sudoku_constraint(puzzle, boxsize)
-    return p.getSolution()
+    return dict_to_sudoku_string(p.getSolution())
 
 def solve_from_file(infile, outfile, boxsize):
     """Gets all solutions for all items provided in a file."""
@@ -118,5 +118,5 @@ def solve_from_file(infile, outfile, boxsize):
     puzzles = input.readlines()
     for puzzle in puzzles:
         s = process_puzzle(puzzle, boxsize)
-        output.write(dict_to_sudoku_string(s) + "\n")
+        output.write(s + "\n")
 
