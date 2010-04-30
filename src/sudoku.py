@@ -3,6 +3,8 @@
 from constraint import *
 from math import sqrt, floor
 from random import choice, randrange, seed
+import itertools
+import networkx
 
 def convert_to_sage(number_string):
     """Conversion of Sudoku puzzle strings.
@@ -119,4 +121,20 @@ def solve_from_file(infile, outfile, boxsize):
     for puzzle in puzzles:
         s = process_puzzle(puzzle, boxsize)
         output.write(s + "\n")
+
+def add_all_edges(graph, vertices):
+    """Adds all edges between nodes in 'vertices' to 'graph'."""
+    graph.add_edges_from(itertools.combinations(vertices, 2))
+
+def empty_sudoku_graph(boxsize):
+    """Create the Sudoku graph of dimension 'boxsize'."""
+    g = networkx.Graph()
+    g.add_nodes_from(cells(boxsize))
+    for vertices in rows(boxsize):
+        add_all_edges(g, vertices)
+    for vertices in cols(boxsize):
+        add_all_edges(g, vertices)
+    for vertices in boxes(boxsize):
+        add_all_edges(g, vertices)
+    return g
 
