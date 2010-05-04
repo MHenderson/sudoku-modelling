@@ -166,14 +166,18 @@ def add_all_edges(graph, vertices):
 def empty_sudoku_graph(boxsize):
     """empty_sudoku_graph(boxsize) -> networkx.Graph
 
-    Returns the Sudoku graph of dimension 'boxsize'."""
+    Returns the Sudoku graph of dimension 'boxsize'.
+    
+    >>> g = empty_sudoku_graph(3)
+    >>> g = empty_sudoku_graph(4)"""
+    
     g = networkx.Graph()
     g.add_nodes_from(cells(boxsize))
-    for vertices in rows(boxsize):
-        add_all_edges(g, vertices)
-    for vertices in cols(boxsize):
-        add_all_edges(g, vertices)
-    for vertices in boxes(boxsize):
+    for vertices in rows(boxsize) + cols(boxsize) + boxes(boxsize):
         add_all_edges(g, vertices)
     return g
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
 
