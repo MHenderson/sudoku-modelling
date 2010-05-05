@@ -5,6 +5,7 @@ from math import sqrt, floor
 from random import choice, randrange, seed
 import itertools
 import networkx
+import sympy
 
 def convert_to_sage(number_string):
     """convert_to_sage(number_string) -> string
@@ -176,6 +177,31 @@ def empty_sudoku_graph(boxsize):
     for vertices in rows(boxsize) + cols(boxsize) + boxes(boxsize):
         add_all_edges(g, vertices)
     return g
+
+def F(x, boxsize):
+    limit = n_rows(boxsize)
+    return reduce(lambda x,y: x*y, [(x - i) for i in range(1, limit + 1)])
+
+def G(x, y, boxsize):
+    return (F(x, boxsize) - F(y, boxsize))/(x - y)
+
+def something(symbols):
+    return itertools.combinations(symbols,2)
+
+def adjacent_symbols(boxsize):
+    result = []
+    for vertices in rows(boxsize) + cols(boxsize) + boxes(boxsize):
+        # Here I need the symbols : e.g. [x4,x5,x6,x7] not [4,5,6,7]
+        result += something(vertices)
+    return result
+
+def polynomial_system(boxsize):
+    symbol_names = ['x' + str(cell) for cell in cells(boxsize)]
+    symbols = [sympy.Symbol(name) for name in symbol_names]
+    node_polynomials = [F(x, boxsize) for x in symbols]
+    edge_polynomials = [G(x, y, boxsize) for (x,y) in adjacent_symbols(boxsize)]
+#    return node_polynomials + edge_polynomials
+    return edge_polynomials
 
 if __name__ == "__main__":
     import doctest
