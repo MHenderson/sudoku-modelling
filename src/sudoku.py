@@ -183,16 +183,14 @@ def F(x, boxsize):
     return reduce(lambda x,y: x*y, [(x - i) for i in range(1, limit + 1)])
 
 def G(x, y, boxsize):
-    return (F(x, boxsize) - F(y, boxsize))/(x - y)
-
-def something(symbols):
-    return itertools.combinations(symbols,2)
+    return sympy.cancel((F(x, boxsize) - F(y, boxsize))/(x - y))
 
 def adjacent_symbols(boxsize):
     result = []
-    for vertices in rows(boxsize) + cols(boxsize) + boxes(boxsize):
-        # Here I need the symbols : e.g. [x4,x5,x6,x7] not [4,5,6,7]
-        result += something(vertices)
+    vertices = rows(boxsize) + cols(boxsize) + boxes(boxsize)
+    symbols = [[sympy.Symbol('x' + str(i)) for i in j] for j in vertices]
+    for symbol in symbols:
+        result += itertools.combinations(symbol,2)
     return result
 
 def polynomial_system(boxsize):
@@ -200,8 +198,7 @@ def polynomial_system(boxsize):
     symbols = [sympy.Symbol(name) for name in symbol_names]
     node_polynomials = [F(x, boxsize) for x in symbols]
     edge_polynomials = [G(x, y, boxsize) for (x,y) in adjacent_symbols(boxsize)]
-#    return node_polynomials + edge_polynomials
-    return edge_polynomials
+    return node_polynomials + edge_polynomials
 
 if __name__ == "__main__":
     import doctest
