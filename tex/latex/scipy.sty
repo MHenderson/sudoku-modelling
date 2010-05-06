@@ -12,6 +12,8 @@
 \lstset{language=Python,
      keywordstyle=\color{keywords},
      commentstyle=\color{comments}emph}
+\usepackage[american]{isodate}
+\dateinputformat{american}
 
 % --------------------------------------------
 % Investigators
@@ -22,6 +24,16 @@
 \newcommand{\Matthew}{Matthew Henderson}
 
 \newcommand{\Us}{\Sean, \Matthew, \Andrew}
+
+% --------------------------------------------
+% Conference
+% --------------------------------------------
+
+\newcommand{\conferencename}{SciPy 2010}
+\newcommand{\conferencelongname}{Python for Scientific Computing Conference}
+\newcommand{\conferencedates}{\daterange{6/28/2010}{7/3/2010}}
+\newcommand{\conferencebanner}{\conferencename \\ \conferencelongname \\ \conferencedates}
+\newcommand{\talkdate}{\printdate{6/30/2010}}
 
 % --------------------------------------------
 % Titles

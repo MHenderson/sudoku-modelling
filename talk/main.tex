@@ -2,19 +2,23 @@
 \input{packages}
 \title{\talktitle}
 \author{\Us}
-\date{\today}
+\date{\talkdate}
 
 \begin{document}
 
-\frame{\titlepage}
+\begin{frame}
+  \titlepage
+  \conferencebanner
+\end{frame}
 
 \section[Outline]{}
-\frame{\tableofcontents}
+\begin{frame}
+  \tableofcontents
+\end{frame}
 
 \section{Introduction}
 \subsection{XXXX}
-\frame
-{
+\begin{frame}
   \frametitle{XXX}
 
   \begin{itemize}
@@ -22,12 +26,11 @@
   \item<2-> XXX
   \item<3-> XXX      
   \end{itemize}
-}
+\end{frame}
 
-\frame
-{
+\begin{frame}
   \sudokuexampleone
-}
+\end{frame}
 
 \begin{frame}[fragile]
 \frametitle{A Page}
