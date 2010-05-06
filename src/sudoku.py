@@ -158,11 +158,15 @@ def solve_from_file(infile, outfile, boxsize):
         s = process_puzzle(puzzle, boxsize)
         output.write(s + "\n")
 
-def add_all_edges(graph, vertices):
-    """add_all_edges(graph, vertices)
+def ordered_pairs(range):
+    return itertools.combinations(range, 2)
 
-    Adds all edges between nodes in 'vertices' to 'graph'."""
-    graph.add_edges_from(itertools.combinations(vertices, 2))
+def flatten(list_of_lists):
+    "Flatten one level of nesting"
+    return itertools.chain.from_iterable(list_of_lists)
+
+def dependent_cells(boxsize):
+    return list(flatten(map(list,map(ordered_pairs, rows(boxsize) + cols(boxsize) + boxes(boxsize)))))
 
 def empty_sudoku_graph(boxsize):
     """empty_sudoku_graph(boxsize) -> networkx.Graph
@@ -174,8 +178,7 @@ def empty_sudoku_graph(boxsize):
     
     g = networkx.Graph()
     g.add_nodes_from(cells(boxsize))
-    for vertices in rows(boxsize) + cols(boxsize) + boxes(boxsize):
-        add_all_edges(g, vertices)
+    g.add_edges_from(dependent_cells(boxsize))
     return g
 
 def F(x, boxsize):
