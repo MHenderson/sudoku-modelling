@@ -197,7 +197,7 @@ def node_polynomial(x, boxsize):
     return reduce(lambda x,y: x*y, [(x - i) for i in range(1, n_rows(boxsize) + 1)])
 
 def edge_polynomial(x, y, boxsize):
-    return sympy.cancel((F(x, boxsize) - F(y, boxsize))/(x - y))
+    return sympy.cancel((node_polynomial(x, boxsize) - node_polynomial(y, boxsize))/(x - y))
 
 def node_polynomials(boxsize):
     return [node_polynomial(x, boxsize) for x in symbols(boxsize)]
