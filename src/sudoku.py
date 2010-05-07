@@ -181,25 +181,32 @@ def empty_sudoku_graph(boxsize):
     g.add_edges_from(dependent_cells(boxsize))
     return g
 
-def F(x, boxsize):
-    limit = n_rows(boxsize)
-    return reduce(lambda x,y: x*y, [(x - i) for i in range(1, limit + 1)])
+def symbol_names(boxsize):
+    return map(lambda cell:'x' + str(cell), cells(boxsize))
 
-def G(x, y, boxsize):
-    return sympy.cancel((F(x, boxsize) - F(y, boxsize))/(x - y))
+def symbols(boxsize):
+    return map(sympy.Symbol, symbol_names(boxsize))
 
-def symbolize(x):
-    return (sympy.Symbol('x' + str(x[0])),sympy.Symbol('x' + str(x[1])))
+def symbolize(pair):
+    return (sympy.Symbol('x' + str(pair[0])),sympy.Symbol('x' + str(pair[1])))
 
-def adjacent_symbols(boxsize):
+def dependent_symbols(boxsize):
     return map(symbolize, dependent_cells(boxsize))
 
+def node_polynomial(x, boxsize):
+    return reduce(lambda x,y: x*y, [(x - i) for i in range(1, n_rows(boxsize) + 1)])
+
+def edge_polynomial(x, y, boxsize):
+    return sympy.cancel((F(x, boxsize) - F(y, boxsize))/(x - y))
+
+def node_polynomials(boxsize):
+    return [node_polynomial(x, boxsize) for x in symbols(boxsize)]
+
+def edge_polynomials(boxsize):
+    return [edge_polynomial(x, y, boxsize) for (x,y) in dependent_symbols(boxsize)]
+
 def polynomial_system(boxsize):
-    symbol_names = ['x' + str(cell) for cell in cells(boxsize)]
-    symbols = [sympy.Symbol(name) for name in symbol_names]
-    node_polynomials = [F(x, boxsize) for x in symbols]
-    edge_polynomials = [G(x, y, boxsize) for (x,y) in adjacent_symbols(boxsize)]
-    return node_polynomials + edge_polynomials
+    return node_polynomials(boxsize) + edge_polynomials(boxsize)
 
 if __name__ == "__main__":
     import doctest
