@@ -188,13 +188,11 @@ def F(x, boxsize):
 def G(x, y, boxsize):
     return sympy.cancel((F(x, boxsize) - F(y, boxsize))/(x - y))
 
+def symbolize(x):
+    return (sympy.Symbol('x' + str(x[0])),sympy.Symbol('x' + str(x[1])))
+
 def adjacent_symbols(boxsize):
-    result = []
-    vertices = rows(boxsize) + cols(boxsize) + boxes(boxsize)
-    symbols = [[sympy.Symbol('x' + str(i)) for i in j] for j in vertices]
-    for symbol in symbols:
-        result += itertools.combinations(symbol,2)
-    return result
+    return map(symbolize, dependent_cells(boxsize))
 
 def polynomial_system(boxsize):
     symbol_names = ['x' + str(cell) for cell in cells(boxsize)]
