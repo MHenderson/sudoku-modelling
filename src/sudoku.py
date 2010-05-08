@@ -64,7 +64,7 @@ def boxes(boxsize):
     return [[i+j+k for j in range(0,boxsize*nr,nc) for k in range(0,boxsize)] for i in top_left_cells(boxsize)]
 
 def dependent_cells(boxsize):
-    return list(flatten(map(list,map(ordered_pairs, rows(boxsize) + cols(boxsize) + boxes(boxsize)))))
+    return list(set(flatten(map(list,map(ordered_pairs, rows(boxsize) + cols(boxsize) + boxes(boxsize))))))
 
 ####################################################################
 # String handling
@@ -212,8 +212,17 @@ def node_polynomials(boxsize):
 def edge_polynomials(boxsize):
     return [edge_polynomial(x, y, boxsize) for (x,y) in dependent_symbols(boxsize)]
 
-def polynomial_system(boxsize):
+def polynomial_system_empty(boxsize):
     return node_polynomials(boxsize) + edge_polynomials(boxsize)
+
+def fixed_cell_polynomial(cell, symbol):
+    return sympy.Symbol('x' + str(cell)) - symbol
+
+def fixed_cells_polynomials(cell_symbol_pairs):
+    return [fixed_cell_polynomial(p[0],p[1]) for p in cell_symbol_pairs]
+
+def polynomial_system(boxsize, cell_symbol_pairs):
+    return polynomial_system_empty(boxsize) + fixed_cells_polynomials(cell_symbol_pairs)
 
 ####################################################################
 # File handling
