@@ -181,10 +181,10 @@ def empty_sudoku_graph(boxsize):
     g.add_edges_from(dependent_cells(boxsize))
     return g
 
-def symbol_names(boxsize):
+def cell_symbol_names(boxsize):
     return map(lambda cell:'x' + str(cell), cells(boxsize))
 
-def symbols(boxsize):
+def cell_symbols(boxsize):
     return map(sympy.Symbol, symbol_names(boxsize))
 
 def symbolize(pair):
@@ -200,7 +200,7 @@ def edge_polynomial(x, y, boxsize):
     return sympy.cancel((node_polynomial(x, boxsize) - node_polynomial(y, boxsize))/(x - y))
 
 def node_polynomials(boxsize):
-    return [node_polynomial(x, boxsize) for x in symbols(boxsize)]
+    return [node_polynomial(x, boxsize) for x in cell_symbols(boxsize)]
 
 def edge_polynomials(boxsize):
     return [edge_polynomial(x, y, boxsize) for (x,y) in dependent_symbols(boxsize)]
