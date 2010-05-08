@@ -7,12 +7,9 @@ import itertools
 import networkx
 import sympy
 
-def convert_to_sage(number_string):
-    """convert_to_sage(number_string) -> string
-
-    Returns a converted sudoku puzzle string.
-    After conversion an empty cell is represented by period instead of 0."""
-    return number_string.replace('0','.')
+####################################################################
+# Basic parameters
+####################################################################
 
 def n_rows(boxsize): return boxsize**2
 def n_cols(boxsize): return boxsize**2
@@ -21,6 +18,21 @@ def n_cells(boxsize): return n_rows(boxsize)*n_cols(boxsize)
 def cell(i,j,boxsize): return (i-1)*n_rows(boxsize) + j
 def cells(boxsize): return range(1, n_cells(boxsize) + 1)
 def symbols(boxsize): return range(1, n_rows(boxsize) + 1)
+
+####################################################################
+# Convenient functions
+####################################################################
+
+def ordered_pairs(range):
+    return itertools.combinations(range, 2)
+
+def flatten(list_of_lists):
+    "Flatten one level of nesting"
+    return itertools.chain.from_iterable(list_of_lists)
+
+####################################################################
+# Cell dependencies
+####################################################################
 
 def top_left_cells(boxsize): 
     """top_left_cells(boxsize) -> list
@@ -50,6 +62,33 @@ def boxes(boxsize):
     nr = n_rows(boxsize)
     nc = n_cols(boxsize)
     return [[i+j+k for j in range(0,boxsize*nr,nc) for k in range(0,boxsize)] for i in top_left_cells(boxsize)]
+
+def dependent_cells(boxsize):
+    return list(flatten(map(list,map(ordered_pairs, rows(boxsize) + cols(boxsize) + boxes(boxsize)))))
+
+####################################################################
+# String handling
+####################################################################
+
+def convert_to_sage(number_string):
+    """convert_to_sage(number_string) -> string
+
+    Returns a converted sudoku puzzle string.
+    After conversion an empty cell is represented by period instead of 0."""
+    return number_string.replace('0','.')
+
+def dict_to_sudoku_string(solution):
+    """dict_to_sudoku_string(solution) -> string
+
+    Returns a puzzle string converted from the 'solution' dictionary."""
+    string = ""
+    for x in range(1, len(solution)+1):
+        string = string + str(solution[x])
+    return string
+
+####################################################################
+# Constraint models
+####################################################################
 
 def add_row_constraints(problem, boxsize):
     """add_row_constraints(problem, boxsize)
@@ -109,15 +148,6 @@ def random_puzzle(boxsize, solution, fixed):
         indices.remove(c)
     return puzzle(boxsize, solution)
 	
-def dict_to_sudoku_string(solution):
-    """dict_to_sudoku_string(solution) -> string
-
-    Returns a puzzle string converted from the 'solution' dictionary."""
-    string = ""
-    for x in range(1, len(solution)+1):
-        string = string + str(solution[x])
-    return string
-
 def make_sudoku_constraint(number_string, boxsize):
     """make_sudoku_constraint(number_string, boxsize) -> constraint.Problem
 
@@ -129,16 +159,6 @@ def make_sudoku_constraint(number_string, boxsize):
             p.addConstraint(ExactSumConstraint(int(number_string[x])), [x+1])
     return p
 	
-def list_to_string(list):
-    """list_to_string(list) -> string
-
-    Returns the string representation of 'list'.
-    Implemented since the dancing links algorithm returns a list."""
-    output = ""
-    for i in range(len(list)):
-        output += str(list[i])
-    return output
-
 def process_puzzle(puzzle, boxsize):
     """process_puzzle(puzzle, boxsize) -> string
 
@@ -147,26 +167,9 @@ def process_puzzle(puzzle, boxsize):
     p = make_sudoku_constraint(puzzle, boxsize)
     return dict_to_sudoku_string(p.getSolution())
 
-def solve_from_file(infile, outfile, boxsize):
-    """solve_from_file(infile, outfile, boxsize)
-
-    Outputs solutions to puzzles in file 'infile' to file 'outfile'."""
-    input = open(infile, 'r')
-    output = open(outfile, 'w')
-    puzzles = input.readlines()
-    for puzzle in puzzles:
-        s = process_puzzle(puzzle, boxsize)
-        output.write(s + "\n")
-
-def ordered_pairs(range):
-    return itertools.combinations(range, 2)
-
-def flatten(list_of_lists):
-    "Flatten one level of nesting"
-    return itertools.chain.from_iterable(list_of_lists)
-
-def dependent_cells(boxsize):
-    return list(flatten(map(list,map(ordered_pairs, rows(boxsize) + cols(boxsize) + boxes(boxsize)))))
+####################################################################
+# Graph models
+####################################################################
 
 def empty_sudoku_graph(boxsize):
     """empty_sudoku_graph(boxsize) -> networkx.Graph
@@ -180,6 +183,10 @@ def empty_sudoku_graph(boxsize):
     g.add_nodes_from(cells(boxsize))
     g.add_edges_from(dependent_cells(boxsize))
     return g
+
+####################################################################
+# Polynomial system models
+####################################################################
 
 def cell_symbol_names(boxsize):
     return map(lambda cell:'x' + str(cell), cells(boxsize))
@@ -207,6 +214,21 @@ def edge_polynomials(boxsize):
 
 def polynomial_system(boxsize):
     return node_polynomials(boxsize) + edge_polynomials(boxsize)
+
+####################################################################
+# File handling
+####################################################################
+
+def solve_from_file(infile, outfile, boxsize):
+    """solve_from_file(infile, outfile, boxsize)
+
+    Outputs solutions to puzzles in file 'infile' to file 'outfile'."""
+    input = open(infile, 'r')
+    output = open(outfile, 'w')
+    puzzles = input.readlines()
+    for puzzle in puzzles:
+        s = process_puzzle(puzzle, boxsize)
+        output.write(s + "\n")
 
 if __name__ == "__main__":
     import doctest
