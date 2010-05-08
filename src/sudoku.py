@@ -184,6 +184,26 @@ def empty_sudoku_graph(boxsize):
     g.add_edges_from(dependent_cells(boxsize))
     return g
 
+def neighboring_colors(graph, node):
+    colors = []
+    for node in graph.neighbors(node):
+        color = graph.node[node].get('color')
+        if color is not None:
+            colors.append(color)
+    return colors
+
+def first_available_color(graph, node):
+    used_colors = neighboring_colors(graph, node)
+    if len(used_colors)==0:
+        return 1
+    else:
+        return max(used_colors) + 1
+
+def greedy_vertex_coloring(graph, nodes):
+    for node in nodes:
+        graph.node[node]['color']=first_available_color(graph, node)
+    return graph
+
 ####################################################################
 # Polynomial system models
 ####################################################################
