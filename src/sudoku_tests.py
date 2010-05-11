@@ -4,11 +4,12 @@ import sudoku
 
 c = sudoku.make_sudoku_constraint("1234432131422410",2)
 
+assert sudoku.cells(0)==[]
+assert sudoku.cells(1)==[1]
 assert sudoku.cells(2)==[1 ,2 ,3 ,4,
                          5 ,6 ,7 ,8,
                          9 ,10,11,12,
                          13,14,15,16]
-
 assert sudoku.cells(3)==[1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 , 9,
                          10,11,12,13,14,15,16,17,18,
                          19,20,21,22,23,24,25,26,27,
@@ -19,16 +20,18 @@ assert sudoku.cells(3)==[1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 , 9,
                          64,65,66,67,68,69,70,71,72,
                          73,74,75,76,77,78,79,80,81]
 
+assert sudoku.symbols(0)==[]
+assert sudoku.symbols(1)==[1]
 assert sudoku.symbols(2)==[1,2,3,4]
 assert sudoku.symbols(3)==[1,2,3,4,5,6,7,8,9]
 
+assert sudoku.top_left_cells(1)==[]
 assert sudoku.top_left_cells(2)==[1,3,9,11]
 assert sudoku.top_left_cells(3)==[1,4,7,28,31,34,55,58,61]
 
+assert sudoku.rows(0)==[]
+assert sudoku.rows(1)==[[1]]
 assert sudoku.rows(2)==[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]
-assert sudoku.cols(2)==[[1,5,9,13],[2,6,10,14],[3,7,11,15],[4,8,12,16]]
-assert sudoku.boxes(2)==[[1,2,5,6],[3,4,7,8],[9,10,13,14],[11,12,15,16]]
-
 assert sudoku.rows(3)==[[1, 2, 3, 4, 5, 6, 7, 8, 9], 
                         [10, 11, 12, 13, 14, 15, 16, 17, 18], 
                         [19, 20, 21, 22, 23, 24, 25, 26, 27], 
@@ -39,6 +42,9 @@ assert sudoku.rows(3)==[[1, 2, 3, 4, 5, 6, 7, 8, 9],
                         [64, 65, 66, 67, 68, 69, 70, 71, 72], 
                         [73, 74, 75, 76, 77, 78, 79, 80, 81]]
 
+assert sudoku.cols(0)==[]
+assert sudoku.cols(1)==[[1]]
+assert sudoku.cols(2)==[[1,5,9,13],[2,6,10,14],[3,7,11,15],[4,8,12,16]]
 assert sudoku.cols(3)==[[1, 10, 19, 28, 37, 46, 55, 64, 73], 
                         [2, 11, 20, 29, 38, 47, 56, 65, 74], 
                         [3, 12, 21, 30, 39, 48, 57, 66, 75], 
@@ -49,6 +55,8 @@ assert sudoku.cols(3)==[[1, 10, 19, 28, 37, 46, 55, 64, 73],
                         [8, 17, 26, 35, 44, 53, 62, 71, 80], 
                         [9, 18, 27, 36, 45, 54, 63, 72, 81]]
 
+assert sudoku.boxes(1)==[]
+assert sudoku.boxes(2)==[[1,2,5,6],[3,4,7,8],[9,10,13,14],[11,12,15,16]]
 assert sudoku.boxes(3)==[[1, 2, 3, 10, 11, 12, 19, 20, 21], 
                          [4, 5, 6, 13, 14, 15, 22, 23, 24], 
                          [7, 8, 9, 16, 17, 18, 25, 26, 27], 
@@ -59,12 +67,12 @@ assert sudoku.boxes(3)==[[1, 2, 3, 10, 11, 12, 19, 20, 21],
                          [58, 59, 60, 67, 68, 69, 76, 77, 78], 
                          [61, 62, 63, 70, 71, 72, 79, 80, 81]]
 
+assert sudoku.cell_symbol_names(0)==[]
+assert sudoku.cell_symbol_names(1)==['x1']
 assert sudoku.cell_symbol_names(2)==['x1', 'x2', 'x3', 'x4',
                                      'x5', 'x6', 'x7', 'x8',
                                      'x9', 'x10','x11','x12',
                                      'x13','x14','x15','x16']
-
-
 assert sudoku.cell_symbol_names(3)==[
                          'x1','x2','x3','x4','x5','x6','x7','x8','x9',
                          'x10','x11','x12','x13','x14','x15','x16','x17','x18',
