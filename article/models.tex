@@ -1,12 +1,20 @@
 \subsection{Constraint models}
 \label{sec:models:constraints}
 
-Constraint models for Sudoku puzzles are discussed in \cite{simonissudoku}. The simplest model uses the alldifferent constraint.
+Constraint models for Sudoku puzzles are discussed in \cite{simonissudoku}. The simplest model uses the \verb!all_different! constraint.
 
 \subsection{Graph models}
 \label{sec:models:graph}
 
 A graph model for Sudoku is presented in \cite{gagovargaset}. In this model, every cell of the Sudoku grid is represented by a vertex. The edges of the graph are given by the cell dependency relations. In other words, if two cells lie in the same row, column or box, then their vertices are joined by an edge in the graph model.
+
+\begin{figure}[h]
+\centering
+\begin{dot2tex}[circo,mathmode,options={--graphstyle "scale=0.40"}]
+  \input{./dot/empty_sudoku_graph_2.dot}
+\end{dot2tex}
+\caption{The Shidoku graph}
+\end{figure}
 
 \subsection{Polynomial system models}
 \label{sec:models:polynomials}
