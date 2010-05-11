@@ -197,21 +197,21 @@ def n_colors(graph):
 
 class FirstAvailableColorStrategy():
 
-    def least_missing(colors):
+    def least_missing(self, colors):
         colors.sort()
         for color in colors:
             if color + 1 not in colors:
                 return color + 1
 
-    def first_available_color(graph, node):
+    def first_available_color(self, graph, node):
         used_colors = neighboring_colors(graph, node)
         if len(used_colors) == 0:
             return 1
         else:
-            return least_missing(used_colors)
+            return self.least_missing(used_colors)
 
     def __call__(self, graph, node):
-        return first_available_color(graph, node)
+        return self.first_available_color(graph, node)
 
 def greedy_vertex_coloring(graph, nodes, choose_color = FirstAvailableColorStrategy()):
     for node in nodes:
