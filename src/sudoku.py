@@ -159,14 +159,6 @@ def make_sudoku_constraint(number_string, boxsize):
             p.addConstraint(ExactSumConstraint(int(number_string[x])), [x+1])
     return p
 	
-def process_puzzle(puzzle, boxsize):
-    """process_puzzle(puzzle, boxsize) -> string
-
-    Returns a solved Sudoku puzzle string from the Sudoku string 'puzzle'.
-    Constraint processing strategy."""
-    p = make_sudoku_constraint(puzzle, boxsize)
-    return dict_to_sudoku_string(p.getSolution())
-
 ####################################################################
 # Graph models
 ####################################################################
@@ -223,40 +215,77 @@ def greedy_vertex_coloring(graph, nodes, choose_color = FirstAvailableColorStrat
 ####################################################################
 
 def cell_symbol_names(boxsize):
+    """The names of symbols (e.g. cell 1 has name 'x1') used in the polynomial
+    representation."""
     return map(lambda cell:'x' + str(cell), cells(boxsize))
 
 def cell_symbols(boxsize):
-    return map(sympy.Symbol, symbol_names(boxsize))
+    """The cells as symbols."""
+    return map(sympy.Symbol, cell_symbol_names(boxsize))
 
 def symbolize(pair):
+    """Turn a pair of symbol names into a pair of symbols."""
     return (sympy.Symbol('x' + str(pair[0])),sympy.Symbol('x' + str(pair[1])))
 
 def dependent_symbols(boxsize):
+    """The list of pairs of dependent cells as symbol pairs."""
     return map(symbolize, dependent_cells(boxsize))
 
 def node_polynomial(x, boxsize):
+    """The polynomial representing a cell corresponding to symbol 'x'."""
     return reduce(lambda x,y: x*y, [(x - i) for i in range(1, n_rows(boxsize) + 1)])
 
 def edge_polynomial(x, y, boxsize):
+    """The polynomials representing the dependency of cells corresponding to
+    symbols 'x' and 'y'."""
     return sympy.cancel((node_polynomial(x, boxsize) - node_polynomial(y, boxsize))/(x - y))
 
 def node_polynomials(boxsize):
+    """All cell polynomials."""
     return [node_polynomial(x, boxsize) for x in cell_symbols(boxsize)]
 
 def edge_polynomials(boxsize):
+    """All dependency polynomials."""
     return [edge_polynomial(x, y, boxsize) for (x,y) in dependent_symbols(boxsize)]
 
 def polynomial_system_empty(boxsize):
+    """The polynomial system for an empty Sudoku puzzle of dimension 
+    'boxsize'."""
     return node_polynomials(boxsize) + edge_polynomials(boxsize)
 
 def fixed_cell_polynomial(cell, symbol):
+    """A polynomial representing the assignment of symbol 'symbol' to the cell
+    'cell'."""
     return sympy.Symbol('x' + str(cell)) - symbol
 
 def fixed_cells_polynomials(cell_symbol_pairs):
+    """Polynomials representing assignments of symbols to cells given as pairs
+    in 'cell_symbol_pairs'."""
     return [fixed_cell_polynomial(p[0],p[1]) for p in cell_symbol_pairs]
 
 def polynomial_system(boxsize, cell_symbol_pairs):
+    """Polynomial system for Sudoku puzzle of dimension 'boxsize' with fixed
+    cells given by 'cell_symbol_pairs'.
+
+    >>> fixed = [(1,1), (2,2), (3,3), (4,4),
+    ...          (5,3), (6,4), (7,1), (8,2),
+    ...          (9,2), (10,1),(11,4),(12,3),
+    ...          (13,4),(14,3),(15,2)]
+    >>> p = polynomial_system(2,fixed)
+    >>> import sympy
+    >>> g = sympy.groebner(p,cell_symbols(2),order='lex') """
     return polynomial_system_empty(boxsize) + fixed_cells_polynomials(cell_symbol_pairs)
+
+####################################################################
+# Puzzle processing strategies
+####################################################################
+
+def process_puzzle(puzzle, boxsize):
+    """process_puzzle(puzzle, boxsize) -> string
+
+    Constraint processing strategy."""
+    p = make_sudoku_constraint(puzzle, boxsize)
+    return dict_to_sudoku_string(p.getSolution())
 
 ####################################################################
 # File handling
@@ -272,6 +301,10 @@ def solve_from_file(infile, outfile, boxsize):
     for puzzle in puzzles:
         s = process_puzzle(puzzle, boxsize)
         output.write(s + "\n")
+
+####################################################################
+# Main entry point
+####################################################################
 
 if __name__ == "__main__":
     import doctest
