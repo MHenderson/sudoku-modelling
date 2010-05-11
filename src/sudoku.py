@@ -192,16 +192,30 @@ def neighboring_colors(graph, node):
             colors.append(color)
     return colors
 
-def first_available_color(graph, node):
-    used_colors = neighboring_colors(graph, node)
-    if len(used_colors)==0:
-        return 1
-    else:
-        return max(used_colors) + 1
+def n_colors(graph):
+    return len(set([graph.node[i]['color'] for i in graph.nodes()]))
 
-def greedy_vertex_coloring(graph, nodes):
+class FirstAvailableColorStrategy():
+
+    def least_missing(colors):
+        colors.sort()
+        for color in colors:
+            if color + 1 not in colors:
+                return color + 1
+
+    def first_available_color(graph, node):
+        used_colors = neighboring_colors(graph, node)
+        if len(used_colors) == 0:
+            return 1
+        else:
+            return least_missing(used_colors)
+
+    def __call__(self, graph, node):
+        return first_available_color(graph, node)
+
+def greedy_vertex_coloring(graph, nodes, choose_color = FirstAvailableColorStrategy()):
     for node in nodes:
-        graph.node[node]['color']=first_available_color(graph, node)
+        graph.node[node]['color'] = choose_color(graph, node)
     return graph
 
 ####################################################################
