@@ -1,9 +1,10 @@
 # Sean Davis, Matthew Henderson, Andrew Smith (Berea) 4.1.2010
 
-from constraint import *
 from math import sqrt, floor
 from random import choice, randrange, seed
 import itertools
+
+from constraint import Problem, AllDifferentConstraint, ExactSumConstraint
 import networkx
 import sympy
 
@@ -81,10 +82,12 @@ def dict_to_sudoku_string(solution):
     """dict_to_sudoku_string(solution) -> string
 
     Returns a puzzle string converted from the 'solution' dictionary."""
-    string = ""
-    for x in range(1, len(solution)+1):
-        string = string + str(solution[x])
-    return string
+    return "".join(map(str, solution.values()))
+
+def print_puzzle(puzzle_string, boxsize):
+    nc = n_cols(boxsize)
+    for row in range(n_rows(boxsize)):
+        print puzzle_string[row*nc:(row + 1)*nc].replace('', ' ')
 
 ####################################################################
 # Constraint models
@@ -129,9 +132,8 @@ def puzzle(boxsize, clues):
     Returns a constraint problem representing a Sudoku puzzle, where the fixed
     cells are specified by 'clues' dictionary."""
     p = empty_puzzle(boxsize)
-    for x in range(1, len(clues)+1):
-        if clues[x] != 0:
-            p.addConstraint(ExactSumConstraint(clues[x]), [x])
+    for clue in clues:
+        p.addConstraint(ExactSumConstraint(clues[clue]), [clue])
     return p
 
 def random_puzzle(boxsize, solution, fixed):
