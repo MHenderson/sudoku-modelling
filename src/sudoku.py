@@ -84,6 +84,13 @@ def dict_to_sudoku_string(solution):
     Returns a puzzle string converted from the 'solution' dictionary."""
     return "".join(map(str, solution.values()))
 
+def sudoku_string_to_dict(puzzle):
+    d = {}
+    for i in range(len(puzzle)):
+        if puzzle[i] != '.':
+            d[i+1]=int(puzzle[i])
+    return d
+
 def print_puzzle(puzzle_string, boxsize):
     nc = n_cols(boxsize)
     for row in range(n_rows(boxsize)):
@@ -150,17 +157,13 @@ def random_puzzle(boxsize, solution, fixed):
         indices.remove(c)
     return puzzle(boxsize, solution)
 	
-def make_sudoku_constraint(number_string, boxsize):
-    """make_sudoku_constraint(number_string, boxsize) -> constraint.Problem
+def make_sudoku_constraint(puzzle_string, boxsize):
+    """make_sudoku_constraint(puzzle_string, boxsize) -> constraint.Problem
 
     Returns a constraint problem representing a Sudoku puzzle from the 
-    'number_string' Sudoku puzzle string."""
-    p = empty_puzzle(boxsize)
-    for x in range(n_cells(boxsize)):
-        if number_string[x] != "0":
-            p.addConstraint(ExactSumConstraint(int(number_string[x])), [x+1])
-    return p
-	
+    'puzzle_string' Sudoku puzzle string."""
+    return puzzle(boxsize, sudoku_string_to_dict(puzzle_string))
+
 ####################################################################
 # Graph models
 ####################################################################
