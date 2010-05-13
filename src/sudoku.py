@@ -210,6 +210,13 @@ def greedy_vertex_coloring(graph, nodes, choose_color = FirstAvailableColorStrat
         graph.node[node]['color'] = choose_color(graph, node)
     return graph
 
+def dimacs_string(graph):
+    s = ""
+    s += "p " + "edge " + str(graph.order()) + " " + str(graph.size()) + "\n"
+    for edge in graph.edges():
+        s += "e " + str(edge[0]) + " " + str(edge[1]) + "\n"
+    return s
+
 ####################################################################
 # Polynomial system models
 ####################################################################
@@ -238,7 +245,7 @@ def node_polynomial(x, boxsize):
 def edge_polynomial(x, y, boxsize):
     """The polynomials representing the dependency of cells corresponding to
     symbols 'x' and 'y'."""
-    return sympy.cancel((node_polynomial(x, boxsize) - node_polynomial(y, boxsize))/(x - y))
+    return sympy.expand(sympy.cancel((node_polynomial(x, boxsize) - node_polynomial(y, boxsize))/(x - y)))
 
 def node_polynomials(boxsize):
     """All cell polynomials."""
@@ -301,6 +308,11 @@ def solve_from_file(infile, outfile, boxsize):
     for puzzle in puzzles:
         s = process_puzzle(puzzle, boxsize)
         output.write(s + "\n")
+
+def dimacs_file(boxsize, outfile):
+    out = open(outfile, 'w')
+    sg = empty_sudoku_graph(boxsize)
+    out.write(dimacs_string(sg))
 
 ####################################################################
 # Main entry point
