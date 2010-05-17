@@ -23,20 +23,20 @@
 \newcommand{\AndrewEmail}{Andrew\_Smith@berea.edu}
 \newcommand{\MatthewEmail}{Matthew\_Henderson@berea.edu}
 
-\newcommand{\BereaAddress}{
+\newcommand{\BereaShortAddress}{
 Department of Mathematics and Computer Science \\
-Berea College \\
+Berea College}
+
+\newcommand{\BereaAddress}{
+\BereaShortAddress \\
 Berea, Ky. 40404, USA }
 
 \newcommand{\Us}{
-\Sean \\
-\SeanEmail
+\Sean 
 \and
-\Matthew  \\
-\MatthewEmail 
+\Matthew 
 \and
-\Andrew \\ 
-\AndrewEmail \\ [1ex]
+\Andrew \\ [1em]
 \BereaAddress}
 
 % --------------------------------------------
@@ -46,7 +46,7 @@ Berea, Ky. 40404, USA }
 \newcommand{\conferencename}{SciPy 2010}
 \newcommand{\conferencelongname}{Python for Scientific Computing Conference}
 \newcommand{\conferencedates}{\daterange{6/28/2010}{7/3/2010}}
-\newcommand{\conferencebanner}{\conferencename \\ \conferencelongname \\ \conferencedates}
+\newcommand{\conferencebanner}{\tiny \conferencename \\ \conferencelongname \\ \conferencedates}
 \newcommand{\talkdate}{\printdate{6/30/2010}}
 
 % --------------------------------------------
@@ -76,9 +76,10 @@ Berea, Ky. 40404, USA }
 
 \newcommand{\librarytable}{
 \begin{tabular}{ l l }
-  Modeling domain   & Library \\ \hline
-  Graph Theory      & networkx \\
-  Polynomial System & sympy \\
-  Constraints       & python-constraint \\
+  Modeling domain    & Python library \\ \hline
+  Constraints        & python-constraint \\
+  Graph Theory       & networkx \\
+  Linear Programming & pyglpk \\
+  Polynomials        & sympy
 \end{tabular}}
 
