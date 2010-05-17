@@ -12,44 +12,50 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Overview}
-
-  \begin{itemize}
+\frametitle{Overview}
+ \begin{itemize}
   \item<1-> Introduction
   \item<2-> Modeling Sudoku in Python
   \item<3-> Experimental results      
-  \end{itemize}
+ \end{itemize}
 \end{frame}
 
 \begin{frame}
- \frametitle{Introduction - Sudoku}
- 
- \sudokuexampleone
+\frametitle{Introduction - Sudoku}
+ \begin{figure}[h]
+  \centering
+  \sudokuexampleone
+  \caption{Sudoku puzzle}
+ \end{figure} 
 \end{frame}
 
 \begin{frame}
- \frametitle{Introduction - Modeling components}
- 
- \librarytable
+\frametitle{Introduction - Modeling components}
+ \begin{figure}[h]
+  \centering
+  \librarytable
+  \caption{Table}
+ \end{figure} 
 \end{frame}
 
 \begin{frame}[fragile]
- \frametitle{Modeling Sudoku in Python}
- 
- \lstinputlisting[firstline=14,lastline=20,frame=tb]{../src/sudoku.py}
+\frametitle{Modeling Sudoku in Python}
+ \begin{figure}[h]
+  \centering
+  \lstinputlisting[firstline=15,lastline=17,frame=tb]{../src/sudoku.py}
+  \caption{Code example}
+ \end{figure} 
 \end{frame}
 
 \begin{frame}[fragile]
- \frametitle{Modeling Sudoku -- Graph Theory}
-
-\begin{figure}[h]
-\centering
-\begin{dot2tex}[circo,mathmode,options={--graphstyle "scale=0.25"}]
-  \input{../dot/empty_sudoku_graph_2.dot}
-\end{dot2tex}
-\caption{The Shidoku graph}
-\end{figure}
- 
+\frametitle{Modeling Sudoku -- Graph Theory}
+ \begin{figure}[h]
+  \centering
+  \begin{dot2tex}[circo,mathmode,options={--graphstyle "scale=0.25"}]
+   \input{../dot/empty_sudoku_graph_2.dot}
+  \end{dot2tex}
+  \caption{The Shidoku graph}
+ \end{figure}
 \end{frame}
 
 \end{document} 
