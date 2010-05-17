@@ -3,6 +3,44 @@
 
 Constraint models for Sudoku puzzles are discussed in \cite{simonissudoku}. The simplest model uses the \verb!all_different! constraint.
 
+\begin{figure}[h]
+\begin{lstlisting}[frame=tb]
+In [39]: p = '25..3.9.1.1...4...4.7...2.8..52.........981...4...3......36..72.7......39.3...6.4'
+
+In [40]: len(p)
+Out[40]: 81
+
+In [41]: sudoku.print_puzzle(p,3)
+ 2 5 . . 3 . 9 . 1 
+ . 1 . . . 4 . . . 
+ 4 . 7 . . . 2 . 8 
+ . . 5 2 . . . . . 
+ . . . . 9 8 1 . . 
+ . 4 . . . 3 . . . 
+ . . . 3 6 . . 7 2 
+ . 7 . . . . . . 3 
+ 9 . 3 . . . 6 . 4 
+
+In [42]: c = sudoku.make_sudoku_constraint(p,3)
+
+In [43]: s = sudoku.dict_to_sudoku_string(c.getSolution())
+
+In [44]: sudoku.print_puzzle(s,3)
+ 2 5 8 7 3 6 9 4 1 
+ 6 1 9 8 2 4 3 5 7 
+ 4 3 7 9 1 5 2 6 8 
+ 3 9 5 2 7 1 4 8 6 
+ 7 6 2 4 9 8 1 3 5 
+ 8 4 1 6 5 3 7 2 9 
+ 1 8 4 3 6 9 5 7 2 
+ 5 7 6 1 4 2 8 9 3 
+ 9 2 3 5 8 7 6 1 4 
+
+In [45]: 
+\end{lstlisting}
+\caption{Solving a Sudoku via constraint model}
+\end{figure}
+
 \subsection{Graph models}
 \label{sec:models:graph}
 
