@@ -161,7 +161,12 @@ def make_sudoku_constraint(puzzle_string, boxsize):
     """make_sudoku_constraint(puzzle_string, boxsize) -> constraint.Problem
 
     Returns a constraint problem representing a Sudoku puzzle from the 
-    'puzzle_string' Sudoku puzzle string."""
+    'puzzle_string' Sudoku puzzle string.
+    
+    >>> p = "79....3.......69..8...3..76.....5..2..54187..4..7.....61..9...8..23.......9....54"
+    >>> c = make_sudoku_constraint(p,3) 
+    >>> s = dict_to_sudoku_string(c.getSolution()) """
+
     return puzzle(boxsize, sudoku_string_to_dict(puzzle_string))
 
 ####################################################################
