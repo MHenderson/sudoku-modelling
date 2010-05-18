@@ -25,6 +25,7 @@ def symbols(boxsize): return range(1, n_rows(boxsize) + 1)
 ####################################################################
 
 def ordered_pairs(range):
+    """All ordered pairs from objects in 'range'."""
     return itertools.combinations(range, 2)
 
 def flatten(list_of_lists):
@@ -65,6 +66,8 @@ def boxes(boxsize):
     return [[i+j+k for j in range(0,boxsize*nr,nc) for k in range(0,boxsize)] for i in top_left_cells(boxsize)]
 
 def dependent_cells(boxsize):
+    """List of all pairs (x, y) with x < y such that x and y either lie in the 
+    same row, same column or same box."""
     return list(set(flatten(map(list,map(ordered_pairs, rows(boxsize) + cols(boxsize) + boxes(boxsize))))))
 
 ####################################################################
@@ -85,6 +88,7 @@ def dict_to_sudoku_string(solution):
     return "".join(map(str, solution.values()))
 
 def sudoku_string_to_dict(puzzle):
+    """Returns a dictionary based on a Sudoku puzzle string."""
     d = {}
     for i in range(len(puzzle)):
         if puzzle[i] != '.':
@@ -92,6 +96,7 @@ def sudoku_string_to_dict(puzzle):
     return d
 
 def print_puzzle(puzzle_string, boxsize):
+    """Pretty printing of Sudoku puzzles."""
     nc = n_cols(boxsize)
     for row in range(n_rows(boxsize)):
         print puzzle_string[row*nc:(row + 1)*nc].replace('', ' ')
@@ -187,6 +192,7 @@ def empty_sudoku_graph(boxsize):
     return g
 
 def neighboring_colors(graph, node):
+    """Returns list of colors used on neighbors of 'node' in 'graph'."""
     colors = []
     for node in graph.neighbors(node):
         color = graph.node[node].get('color')
@@ -195,6 +201,7 @@ def neighboring_colors(graph, node):
     return colors
 
 def n_colors(graph):
+    """The number of colors used on vertices of 'graph'."""
     return len(set([graph.node[i]['color'] for i in graph.nodes()]))
 
 class FirstAvailableColorStrategy():
@@ -216,11 +223,14 @@ class FirstAvailableColorStrategy():
         return self.first_available_color(graph, node)
 
 def greedy_vertex_coloring(graph, nodes, choose_color = FirstAvailableColorStrategy()):
+    """Color vertices sequentially, in order specified by 'nodes', according
+    to given 'choose_color' strategy."""
     for node in nodes:
         graph.node[node]['color'] = choose_color(graph, node)
     return graph
 
 def dimacs_string(graph):
+    """Returns a string in Dimacs-format representing 'graph'."""
     s = ""
     s += "p " + "edge " + str(graph.order()) + " " + str(graph.size()) + "\n"
     for edge in graph.edges():
@@ -263,7 +273,7 @@ def node_polynomials(boxsize):
 
 def edge_polynomials(boxsize):
     """All dependency polynomials."""
-    return [edge_polynomial(x, y, boxsize) for (x,y) in dependent_symbols(boxsize)]
+    return [edge_polynomial(x, y, boxsize) for x, y in dependent_symbols(boxsize)]
 
 def polynomial_system_empty(boxsize):
     """The polynomial system for an empty Sudoku puzzle of dimension 
@@ -278,7 +288,7 @@ def fixed_cell_polynomial(cell, symbol):
 def fixed_cells_polynomials(fixed):
     """Polynomials representing assignments of symbols to cells given by
     'fixed' dictionary."""
-    return [fixed_cell_polynomial(p[0],p[1]) for p in fixed.iteritems()]
+    return [fixed_cell_polynomial(cell, symbol) for cell, symbol in fixed.iteritems()]
 
 def polynomial_system(fixed, boxsize):
     """Polynomial system for Sudoku puzzle of dimension 'boxsize' with fixed
@@ -320,6 +330,7 @@ def solve_from_file(infile, outfile, boxsize):
         output.write(s + "\n")
 
 def dimacs_file(boxsize, outfile):
+    """Output to 'outfile' an empty Sudoku graph of dimension 'boxsize'."""
     out = open(outfile, 'w')
     sg = empty_sudoku_graph(boxsize)
     out.write(dimacs_string(sg))
