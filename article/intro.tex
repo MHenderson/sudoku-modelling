@@ -1,8 +1,15 @@
+Everyone is familiar with Sudoku puzzles, which appear in newspapers daily the world over. A typical puzzle is shown in Figure \ref{sudokuexampleone}. To complete the puzzle requires the puzzler to fill the empty cells with numbers 1, \ldots , 9 in such a way as to have exactly one of every number in every row, every column and every of the small 3 by 3 boxes.
+
 \begin{figure}[h]
+\label{sudokuexampleone}
 \centering
   \sudokuexampleone
 \caption{A Sudoku puzzle}
 \end{figure}
+
+A well-formed Sudoku puzzle has a unique solution. This means that the puzzle can be solved by logic alone, without any guessing.
+
+Sudoku puzzles have a variety of different difficulty levels. Harder puzzles typically have fewer prescribed symbols. It is unknown to this day how few cells need to be filled for a Sudoku puzzle to have a unique solution. Well-formed Sudoku with 17 symbols exist. It is unknown whether or not there exists a well-formed puzzle with 16 clues.
 
 \begin{figure}[h]
 \lstinputlisting[firstline=15,lastline=20,frame=tb]{../src/sudoku.py}
