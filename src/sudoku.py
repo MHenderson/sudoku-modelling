@@ -275,23 +275,23 @@ def fixed_cell_polynomial(cell, symbol):
     'cell'."""
     return sympy.Symbol('x' + str(cell)) - symbol
 
-def fixed_cells_polynomials(cell_symbol_pairs):
-    """Polynomials representing assignments of symbols to cells given as pairs
-    in 'cell_symbol_pairs'."""
-    return [fixed_cell_polynomial(p[0],p[1]) for p in cell_symbol_pairs]
+def fixed_cells_polynomials(fixed):
+    """Polynomials representing assignments of symbols to cells given by
+    'fixed' dictionary."""
+    return [fixed_cell_polynomial(p[0],p[1]) for p in fixed.iteritems()]
 
-def polynomial_system(boxsize, cell_symbol_pairs):
+def polynomial_system(fixed, boxsize):
     """Polynomial system for Sudoku puzzle of dimension 'boxsize' with fixed
-    cells given by 'cell_symbol_pairs'.
+    cells given by 'fixed' dictionary.
 
-    >>> fixed = [(1,1), (2,2), (3,3), (4,4),
-    ...          (5,3), (6,4), (7,1), (8,2),
-    ...          (9,2), (10,1),(11,4),(12,3),
-    ...          (13,4),(14,3),(15,2)]
-    >>> p = polynomial_system(2,fixed)
+    >>> fixed = {1:1, 2:2, 3:3, 4:4,
+    ...          5:3, 6:4, 7:1, 8:2,
+    ...          9:2, 10:1,11:4,12:3,
+    ...          13:4,14:3,15:2}
+    >>> p = polynomial_system(fixed, 2)
     >>> import sympy
     >>> g = sympy.groebner(p,cell_symbols(2),order='lex') """
-    return polynomial_system_empty(boxsize) + fixed_cells_polynomials(cell_symbol_pairs)
+    return polynomial_system_empty(boxsize) + fixed_cells_polynomials(fixed)
 
 ####################################################################
 # Puzzle processing strategies
