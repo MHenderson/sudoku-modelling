@@ -3,6 +3,7 @@
 from math import sqrt, floor
 from random import choice, randrange, seed
 import itertools
+from copy import deepcopy
 
 from constraint import Problem, AllDifferentConstraint, ExactSumConstraint
 import networkx
@@ -69,6 +70,22 @@ def dependent_cells(boxsize):
     """List of all pairs (x, y) with x < y such that x and y either lie in the 
     same row, same column or same box."""
     return list(set(flatten(map(list,map(ordered_pairs, rows(boxsize) + cols(boxsize) + boxes(boxsize))))))
+
+####################################################################
+# Puzzle generators
+####################################################################
+
+def random_puzzle(puzzle, n_fixed, boxsize):
+    """Returns a puzzle dictionary of a random Sudoku puzzle of 'fixed' size
+    based on the Sudoku 'puzzle' dictionary."""
+    fixed = deepcopy(puzzle)
+    ncl = n_cells(boxsize)
+    indices = range(1, ncl + 1)
+    for i in range(ncl - n_fixed):
+        c = choice(indices)
+        del fixed[c]
+        indices.remove(c)
+    return fixed
 
 ####################################################################
 # String handling
@@ -148,20 +165,6 @@ def puzzle(boxsize, clues):
         p.addConstraint(ExactSumConstraint(clues[clue]), [clue])
     return p
 
-def random_puzzle(boxsize, solution, fixed):
-    """random_puzzle(boxsize, solution, fixed) -> constraint.Problem
-
-    Returns a constraint problem representing a random Sudoku puzzle of 'fixed' 
-    size from the 'solution' dictionary."""
-    indices = []
-    for x in range(1, len(solution)+1):
-        indices.append(x)
-    for i in range(n_cells(boxsize) - fixed):
-        c = choice(indices)
-        solution[c] = 0
-        indices.remove(c)
-    return puzzle(boxsize, solution)
-	
 def make_sudoku_constraint(puzzle_string, boxsize):
     """make_sudoku_constraint(puzzle_string, boxsize) -> constraint.Problem
 
