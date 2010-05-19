@@ -98,11 +98,17 @@ def convert_to_sage(number_string):
     After conversion an empty cell is represented by period instead of 0."""
     return number_string.replace('0','.')
 
-def dict_to_sudoku_string(solution):
-    """dict_to_sudoku_string(solution) -> string
-
-    Returns a puzzle string converted from the 'solution' dictionary."""
-    return "".join(map(str, solution.values()))
+def dict_to_sudoku_string(fixed, boxsize):
+    """Returns a puzzle string of dimension 'boxsize' from a dictionary of 
+    'fixed' cells."""
+    s = ''
+    for i in range(1, n_cells(boxsize) + 1):
+        symbol = fixed.get(i)
+        if symbol is not None:
+            s += str(symbol)
+        else:
+            s += '.'
+    return s
 
 def sudoku_string_to_dict(puzzle):
     """Returns a dictionary based on a Sudoku puzzle string."""
@@ -173,7 +179,7 @@ def make_sudoku_constraint(puzzle_string, boxsize):
     
     >>> p = "79....3.......69..8...3..76.....5..2..54187..4..7.....61..9...8..23.......9....54"
     >>> c = make_sudoku_constraint(p,3) 
-    >>> s = dict_to_sudoku_string(c.getSolution()) """
+    >>> s = dict_to_sudoku_string(c.getSolution(),3) """
 
     return puzzle(boxsize, sudoku_string_to_dict(puzzle_string))
 
