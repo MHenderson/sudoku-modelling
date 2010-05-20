@@ -1,3 +1,31 @@
+\subsection{Enumerating Shidoku}
+\label{sec:shidoku}
+
+\begin{lstlisting}[frame=tb,float,caption=Enumerating Shidoku via constraint model]
+In [18]: setup_string = "from sudoku import empty_puzzle"
+
+In [19]: experiment_string = """\
+   ....: p = empty_puzzle(2)
+   ....: s = p.getSolutions()
+   ....: print len(s)"""
+
+In [20]: from timeit import Timer
+
+In [21]: t = Timer(experiment_string, setup_string)
+
+In [22]: print t.timeit(1)
+288
+0.146998882294
+\end{lstlisting}
+
+\subsection{The minimum number of cells for a unique solution}
+\label{sec:minimum}
+
+\subsection{Phase transition phenomena with random puzzles}
+\label{sec:phase}
+
+\cite{lewismetaheur}
+
 \subsection{A Sudoku contest}
 \label{sec:contest}
 
