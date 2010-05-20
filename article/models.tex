@@ -3,8 +3,7 @@
 
 Constraint models for Sudoku puzzles are discussed in \cite{simonissudoku}. The simplest model uses the \verb!all_different! constraint.
 
-\begin{figure}[h]
-\begin{lstlisting}[frame=tb]
+\begin{lstlisting}[frame=tb,float,caption=Solving a Sudoku via constraint model]
 In [39]: p = '25..3.9.1.1...4...4.7...2.8..52.........981...4...3......36..72.7......39.3...6.4'
 
 In [40]: len(p)
@@ -38,8 +37,6 @@ In [44]: sudoku.print_puzzle(s,3)
 
 In [45]: 
 \end{lstlisting}
-\caption{Solving a Sudoku via constraint model}
-\end{figure}
 
 \subsection{Graph models}
 \label{sec:models:graph}
