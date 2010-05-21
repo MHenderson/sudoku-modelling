@@ -72,22 +72,6 @@ def dependent_cells(boxsize):
     return list(set(flatten(map(list,map(ordered_pairs, rows(boxsize) + cols(boxsize) + boxes(boxsize))))))
 
 ####################################################################
-# Puzzle generators
-####################################################################
-
-def random_puzzle(puzzle, n_fixed, boxsize):
-    """Returns a puzzle dictionary of a random Sudoku puzzle of 'fixed' size
-    based on the Sudoku 'puzzle' dictionary."""
-    fixed = deepcopy(puzzle)
-    ncl = n_cells(boxsize)
-    indices = range(1, ncl + 1)
-    for i in range(ncl - n_fixed):
-        c = choice(indices)
-        del fixed[c]
-        indices.remove(c)
-    return fixed
-
-####################################################################
 # String handling
 ####################################################################
 
@@ -343,6 +327,27 @@ def dimacs_file(boxsize, outfile):
     out = open(outfile, 'w')
     sg = empty_sudoku_graph(boxsize)
     out.write(dimacs_string(sg))
+
+####################################################################
+# Puzzle generators
+####################################################################
+
+def random_puzzle(puzzle, n_fixed, boxsize):
+    """Returns a puzzle dictionary of a random Sudoku puzzle of 'fixed' size
+    based on the Sudoku 'puzzle' dictionary."""
+    fixed = deepcopy(puzzle)
+    ncl = n_cells(boxsize)
+    indices = range(1, ncl + 1)
+    for i in range(ncl - n_fixed):
+        c = choice(indices)
+        del fixed[c]
+        indices.remove(c)
+    return fixed
+
+def random_from_CP(n_fixed, boxsize):
+    p = empty_puzzle(boxsize)
+    s = p.getSolution()
+    return random_puzzle(s, n_fixed, boxsize)
 
 ####################################################################
 # Main entry point
