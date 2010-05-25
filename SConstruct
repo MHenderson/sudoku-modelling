@@ -1,10 +1,11 @@
-env = Environment()
-local_texmf = '/home/matthew/texmf//'
-local_texmf += ':.:'
-env['TEXINPUTS'] = local_texmf
-env['BIBINPUTS'] = local_texmf
-env['PDFLATEXFLAGS'] = '--shell-escape'
-env['PDFLATEXCOM'] = 'cd ${TARGET.dir} && export TEXINPUTS=$TEXINPUTS && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
-env['BIBTEXCOM'] = 'cd ${TARGET.dir} && export BIBINPUTS=$BIBINPUTS && $BIBTEX $BIBTEXFLAGS ${SOURCE.file}'
+import os
+
+home = os.environ['HOME']
+build_folder = 'Documents/scipy2010'
+build_directory = os.path.join(home, build_folder)
+
+env = Environment(ENV=os.environ)
+env['PDFLATEXFLAGS'] = ['-interaction=nonstopmode', '-recorder', '--shell-escape']
+
 Export('env')
-SConscript(['SConscript'],build_dir='/home/matthew/Documents/scipy2010')
+SConscript(['SConscript'],build_dir=build_directory)
