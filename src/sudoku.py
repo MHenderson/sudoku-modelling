@@ -16,10 +16,18 @@ import sympy
 def n_rows(boxsize): return boxsize**2
 def n_cols(boxsize): return boxsize**2
 def n_boxes(boxsize): return boxsize**2
+def n_symbols(boxsize): return boxsize**2
 def n_cells(boxsize): return n_rows(boxsize)*n_cols(boxsize)
 def cell(i,j,boxsize): return (i-1)*n_rows(boxsize) + j
+
+####################################################################
+# Convenient ranges
+####################################################################
+
 def cells(boxsize): return range(1, n_cells(boxsize) + 1)
-def symbols(boxsize): return range(1, n_rows(boxsize) + 1)
+def symbols(boxsize): return range(1, n_symbols(boxsize) + 1)
+def rows_r(boxsize): return range(1, n_rows(boxsize) + 1)
+def cols_r(boxsize): return range(1, n_cols(boxsize) + 1)
 
 ####################################################################
 # Convenient functions
@@ -295,6 +303,68 @@ def polynomial_system(fixed, boxsize):
     >>> import sympy
     >>> g = sympy.groebner(p,cell_symbols(2),order='lex') """
     return polynomial_system_empty(boxsize) + fixed_cells_polynomials(fixed)
+
+####################################################################
+# Linear program models
+####################################################################
+
+def lp_matrix_ncols(boxsize): return n_cells(boxsize) * n_symbols(boxsize)
+
+def lp_col_index(row, column, symbol, boxsize):
+    """The column of the coefficient matrix which corresponds to the variable
+    representing the assignment of 'symbol' to cell ('row', 'column')."""
+    return (row - 1)*n_cells(boxsize) + (column - 1)*n_cols(boxsize) + symbol - 1
+
+def lp_row_eqn(row, symbol, boxsize):
+    """List of coefficients for equations which represent 'symbol' occuring
+    once in 'row'."""
+    coeffs = lp_matrix_ncols(boxsize)*[0]
+    for column in cols_r(boxsize):
+        coeffs[lp_col_index(row, column, symbol, boxsize)] = 1
+    return coeffs
+
+def lp_col_eqn(column, symbol, boxsize):
+    """List of coefficients for equations which represent 'symbol' occuring
+    once in 'column'."""
+    coeffs = lp_matrix_ncols(boxsize)*[0]
+    for row in rows_r(boxsize):
+        coeffs[lp_col_index(row, column, symbol, boxsize)] = 1
+    return coeffs
+
+def lp_row_eqns(row, boxsize):
+    """A list of lists of coefficients for the equations which represent 'row'
+    having every symbol once."""
+    eqns = []
+    for symbol in symbols(boxsize):
+        eqns.append(lp_row_eqn(row, symbol, boxsize))
+    return eqns
+
+def lp_col_eqns(column, boxsize):
+    """A list of lists of coefficients for the equations which represent 'col'
+    having every symbol once."""
+    eqns = []
+    for symbol in symbols(boxsize):
+        eqns.append(lp_col_eqn(column, symbol, boxsize))
+    return eqns
+
+def lp_rows_eqns(boxsize):
+    """A list of lists of coefficients which represent every row having every
+    symbol once."""
+    eqns = []
+    for row in rows_r(boxsize):
+        eqns += lp_row_eqns(row, boxsize)
+    return eqns
+
+def lp_cols_eqns(boxsize):
+    """A list of lists of coefficients which represent every column having every
+    symbol once."""
+    eqns = []
+    for column in cols_r(boxsize):
+        eqns += lp_col_eqns(column, boxsize)
+    return eqns
+
+def lp_eqns(boxsize):
+    return lp_rows_eqns(boxsize) + lp_cols_eqns(boxsize)
 
 ####################################################################
 # Puzzle processing strategies
