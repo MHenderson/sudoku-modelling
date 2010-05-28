@@ -14,9 +14,19 @@
 \begin{frame}
 \frametitle{Overview}
  \begin{itemize}
-  \item<1-> Introduction
+  \item<1-> Background and introduction
   \item<2-> Modeling Sudoku in Python
-  \item<3-> Experimental results      
+  \item<3-> Sudoku experimentation
+  \item<4-> Future directions
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Background}
+ \begin{itemize}
+  \item<1-> Investigating Sudoku -- experimental mathematics
+  \item<2-> The SAT approach and the OKlibrary
+  \item<3-> Berea College Computer Science
  \end{itemize}
 \end{frame}
 
@@ -30,7 +40,7 @@
 \end{frame}
 
 \begin{frame}
-\frametitle{Introduction - Modeling components}
+\frametitle{Introduction - \texttt{sudoku.py}}
  \begin{figure}[h]
   \centering
   \librarytable
@@ -39,7 +49,7 @@
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Modeling Sudoku in Python}
+\frametitle{Modeling Sudoku -- Basics}
  \begin{figure}[h]
   \centering
   \lstinputlisting[firstline=15,lastline=17,frame=tb]{../src/sudoku.py}
@@ -47,8 +57,13 @@
  \end{figure} 
 \end{frame}
 
+\begin{frame}
+\frametitle{Modeling Sudoku -- Constraints}
+
+\end{frame}
+
 \begin{frame}[fragile]
-\frametitle{Modeling Sudoku -- Graph Theory}
+\frametitle{Modeling Sudoku -- Graphs}
  \begin{figure}[h]
   \centering
   \begin{dot2tex}[circo,mathmode,options={--graphstyle "scale=0.25"}]
@@ -56,6 +71,40 @@
   \end{dot2tex}
   \caption{The Shidoku graph}
  \end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Modeling Sudoku -- Linear systems}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Modeling Sudoku -- Polynomials}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{The future -- Additional models}
+ \begin{itemize}
+  \item <1-> Exact cover problems
+  \item <2-> SAT models
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{The future -- Experimental investigations}
+ \begin{itemize}
+  \item <1-> Minimally uniquely completable puzzles
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{The future -- Algorithms}
+ \begin{itemize}
+  \item <1-> A Sudoku database
+  \item <2-> Data-mining
+  \item <3-> Hybrid/meta algorithms
+ \end{itemize}
 \end{frame}
 
 \end{document} 
