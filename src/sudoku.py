@@ -6,8 +6,7 @@ import itertools
 from copy import deepcopy
 
 from constraint import Problem, AllDifferentConstraint, ExactSumConstraint
-import networkx
-import sympy
+import networkx, sympy, glpk
 
 ####################################################################
 # Basic parameters
@@ -28,6 +27,7 @@ def cells(boxsize): return range(1, n_cells(boxsize) + 1)
 def symbols(boxsize): return range(1, n_symbols(boxsize) + 1)
 def rows_r(boxsize): return range(1, n_rows(boxsize) + 1)
 def cols_r(boxsize): return range(1, n_cols(boxsize) + 1)
+def cells_r(boxsize): return range(1, n_cells(boxsize) + 1)
 
 ####################################################################
 # Convenient functions
@@ -310,61 +310,61 @@ def polynomial_system(fixed, boxsize):
 
 def lp_matrix_ncols(boxsize): return n_cells(boxsize) * n_symbols(boxsize)
 
-def lp_col_index(row, column, symbol, boxsize):
+def lp_matrix_nrows(boxsize): return 4*boxsize**4 # what is the origin of this number?
+
+def lp_col_index(cell, symbol, boxsize):
     """The column of the coefficient matrix which corresponds to the variable
-    representing the assignment of 'symbol' to cell ('row', 'column')."""
-    return (row - 1)*n_cells(boxsize) + (column - 1)*n_cols(boxsize) + symbol - 1
+    representing the assignment of 'symbol' to 'cell'."""
+    return (cell - 1)*n_symbols(boxsize) + symbol - 1
 
-def lp_row_eqn(row, symbol, boxsize):
-    """List of coefficients for equations which represent 'symbol' occuring
-    once in 'row'."""
+def lp_occ_eq(cells, symbol, boxsize):
+    """Linear equation (as list of coefficients) which corresponds to the cells
+    in 'cells' having one occurence of 'symbol'."""
     coeffs = lp_matrix_ncols(boxsize)*[0]
-    for column in cols_r(boxsize):
-        coeffs[lp_col_index(row, column, symbol, boxsize)] = 1
+    for cell in cells:
+        coeffs[lp_col_index(cell, symbol, boxsize)] = 1
     return coeffs
 
-def lp_col_eqn(column, symbol, boxsize):
-    """List of coefficients for equations which represent 'symbol' occuring
-    once in 'column'."""
+def lp_nonempty_eq(cell, boxsize):
+    """Linear equation (as list of coefficients) which corresponds to 'cell' 
+    being assigned a symbol from 'symbols'."""
     coeffs = lp_matrix_ncols(boxsize)*[0]
-    for row in rows_r(boxsize):
-        coeffs[lp_col_index(row, column, symbol, boxsize)] = 1
+    for symbol in symbols(boxsize):
+        coeffs[lp_col_index(cell, symbol, boxsize)] = 1
     return coeffs
 
-def lp_row_eqns(row, boxsize):
-    """A list of lists of coefficients for the equations which represent 'row'
-    having every symbol once."""
+def lp_occ_eqs(cells_r, boxsize):
+    """Linear equations (as lists of coefficients) which correspond to the
+    cells in cells_r having one occurence of every symbol."""
     eqns = []
-    for symbol in symbols(boxsize):
-        eqns.append(lp_row_eqn(row, symbol, boxsize))
+    for cells in cells_r:
+        for symbol in symbols(boxsize):
+            eqns.append(lp_occ_eq(cells, symbol, boxsize))
     return eqns
 
-def lp_col_eqns(column, boxsize):
-    """A list of lists of coefficients for the equations which represent 'col'
-    having every symbol once."""
+def lp_nonempty_eqs(boxsize):
+    """Linear equations (as lists of coefficients) which correspond to 
+    every cell having one symbol."""
     eqns = []
-    for symbol in symbols(boxsize):
-        eqns.append(lp_col_eqn(column, symbol, boxsize))
+    for cell in cells(boxsize):
+        eqns.append(lp_nonempty_eq(cell, boxsize))
     return eqns
 
-def lp_rows_eqns(boxsize):
-    """A list of lists of coefficients which represent every row having every
-    symbol once."""
-    eqns = []
-    for row in rows_r(boxsize):
-        eqns += lp_row_eqns(row, boxsize)
-    return eqns
+def lp_coeffs(boxsize):
+    return lp_occ_eqs(rows(boxsize), boxsize) + lp_occ_eqs(cols(boxsize), boxsize) + lp_occ_eqs(boxes(boxsize), boxsize) + lp_nonempty_eqs(boxsize)
 
-def lp_cols_eqns(boxsize):
-    """A list of lists of coefficients which represent every column having every
-    symbol once."""
-    eqns = []
-    for column in cols_r(boxsize):
-        eqns += lp_col_eqns(column, boxsize)
-    return eqns
-
-def lp_eqns(boxsize):
-    return lp_rows_eqns(boxsize) + lp_cols_eqns(boxsize)
+def lp(boxsize):
+    lp = glpk.LPX()
+    lp.cols.add(lp_matrix_ncols(boxsize))
+    lp.rows.add(lp_matrix_nrows(boxsize))
+    names = list(itertools.product(cells_r(boxsize),symbols(boxsize)))
+    for c in lp.cols:
+        c.bounds = 0.0, 1.0
+        c.name = 'x' + str(names[c.index][0]) + ',' + str(names[c.index][1])
+    for r in lp.rows:
+        r.bounds = 1.0, 1.0
+    lp.matrix = list(flatten(lp_coeffs(boxsize)))
+    return lp
 
 ####################################################################
 # Puzzle processing strategies
