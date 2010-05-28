@@ -312,6 +312,9 @@ def lp_matrix_ncols(boxsize): return n_cells(boxsize) * n_symbols(boxsize)
 
 def lp_matrix_nrows(boxsize): return 4*boxsize**4 # what is the origin of this number?
 
+def lp_vars(boxsize):
+    return list(itertools.product(cells_r(boxsize), symbols(boxsize)))
+
 def lp_col_index(cell, symbol, boxsize):
     """The column of the coefficient matrix which corresponds to the variable
     representing the assignment of 'symbol' to 'cell'."""
@@ -351,20 +354,46 @@ def lp_nonempty_eqs(boxsize):
     return eqns
 
 def lp_coeffs(boxsize):
+    """Linear equations (as lists of coefficients) which correspond to 
+    the empty Sudoku puzzle."""
     return lp_occ_eqs(rows(boxsize), boxsize) + lp_occ_eqs(cols(boxsize), boxsize) + lp_occ_eqs(boxes(boxsize), boxsize) + lp_nonempty_eqs(boxsize)
 
-def lp(boxsize):
+def lp_empty(boxsize):
+    """Linear program for empty Sudoku puzzle."""
     lp = glpk.LPX()
     lp.cols.add(lp_matrix_ncols(boxsize))
     lp.rows.add(lp_matrix_nrows(boxsize))
-    names = list(itertools.product(cells_r(boxsize),symbols(boxsize)))
     for c in lp.cols:
         c.bounds = 0.0, 1.0
-        c.name = 'x' + str(names[c.index][0]) + ',' + str(names[c.index][1])
     for r in lp.rows:
         r.bounds = 1.0, 1.0
     lp.matrix = list(flatten(lp_coeffs(boxsize)))
     return lp
+
+def lp_puzzle(fixed, boxsize):
+    """Linear program for Sudoku with 'fixed' clues."""
+    lp = lp_empty(boxsize)
+    for cell in fixed:
+        symbol = fixed[cell]
+        lp.rows.add(1)
+        r = lp_matrix_ncols(boxsize)*[0]
+        r[lp_col_index(cell, symbol, boxsize)] = 1
+        lp.rows[-1].matrix = r
+        lp.rows[-1].bounds = 1.0, 1.0
+    return lp
+
+def solve_as_lp(lp, boxsize):
+    """Solve a linear program Sudoku and return puzzle dictionary."""
+    lp.simplex()
+    for col in lp.cols:
+        col.kind = int
+    lp.integer()
+    names = lp_vars(boxsize)
+    sol = {}
+    for c in lp.cols:
+        if c.value == 1:
+            sol[names[c.index][0]] = names[c.index][1]
+    return sol
 
 ####################################################################
 # Puzzle processing strategies
