@@ -172,8 +172,9 @@ def make_sudoku_constraint(puzzle_string, boxsize):
     >>> p = "79....3.......69..8...3..76.....5..2..54187..4..7.....61..9...8..23.......9....54"
     >>> c = make_sudoku_constraint(p,3) 
     >>> s = dict_to_sudoku_string(c.getSolution(),3) """
-
-    return puzzle(boxsize, sudoku_string_to_dict(puzzle_string))
+    p = puzzle_string.strip()
+    p = p.replace('\n','')
+    return puzzle(boxsize, sudoku_string_to_dict(p))
 
 ####################################################################
 # Graph models
@@ -447,12 +448,4 @@ def random_from_CP(n_fixed, boxsize):
     p = empty_puzzle(boxsize)
     s = p.getSolution()
     return random_puzzle(s, n_fixed, boxsize)
-
-####################################################################
-# Main entry point
-####################################################################
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
 
