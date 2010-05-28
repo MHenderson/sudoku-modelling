@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <library>
-<manage_target braces="true" utf8="false">file:///home/matthew/texmf/bibtex/sudoku.bib</manage_target>
+<manage_target braces="true" utf8="false">file:///home/matthew/texmf/bibtex/bib/sudoku.bib</manage_target>
 <library_folder monitor="true"></library_folder>
 <taglist>
   <tag>
@@ -234,6 +234,22 @@
     <bib_number></bib_number>
     <bib_pages></bib_pages>
     <bib_year>2005</bib_year>
+  </doc>
+  <doc>
+    <filename></filename>
+    <relative_filename></relative_filename>
+    <key>Bartlett2008</key>
+    <notes></notes>
+    <bib_type>Article</bib_type>
+    <bib_doi></bib_doi>
+    <bib_title>An Integer Programming Model for the Sudoku Problem</bib_title>
+    <bib_authors>Bartrlett, Andrew and Chartier, Tim and Langville, Amy and Rankin, Timothy</bib_authors>
+    <bib_journal>J. Online Math. &amp; Its Appl.</bib_journal>
+    <bib_volume>8</bib_volume>
+    <bib_number>May 2008</bib_number>
+    <bib_pages></bib_pages>
+    <bib_year>2008</bib_year>
+    <bib_extra key="Month">May</bib_extra>
   </doc>
 </doclist>
 </library>
