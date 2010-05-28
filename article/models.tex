@@ -1,30 +1,36 @@
+In this section we introduce several models of Sudoku. The models introduced here are implemented in the open-source library (\texttt{sudoku.py}) developed by the authors. Demonstrations of the library components corresponding to each of the different models are given.
+
+\begin{center}
+ \librarytable
+\end{center}
+
 \subsection{Constraint models}
 \label{sec:models:constraints}
 
-Constraint models for Sudoku puzzles are discussed in \cite{simonissudoku}. The simplest model uses the \verb!all_different! constraint.
+Constraint models for Sudoku puzzles are discussed in \cite{simonissudoku}. The simplest model uses the \texttt{all\_different} constraint.
 
-\begin{lstlisting}[frame=tb,float,caption=Solving a Sudoku via constraint model]
-In [39]: p = '25..3.9.1.1...4...4.7...2.8..52.........981...4...3......36..72.7......39.3...6.4'
+In Listing \ref{constraintdemo}, an example is shown of how to model a Sudoku puzzle with \texttt{sudoku.py} and use the built-in constraint solver of \texttt{python-constraint} to find a solution.
 
-In [40]: len(p)
-Out[40]: 81
+\begin{lstlisting}[caption=Solving a Sudoku via constraint model,label=constraintdemo]
+In [1]: import sudoku
 
-In [41]: sudoku.print_puzzle(p,3)
- 2 5 . . 3 . 9 . 1 
- . 1 . . . 4 . . . 
- 4 . 7 . . . 2 . 8 
- . . 5 2 . . . . . 
- . . . . 9 8 1 . . 
- . 4 . . . 3 . . . 
- . . . 3 6 . . 7 2 
- . 7 . . . . . . 3 
- 9 . 3 . . . 6 . 4 
+In [2]: p = """
+   ...: 25..3.9.1
+   ...: .1...4...
+   ...: 4.7...2.8
+   ...: ..52.....
+   ...: ....981..
+   ...: .4...3...
+   ...: ...36..72
+   ...: .7......3
+   ...: 9.3...6.4
+   ...: """
 
-In [42]: c = sudoku.make_sudoku_constraint(p,3)
+In [3]: c = sudoku.make_sudoku_constraint(p, 3)
 
-In [43]: s = sudoku.dict_to_sudoku_string(c.getSolution())
+In [4]: s = sudoku.dict_to_sudoku_string(c.getSolution(), 3)
 
-In [44]: sudoku.print_puzzle(s,3)
+In [5]: sudoku.print_puzzle(s, 3)
  2 5 8 7 3 6 9 4 1 
  6 1 9 8 2 4 3 5 7 
  4 3 7 9 1 5 2 6 8 
@@ -35,7 +41,6 @@ In [44]: sudoku.print_puzzle(s,3)
  5 7 6 1 4 2 8 9 3 
  9 2 3 5 8 7 6 1 4 
 
-In [45]: 
 \end{lstlisting}
 
 \subsection{Graph models}
@@ -59,4 +64,5 @@ The graph model in \cite{gagovargaset} can be used to model a Sudoku puzzle as a
 \subsection{Integer/linear programming models}
 \label{sec:models:lp}
 
+In \cite{Bartlett2008} a model of Sudoku as an integer programming problem is presented.
 

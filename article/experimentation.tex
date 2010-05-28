@@ -1,7 +1,7 @@
 \subsection{Enumerating Shidoku}
 \label{sec:shidoku}
 
-\begin{lstlisting}[frame=tb,float,caption=Enumerating Shidoku via constraint model]
+\begin{lstlisting}[caption=Enumerating Shidoku via constraint model]
 In [18]: setup_string = "from sudoku import empty_puzzle"
 
 In [19]: experiment_string = """\
@@ -18,15 +18,18 @@ In [22]: print t.timeit(1)
 0.146998882294
 \end{lstlisting}
 
-\subsection{The minimum number of cells for a unique solution}
-\label{sec:minimum}
+\subsection{Coloring the Sudoku graph}
+\label{sec:coloring}
+
+\subsection{Minimally uniquely completable puzzles}
+\label{sec:minimal}
 
 \subsection{Phase transition phenomena with random puzzles}
 \label{sec:phase}
 
 \cite{lewismetaheur}
 
-\subsection{A Sudoku contest}
+\subsection{The Matlab Sudoku contest}
 \label{sec:contest}
 
 \url{http://www.mathworks.com/contest/sudoku/rules.html}
