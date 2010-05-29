@@ -9,27 +9,9 @@ In this section we introduce several models of Sudoku. The models introduced her
 
 Constraint models for Sudoku puzzles are discussed in \cite{simonissudoku}. The simplest model uses the \texttt{all\_different} constraint.
 
-
-
 In Listing \ref{constraintdemo}, an example is shown of how to model a Sudoku puzzle with \texttt{sudoku.py} and use the built-in constraint solver of \texttt{python-constraint} to find a solution.
 
-\begin{lstlisting}[caption=Solving a Sudoku via constraint model,label=constraintdemo]
-In [3]: c = sudoku.make_sudoku_constraint(p, 3)
-
-In [4]: s = sudoku.dict_to_sudoku_string(c.getSolution(), 3)
-
-In [5]: sudoku.print_puzzle(s, 3)
- 2 5 8 7 3 6 9 4 1 
- 6 1 9 8 2 4 3 5 7 
- 4 3 7 9 1 5 2 6 8 
- 3 9 5 2 7 1 4 8 6 
- 7 6 2 4 9 8 1 3 5 
- 8 4 1 6 5 3 7 2 9 
- 1 8 4 3 6 9 5 7 2 
- 5 7 6 1 4 2 8 9 3 
- 9 2 3 5 8 7 6 1 4 
-
-\end{lstlisting}
+\lstinputlisting[firstline=45,lastline=59,caption=Solving a Sudoku via constraint model,label=constraintdemo]{../demos/article_demo.py}
 
 \subsection{Graph models}
 \label{sec:models:graph}
@@ -100,23 +82,6 @@ and every symbol in every box:
  \sum_{j = mq - m + q}^{mq} \sum_{i = mp - m + 1}^{mp} x_{ijk} = 1, \quad 1 \leq k \leq n, 1 \leq p \leq m, 1 \leq q \leq m
 \end{equation}
 
-\begin{lstlisting}[caption=Solving a Sudoku via LP model,label=constraintdemo]
-In [6]: lp = sudoku.lp_puzzle(sudoku.sudoku_string_to_dict(p), 3)
-
-In [7]: s = sudoku.solve_as_lp_(lp, 3)
-In [8]: ss = sudoku.dict_to_sudoku_string(s,3)
-
-In [9]: sudoku.print_puzzle(ss, 3)
- 2 5 8 7 3 6 9 4 1 
- 6 1 9 8 2 4 3 5 7 
- 4 3 7 9 1 5 2 6 8 
- 3 9 5 2 7 1 4 8 6 
- 7 6 2 4 9 8 1 3 5 
- 8 4 1 6 5 3 7 2 9 
- 1 8 4 3 6 9 5 7 2 
- 5 7 6 1 4 2 8 9 3 
- 9 2 3 5 8 7 6 1 4 
-
-\end{lstlisting}
+\lstinputlisting[firstline=60, lastline=76, caption=Solving a Sudoku via LP model,label=constraintdemo]{../demos/article_demo.py}
 
 

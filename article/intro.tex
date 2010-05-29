@@ -26,52 +26,7 @@ So, for example, the puzzle shown in Figure \ref{sudokuexampleone} is represente
 
 However, the user mainly interacts with \texttt{sudoku.py} through input and output of puzzle strings. For example, the puzzle dictionary in Figure \ref{puzzledict} can be built from a puzzle string through use of the \texttt{sudoku\_string\_to\_dict} function.
 
-\begin{lstlisting}[caption=Building a Sudoku dictionary,label=stringtodict]
-In [1]: import sudoku
-
-In [2]: p = """
-   ...: 25..3.9.1
-   ...: .1...4...
-   ...: 4.7...2.8
-   ...: ..52.....
-   ...: ....981..
-   ...: .4...3...
-   ...: ...36..72
-   ...: .7......3
-   ...: 9.3...6.4
-   ...: """
-In [52]: sudoku.sudoku_string_to_dict(p)
-Out[52]: 
-{1: 2,
- 2: 5,
- 5: 3,
- 7: 9,
- 9: 1,
- 11: 1,
- 15: 4,
- 19: 4,
- 21: 7,
- 25: 2,
- 27: 8,
- 30: 5,
- 31: 2,
- 41: 9,
- 42: 8,
- 43: 1,
- 47: 4,
- 51: 3,
- 58: 3,
- 59: 6,
- 62: 7,
- 63: 2,
- 65: 7,
- 72: 3,
- 73: 9,
- 75: 3,
- 79: 6,
- 81: 4}
-
-\end{lstlisting}
+\lstinputlisting[firstline=1,lastline=44,caption=Building a Sudoku dictionary,label=stringtodict]{../demos/article_demo.py}
 
 Simple functions are provided to access certain parameters associated with a puzzle.
 

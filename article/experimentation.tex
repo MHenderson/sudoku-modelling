@@ -5,22 +5,7 @@ The intention of this section is to show how \texttt{sudoku.py} makes the task o
 \subsection{Enumerating Shidoku}
 \label{sec:shidoku}
 
-\begin{lstlisting}[caption=Enumerating Shidoku via constraint model]
-In [18]: setup_string = "from sudoku import empty_puzzle"
-
-In [19]: experiment_string = """\
-   ....: p = empty_puzzle(2)
-   ....: s = p.getSolutions()
-   ....: print len(s)"""
-
-In [20]: from timeit import Timer
-
-In [21]: t = Timer(experiment_string, setup_string)
-
-In [22]: print t.timeit(1)
-288
-0.146998882294
-\end{lstlisting}
+\lstinputlisting[firstline=77, lastline=91caption=Enumerating Shidoku via constraint model]{../demos/article_demo.py}
 
 \subsection{Coloring the Sudoku graph}
 \label{sec:coloring}
