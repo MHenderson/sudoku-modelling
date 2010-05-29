@@ -1,7 +1,7 @@
 # Sean Davis, Matthew Henderson, Andrew Smith (Berea) 4.1.2010
 
 from math import sqrt, floor
-from random import choice, randrange, seed
+from random import choice, seed
 import itertools
 from copy import deepcopy
 
@@ -383,7 +383,7 @@ def lp_puzzle(fixed, boxsize):
         lp.rows[-1].bounds = 1.0, 1.0
     return lp
 
-def solve_as_lp(lp, boxsize):
+def solve_as_lp_(lp, boxsize):
     """Solve a linear program Sudoku and return puzzle dictionary."""
     lp.simplex()
     for col in lp.cols:
@@ -397,7 +397,7 @@ def solve_as_lp(lp, boxsize):
     return sol
 
 ####################################################################
-# Puzzle processing strategies
+# Puzzle solving and processing strategies
 ####################################################################
 
 def process_puzzle(puzzle, boxsize):
@@ -406,6 +406,18 @@ def process_puzzle(puzzle, boxsize):
     Constraint processing strategy."""
     p = make_sudoku_constraint(puzzle, boxsize)
     return dict_to_sudoku_string(p.getSolution())
+
+def solve_as_CP(fixed, boxsize):
+    return puzzle(boxsize, fixed).getSolution()
+
+def solve_as_lp(fixed, boxsize):
+    return solve_as_lp_(lp_puzzle(fixed, boxsize), boxsize)
+
+def solve_as_groebner(fixed, boxsize):
+    g = polynomial_system(fixed, boxsize)
+    h = sympy.groebner(g, cell_symbols(boxsize), order='lex')
+    s = sympy.solve(h, cell_symbols(boxsize))
+    return s 
 
 ####################################################################
 # File handling
