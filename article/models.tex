@@ -9,23 +9,11 @@ In this section we introduce several models of Sudoku. The models introduced her
 
 Constraint models for Sudoku puzzles are discussed in \cite{simonissudoku}. The simplest model uses the \texttt{all\_different} constraint.
 
+
+
 In Listing \ref{constraintdemo}, an example is shown of how to model a Sudoku puzzle with \texttt{sudoku.py} and use the built-in constraint solver of \texttt{python-constraint} to find a solution.
 
 \begin{lstlisting}[caption=Solving a Sudoku via constraint model,label=constraintdemo]
-In [1]: import sudoku
-
-In [2]: p = """
-   ...: 25..3.9.1
-   ...: .1...4...
-   ...: 4.7...2.8
-   ...: ..52.....
-   ...: ....981..
-   ...: .4...3...
-   ...: ...36..72
-   ...: .7......3
-   ...: 9.3...6.4
-   ...: """
-
 In [3]: c = sudoku.make_sudoku_constraint(p, 3)
 
 In [4]: s = sudoku.dict_to_sudoku_string(c.getSolution(), 3)
@@ -64,5 +52,71 @@ The graph model in \cite{gagovargaset} can be used to model a Sudoku puzzle as a
 \subsection{Integer/linear programming models}
 \label{sec:models:lp}
 
-In \cite{Bartlett2008} a model of Sudoku as an integer programming problem is presented.
+In \cite{Bartlett2008} a model of Sudoku as an integer programming problem is presented. In this model, the variables are all binary.
+
+\begin{equation}
+  x_{ijk} \in \{0, 1\}
+\end{equation}
+
+Variable $x_{ijk}$ represents the assignment of symbol $k$ to cell $(i,j)$ in the Sudoku puzzle.
+
+\begin{equation}
+ x_{ijk} = 
+  \left\lbrace 
+   \begin{array}{rl}
+    1 & \mbox{ if cell $(i, j)$ contains symbol $k$} \\
+    0 & \mbox{ otherwise}
+   \end{array}
+  \right.
+\end{equation}
+
+This model has a set of equations which force every solution to assign a symbol to every cell in the finished Sudoku puzzle.
+
+\begin{equation}
+ \sum_{k = 1}^{n} x_{ijk} = 1, \quad 1 \leq i \leq n, 1 \leq j \leq n
+\end{equation}
+
+Fixed elements in the Sudoku puzzle, given by a set $F$ of triples $(i,j,k)$, are each represented by an equation in the system:
+
+\begin{equation}
+  x_{ijk} = 1, \quad \forall (i,j,k) \in F
+\end{equation}
+
+The remaining equations in this model represent the unique occurence of every symbol in every column:
+
+\begin{equation}
+ \sum_{i = 1}^{n} x_{ijk} = 1, \quad 1 \leq j \leq n, 1 \leq k \leq n
+\end{equation}
+
+every symbol in every row:
+
+\begin{equation}
+ \sum_{j = 1}^{n} x_{ijk} = 1, \quad 1 \leq i \leq n, 1 \leq k \leq n
+\end{equation}
+
+and every symbol in every box:
+
+\begin{equation}
+ \sum_{j = mq - m + q}^{mq} \sum_{i = mp - m + 1}^{mp} x_{ijk} = 1, \quad 1 \leq k \leq n, 1 \leq p \leq m, 1 \leq q \leq m
+\end{equation}
+
+\begin{lstlisting}[caption=Solving a Sudoku via LP model,label=constraintdemo]
+In [6]: lp = sudoku.lp_puzzle(sudoku.sudoku_string_to_dict(p), 3)
+
+In [7]: s = sudoku.solve_as_lp_(lp, 3)
+In [8]: ss = sudoku.dict_to_sudoku_string(s,3)
+
+In [9]: sudoku.print_puzzle(ss, 3)
+ 2 5 8 7 3 6 9 4 1 
+ 6 1 9 8 2 4 3 5 7 
+ 4 3 7 9 1 5 2 6 8 
+ 3 9 5 2 7 1 4 8 6 
+ 7 6 2 4 9 8 1 3 5 
+ 8 4 1 6 5 3 7 2 9 
+ 1 8 4 3 6 9 5 7 2 
+ 5 7 6 1 4 2 8 9 3 
+ 9 2 3 5 8 7 6 1 4 
+
+\end{lstlisting}
+
 
