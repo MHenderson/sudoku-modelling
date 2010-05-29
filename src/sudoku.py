@@ -90,7 +90,10 @@ def convert_to_sage(number_string):
     After conversion an empty cell is represented by period instead of 0."""
     return number_string.replace('0','.')
 
-def dict_to_sudoku_string(fixed, boxsize):
+def strip_nl(puzzle_string):
+    return puzzle_string.replace('\n','')
+
+def dict_to_string(fixed, boxsize):
     """Returns a puzzle string of dimension 'boxsize' from a dictionary of 
     'fixed' cells."""
     s = ''
@@ -102,8 +105,9 @@ def dict_to_sudoku_string(fixed, boxsize):
             s += '.'
     return s
 
-def sudoku_string_to_dict(puzzle):
+def string_to_dict(puzzle):
     """Returns a dictionary based on a Sudoku puzzle string."""
+    puzzle = strip_nl(puzzle)
     d = {}
     for i in range(len(puzzle)):
         if puzzle[i] != '.':
@@ -171,10 +175,8 @@ def make_sudoku_constraint(puzzle_string, boxsize):
     
     >>> p = "79....3.......69..8...3..76.....5..2..54187..4..7.....61..9...8..23.......9....54"
     >>> c = make_sudoku_constraint(p,3) 
-    >>> s = dict_to_sudoku_string(c.getSolution(),3) """
-    p = puzzle_string.strip()
-    p = p.replace('\n','')
-    return puzzle(boxsize, sudoku_string_to_dict(p))
+    >>> s = dict_to_string(c.getSolution(),3) """
+    return puzzle(boxsize, string_to_dict(strip_nl(puzzle_string)))
 
 ####################################################################
 # Graph models
@@ -405,7 +407,7 @@ def process_puzzle(puzzle, boxsize):
 
     Constraint processing strategy."""
     p = make_sudoku_constraint(puzzle, boxsize)
-    return dict_to_sudoku_string(p.getSolution())
+    return dict_to_string(p.getSolution())
 
 def solve_as_CP(fixed, boxsize):
     return puzzle(boxsize, fixed).getSolution()
