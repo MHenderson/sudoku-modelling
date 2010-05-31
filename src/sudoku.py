@@ -1,7 +1,7 @@
 # Sean Davis, Matthew Henderson, Andrew Smith (Berea) 4.1.2010
 
 from math import sqrt, floor
-from random import choice, seed
+from random import choice, seed, shuffle
 import itertools
 from copy import deepcopy
 
@@ -208,30 +208,81 @@ def n_colors(graph):
     """The number of colors used on vertices of 'graph'."""
     return len(set([graph.node[i]['color'] for i in graph.nodes()]))
 
-class FirstAvailableColorStrategy():
+def least_missing(colors):
+    colors.sort()
+    for color in colors:
+        if color + 1 not in colors:
+            return color + 1
 
-    def least_missing(self, colors):
-        colors.sort()
-        for color in colors:
-            if color + 1 not in colors:
-                return color + 1
+def first_available_color(graph, node):
+    used_colors = neighboring_colors(graph, node)
+    if len(used_colors) == 0:
+        return 1
+    else:
+        return least_missing(used_colors)
 
-    def first_available_color(self, graph, node):
-        used_colors = neighboring_colors(graph, node)
-        if len(used_colors) == 0:
-            return 1
-        else:
-            return self.least_missing(used_colors)
+def saturation_degree(graph, node):
+    return len(set(neighboring_colors(graph, node)))
+
+class FirstAvailableColor():
 
     def __call__(self, graph, node):
-        return self.first_available_color(graph, node)
+        return first_available_color(graph, node)
 
-def greedy_vertex_coloring(graph, nodes, choose_color = FirstAvailableColorStrategy()):
-    """Color vertices sequentially, in order specified by 'nodes', according
-    to given 'choose_color' strategy."""
+class InOrder():
+
+    def __init__(self, graph):
+        self.graph = graph
+
+    def __iter__(self):
+        return self.graph.nodes_iter()
+
+class RandomOrder():
+
+    def __init__(self, graph):
+        self.graph = graph
+        self.nodes = self.graph.nodes()
+
+    def __iter__(self):
+        shuffle(self.nodes)
+        return iter(self.nodes)
+
+class DSATIter():
+
+    def __init__(self, graph):
+        self.graph = graph
+        self.nodes = self.graph.nodes()
+        self.value = 0
+
+    def dsatur(self, node):
+        return saturation_degree(self.graph, node)
+
+    def next(self):
+        self.value += 1
+        if self.value > self.graph.order(): raise StopIteration
+        self.nodes.sort(key = self.dsatur)
+        return self.nodes.pop()
+
+    def __iter__(self):
+        return self
+
+class DSATOrder():
+
+    def __init__(self, graph):
+        self.graph = graph
+
+    def __iter__(self):
+        return DSATIter(self.graph)
+
+def vertex_coloring(graph, nodes = InOrder, choose_color = FirstAvailableColorStrategy()):
+    nodes = nodes(graph)
     for node in nodes:
         graph.node[node]['color'] = choose_color(graph, node)
     return graph
+
+def greedy_vertex_coloring(graph):
+    """Color vertices sequentially, using first available color."""
+    return vertex_coloring(graph)
 
 def dimacs_string(graph):
     """Returns a string in Dimacs-format representing 'graph'."""
