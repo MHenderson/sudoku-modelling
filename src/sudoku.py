@@ -17,7 +17,14 @@ def n_cols(boxsize): return boxsize**2
 def n_boxes(boxsize): return boxsize**2
 def n_symbols(boxsize): return boxsize**2
 def n_cells(boxsize): return n_rows(boxsize)*n_cols(boxsize)
-def cell(i,j,boxsize): return (i-1)*n_rows(boxsize) + j
+
+####################################################################
+# Cell label functions
+####################################################################
+
+def cell(row, column, boxsize): return (row - 1)*n_rows(boxsize) + column
+def column(cell, boxsize): return (cell - 1) % n_rows(boxsize) + 1
+def row(cell, boxsize): return (cell - 1) / n_cols(boxsize) + 1
 
 ####################################################################
 # Convenient ranges
@@ -27,7 +34,7 @@ def cells(boxsize): return range(1, n_cells(boxsize) + 1)
 def symbols(boxsize): return range(1, n_symbols(boxsize) + 1)
 def rows_r(boxsize): return range(1, n_rows(boxsize) + 1)
 def cols_r(boxsize): return range(1, n_cols(boxsize) + 1)
-def cells_r(boxsize): return range(1, n_cells(boxsize) + 1)
+def cells_r(boxsize): return cells(boxsize)
 
 ####################################################################
 # Convenient functions
@@ -97,28 +104,41 @@ def dict_to_string(fixed, boxsize):
     """Returns a puzzle string of dimension 'boxsize' from a dictionary of 
     'fixed' cells."""
     s = ''
-    for i in range(1, n_cells(boxsize) + 1):
-        symbol = fixed.get(i)
+    for cell in cells_r(boxsize):
+        symbol = fixed.get(cell)
         if symbol is not None:
             s += str(symbol)
         else:
             s += '.'
     return s
 
-def string_to_dict(puzzle):
+def string_to_dict(puzzle, boxsize):
     """Returns a dictionary based on a Sudoku puzzle string."""
     puzzle = strip_nl(puzzle)
     d = {}
-    for i in range(len(puzzle)):
-        if puzzle[i] != '.':
-            d[i+1]=int(puzzle[i])
+    for cell in cells_r(boxsize):
+        if puzzle[cell - 1] != '.':
+            d[cell] = int(puzzle[cell - 1])
     return d
 
 def print_puzzle(puzzle_string, boxsize):
-    """Pretty printing of Sudoku puzzles."""
+    """Pretty printing of Sudoku puzzle strings."""
     nc = n_cols(boxsize)
-    for row in range(n_rows(boxsize)):
+    for row in rows_r(boxsize):
         print puzzle_string[row*nc:(row + 1)*nc].replace('', ' ')
+
+def print_puzzle_d(puzzle_d, boxsize):
+    """Pretty printing of Sudoku puzzle dictionaries."""
+    s = ''
+    for row in rows_r(boxsize):
+        for col in cols_r(boxsize):
+            symbol = puzzle_d.get(cell(row, col, boxsize))
+            if symbol is not None:
+                s += ' ' + str(symbol) + ' '     
+            else:
+                s += ' . '                
+        s += '\n'
+    print s
 
 ####################################################################
 # Constraint models
@@ -176,7 +196,7 @@ def make_sudoku_constraint(puzzle_string, boxsize):
     >>> p = "79....3.......69..8...3..76.....5..2..54187..4..7.....61..9...8..23.......9....54"
     >>> c = make_sudoku_constraint(p,3) 
     >>> s = dict_to_string(c.getSolution(),3) """
-    return puzzle(boxsize, string_to_dict(strip_nl(puzzle_string)))
+    return puzzle(boxsize, string_to_dict(strip_nl(puzzle_string), boxsize))
 
 ####################################################################
 # Graph models
@@ -274,10 +294,10 @@ class DSATOrder():
     def __iter__(self):
         return DSATIter(self.graph)
 
-def vertex_coloring(graph, nodes = InOrder, choose_color = FirstAvailableColorStrategy()):
+def vertex_coloring(graph, nodes = InOrder, choose_color = FirstAvailableColor):
     nodes = nodes(graph)
     for node in nodes:
-        graph.node[node]['color'] = choose_color(graph, node)
+        graph.node[node]['color'] = choose_color()(graph, node)
     return graph
 
 def greedy_vertex_coloring(graph):
@@ -291,6 +311,10 @@ def dimacs_string(graph):
     for edge in graph.edges():
         s += "e " + str(edge[0]) + " " + str(edge[1]) + "\n"
     return s
+
+def graph_to_dict(graph):
+    nodes = graph.node
+    return dict([(vertex, nodes[vertex].get('color')) for vertex in nodes])
 
 ####################################################################
 # Polynomial system models
