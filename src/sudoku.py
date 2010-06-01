@@ -127,18 +127,32 @@ def print_puzzle(puzzle_string, boxsize):
     for row in rows_r(boxsize):
         print puzzle_string[row*nc:(row + 1)*nc].replace('', ' ')
 
-def print_puzzle_d(puzzle_d, boxsize):
+def print_puzzle_d(puzzle_d, boxsize, width = 2):
     """Pretty printing of Sudoku puzzle dictionaries."""
-    s = ''
+    fs = ''
+    format_string = '%' + str(width) + 'i'
     for row in rows_r(boxsize):
+        s = ''
         for col in cols_r(boxsize):
             symbol = puzzle_d.get(cell(row, col, boxsize))
             if symbol is not None:
-                s += ' ' + str(symbol) + ' '     
+                print format_string % symbol,
             else:
-                s += ' . '                
-        s += '\n'
-    print s
+                print (width - 1)*' ' + '.',                 
+        print
+
+def dimacs_string(graph):
+    """Returns a string in Dimacs-format representing 'graph'."""
+    s = ""
+    s += "p " + "edge " + str(graph.order()) + " " + str(graph.size()) + "\n"
+    for edge in graph.edges():
+        s += "e " + str(edge[0]) + " " + str(edge[1]) + "\n"
+    return s
+
+def graph_to_dict(graph):
+    """Colored graph to dictionary conversion."""
+    nodes = graph.node
+    return dict([(vertex, nodes[vertex].get('color')) for vertex in nodes])
 
 ####################################################################
 # Constraint models
@@ -303,18 +317,6 @@ def vertex_coloring(graph, nodes = InOrder, choose_color = FirstAvailableColor):
 def greedy_vertex_coloring(graph):
     """Color vertices sequentially, using first available color."""
     return vertex_coloring(graph)
-
-def dimacs_string(graph):
-    """Returns a string in Dimacs-format representing 'graph'."""
-    s = ""
-    s += "p " + "edge " + str(graph.order()) + " " + str(graph.size()) + "\n"
-    for edge in graph.edges():
-        s += "e " + str(edge[0]) + " " + str(edge[1]) + "\n"
-    return s
-
-def graph_to_dict(graph):
-    nodes = graph.node
-    return dict([(vertex, nodes[vertex].get('color')) for vertex in nodes])
 
 ####################################################################
 # Polynomial system models
