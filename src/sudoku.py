@@ -2,7 +2,7 @@
 
 from math import sqrt, floor
 from random import choice, seed, shuffle
-import itertools
+import itertools, string
 from copy import deepcopy
 
 from constraint import Problem, AllDifferentConstraint, ExactSumConstraint
@@ -47,6 +47,9 @@ def ordered_pairs(range):
 def flatten(list_of_lists):
     "Flatten one level of nesting"
     return itertools.chain.from_iterable(list_of_lists)
+
+def int_to_printable(i):
+    return string.printable[i]
 
 ####################################################################
 # Cell dependencies
@@ -107,7 +110,7 @@ def dict_to_string(fixed, boxsize):
     for cell in cells_r(boxsize):
         symbol = fixed.get(cell)
         if symbol is not None:
-            s += str(symbol)
+            s += int_to_printable(symbol)
         else:
             s += '.'
     return s
@@ -139,6 +142,19 @@ def print_puzzle_d(puzzle_d, boxsize, width = 2):
                 print format_string % symbol,
             else:
                 print (width - 1)*' ' + '.',                 
+        print
+
+def print_puzzle_d_p(puzzle_d, boxsize):
+    """Pretty printing of Sudoku puzzle dictionaries, using printable
+    characters."""
+    for row in rows_r(boxsize):
+        s = ''
+        for col in cols_r(boxsize):
+            symbol = puzzle_d.get(cell(row, col, boxsize))
+            if symbol is not None:
+                print int_to_printable(symbol),
+            else:
+                print '.',                 
         print
 
 def dimacs_string(graph):
@@ -229,6 +245,12 @@ def empty_sudoku_graph(boxsize):
     g.add_edges_from(dependent_cells(boxsize))
     return g
 
+def puzzle_graph(fixed, boxsize):
+    g = empty_sudoku_graph(boxsize)
+    for cell in fixed:
+        g.node[cell]['color'] = fixed[cell]
+    return g
+
 def neighboring_colors(graph, node):
     """Returns list of colors used on neighbors of 'node' in 'graph'."""
     colors = []
@@ -311,7 +333,8 @@ class DSATOrder():
 def vertex_coloring(graph, nodes = InOrder, choose_color = FirstAvailableColor):
     nodes = nodes(graph)
     for node in nodes:
-        graph.node[node]['color'] = choose_color()(graph, node)
+        if graph.node[node].get('color') is None:
+            graph.node[node]['color'] = choose_color()(graph, node)
     return graph
 
 def greedy_vertex_coloring(graph):
