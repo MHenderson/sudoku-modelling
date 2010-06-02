@@ -82,6 +82,6 @@ assert sudoku.cell_symbol_names(3)==[
                          'x64','x65','x66','x67','x68','x69','x70','x71','x72',
                          'x73','x74','x75','x76','x77','x78','x79','x80','x81']
 
-p = sudoku.empty_puzzle(2)
+p = sudoku.empty_puzzle_as_CP(2)
 s = p.getSolutions()
 assert len(s)==288

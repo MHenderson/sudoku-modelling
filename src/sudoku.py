@@ -17,7 +17,7 @@ import networkx, sympy, glpk
 def n_rows(boxsize): return boxsize**2
 def n_cols(boxsize): return boxsize**2
 def n_boxes(boxsize): return boxsize**2
-def n_symbols(boxsize): return boxsize**2
+def n_symbols(boxsize): return max(n_rows(boxsize), n_cols(boxsize))
 def n_cells(boxsize): return n_rows(boxsize)*n_cols(boxsize)
 
 ####################################################################
@@ -27,12 +27,6 @@ def n_cells(boxsize): return n_rows(boxsize)*n_cols(boxsize)
 def cell(row, column, boxsize): return (row - 1)*n_rows(boxsize) + column
 def column(cell, boxsize): return (cell - 1) % n_rows(boxsize) + 1
 def row(cell, boxsize): return (cell - 1) / n_cols(boxsize) + 1
-
-def box_representatives(boxsize): 
-    """box_representatives(boxsize) -> list
-
-    Returns a list of cell labels of the top-left cell of each box."""
-    return [cell(i, j, boxsize) for i in range(1, n_rows(boxsize), boxsize) for j in range(1, n_cols(boxsize), boxsize)]
 
 ####################################################################
 # Convenient ranges
@@ -44,18 +38,27 @@ def rows(boxsize): return range(1, n_rows(boxsize) + 1)
 def cols(boxsize): return range(1, n_cols(boxsize) + 1)
 
 def row_r(row, boxsize):
+    """Cells in 'row' of Sudoku puzzle of dimension 'boxsize'."""
     nr = n_rows(boxsize)
     return range(nr * (row - 1) + 1, nr * row + 1)
 
 def col_r(column, boxsize):
+    """Cells in 'column' of Sudoku puzzle of dimension 'boxsize'."""
     nc = n_cols(boxsize)
     ncl = n_cells(boxsize)
     return range(column, ncl + 1 - (nc - column), nc)
 
 def box_r(box_representative, boxsize):
+    """Cells in 'column' of Sudoku puzzle of dimension 'boxsize'."""
     nr = n_rows(boxsize)
     nc = n_cols(boxsize)
     return [box_representative + j + k - 1 for j in range(0, boxsize * nr, nc) for k in range(1, boxsize + 1)]
+
+def box_representatives(boxsize): 
+    """box_representatives(boxsize) -> list
+
+    Returns a list of cell labels of the top-left cell of each box."""
+    return [cell(i, j, boxsize) for i in range(1, n_rows(boxsize), boxsize) for j in range(1, n_cols(boxsize), boxsize)]
 
 ####################################################################
 # Convenient functions
@@ -248,6 +251,16 @@ def empty_puzzle_as_graph(boxsize):
     return g
 
 def puzzle_as_graph(fixed, boxsize):
+    """Graph model of Sudoku puzzle of dimension 'boxsize' with 'fixed'
+    cells.
+    
+    >>> fixed = {1:1, 4:4, 5:3, 6:4, 9:2, 11:4, 13:4, 15:2}
+    >>> p = puzzle_as_graph(fixed, 2)
+    >>> p.order()
+    16
+    >>> p.size()
+    56"""
+
     g = empty_puzzle_as_graph(boxsize)
     for cell in fixed:
         g.node[cell]['color'] = fixed[cell]
@@ -263,16 +276,18 @@ def neighboring_colors(graph, node):
     return colors
 
 def n_colors(graph):
-    """The number of colors used on vertices of 'graph'."""
+    """The number of distinct colors used on vertices of 'graph'."""
     return len(set([graph.node[i]['color'] for i in graph.nodes()]))
 
 def least_missing(colors):
+    """The smallest integer not in 'colors'."""
     colors.sort()
     for color in colors:
         if color + 1 not in colors:
             return color + 1
 
 def first_available_color(graph, node):
+    """The first color not used on neighbors of 'node' in 'graph'."""
     used_colors = neighboring_colors(graph, node)
     if len(used_colors) == 0:
         return 1
@@ -280,6 +295,7 @@ def first_available_color(graph, node):
         return least_missing(used_colors)
 
 def saturation_degree(graph, node):
+    """Saturation degree of 'node' in 'graph'."""
     return len(set(neighboring_colors(graph, node)))
 
 class FirstAvailableColor():
@@ -333,6 +349,8 @@ class DSATOrder():
         return DSATIter(self.graph)
 
 def vertex_coloring(graph, nodes = InOrder, choose_color = FirstAvailableColor):
+    """Generic vertex coloring algorithm. Node ordering specified by 'nodes'
+    iterator. Color choice strategy specified by 'choose_color'."""
     nodes = nodes(graph)
     for node in nodes:
         if graph.node[node].get('color') is None:
@@ -418,6 +436,7 @@ def lp_matrix_ncols(boxsize): return n_cells(boxsize) * n_symbols(boxsize)
 def lp_matrix_nrows(boxsize): return 4*boxsize**4 # what is the origin of this number?
 
 def lp_vars(boxsize):
+    """Variables for Sudoku puzzle linear program model."""
     return list(itertools.product(cells(boxsize), symbols(boxsize)))
 
 def lp_col_index(cell, symbol, boxsize):
@@ -505,12 +524,18 @@ def solve_lp_puzzle(lp, boxsize):
 ####################################################################
 
 def solve_as_CP(fixed, boxsize):
+    """Use constraint programming to solve Sudoku puzzle of dimension 'boxsize'
+    with 'fixed' cells."""
     return puzzle_as_CP(fixed, boxsize).getSolution()
 
 def solve_as_lp(fixed, boxsize):
+    """Use linear programming to solve Sudoku puzzle of dimension 'boxsize'
+    with 'fixed' cells."""
     return solve_lp_puzzle(puzzle_as_lp(fixed, boxsize), boxsize)
 
 def solve_as_groebner(fixed, boxsize):
+    """Use groebner bases algorithm to solve Sudoku puzzle of dimension 
+    'boxsize' with 'fixed' cells."""
     g = puzzle_as_polynomial_system(fixed, boxsize)
     h = sympy.groebner(g, cell_symbols(boxsize), order='lex')
     s = sympy.solve(h, cell_symbols(boxsize))
@@ -564,6 +589,8 @@ def random_puzzle(puzzle, n_fixed, boxsize):
     return fixed
 
 def random_from_CP(n_fixed, boxsize):
+    """Random puzzle generator, based on constraint programming solution of
+    empty puzzle."""
     p = empty_puzzle_as_CP(boxsize)
     s = p.getSolution()
     return random_puzzle(s, n_fixed, boxsize)
