@@ -40,9 +40,8 @@ def box_representatives(boxsize):
 
 def cells(boxsize): return range(1, n_cells(boxsize) + 1)
 def symbols(boxsize): return range(1, n_symbols(boxsize) + 1)
-def rows_r(boxsize): return range(1, n_rows(boxsize) + 1)
-def cols_r(boxsize): return range(1, n_cols(boxsize) + 1)
-def cells_r(boxsize): return cells(boxsize)
+def rows(boxsize): return range(1, n_rows(boxsize) + 1)
+def cols(boxsize): return range(1, n_cols(boxsize) + 1)
 
 def row_r(row, boxsize):
     nr = n_rows(boxsize)
@@ -81,13 +80,13 @@ def cells_by_row(boxsize):
     """cells_by_row(boxsize) -> list
 
     Returns a list of cell labels ordered by row for the given boxsize."""
-    return [row_r(row, boxsize) for row in rows_r(boxsize)]
+    return [row_r(row, boxsize) for row in rows(boxsize)]
 
 def cells_by_col(boxsize):
     """cells_by_col(boxsize) -> list
 
     Returns a list of cell labels ordered by column for the given boxsize."""
-    return [col_r(column, boxsize) for column in cols_r(boxsize)]
+    return [col_r(column, boxsize) for column in cols(boxsize)]
 
 def cells_by_box(boxsize):
     """cells_by_box(boxsize) -> list
@@ -111,7 +110,7 @@ def dict_to_string(fixed, boxsize):
     """Returns a puzzle string of dimension 'boxsize' from a dictionary of 
     'fixed' cells."""
     s = ''
-    for cell in cells_r(boxsize):
+    for cell in cells(boxsize):
         symbol = fixed.get(cell)
         if symbol is not None:
             s += int_to_printable(symbol)
@@ -123,7 +122,7 @@ def string_to_dict(puzzle, boxsize):
     """Returns a dictionary based on a Sudoku puzzle string."""
     puzzle = strip_nl(puzzle)
     d = {}
-    for cell in cells_r(boxsize):
+    for cell in cells(boxsize):
         if puzzle[cell - 1] != '.':
             d[cell] = int(puzzle[cell - 1])
     return d
@@ -140,16 +139,16 @@ def graph_to_dict(graph):
 def print_puzzle(puzzle_string, boxsize, file = None):
     """Pretty printing of Sudoku puzzle strings."""
     nc = n_cols(boxsize)
-    for row in rows_r(boxsize):
+    for row in rows(boxsize):
         print(puzzle_string[row * nc:(row + 1) * nc].replace('', ' '), file = file)
 
 def print_puzzle_d(puzzle_d, boxsize, width = 2, rowend = "\n", file = None):
     """Pretty printing of Sudoku puzzle dictionaries."""
     fs = ''
     format_string = '%' + str(width) + 'i'
-    for row in rows_r(boxsize):
+    for row in rows(boxsize):
         s = ''
-        for col in cols_r(boxsize):
+        for col in cols(boxsize):
             symbol = puzzle_d.get(cell(row, col, boxsize))
             if symbol is not None:
                 print(format_string % symbol, end = "", file = file)
@@ -160,9 +159,9 @@ def print_puzzle_d(puzzle_d, boxsize, width = 2, rowend = "\n", file = None):
 def print_puzzle_d_p(puzzle_d, boxsize, rowend = "\n", file = None):
     """Pretty printing of Sudoku puzzle dictionaries, using printable
     characters."""
-    for row in rows_r(boxsize):
+    for row in rows(boxsize):
         s = ''
-        for col in cols_r(boxsize):
+        for col in cols(boxsize):
             symbol = puzzle_d.get(cell(row, col, boxsize))
             if symbol is not None:
                 print(int_to_printable(symbol), end="", file = file)
@@ -417,7 +416,7 @@ def lp_matrix_ncols(boxsize): return n_cells(boxsize) * n_symbols(boxsize)
 def lp_matrix_nrows(boxsize): return 4*boxsize**4 # what is the origin of this number?
 
 def lp_vars(boxsize):
-    return list(itertools.product(cells_r(boxsize), symbols(boxsize)))
+    return list(itertools.product(cells(boxsize), symbols(boxsize)))
 
 def lp_col_index(cell, symbol, boxsize):
     """The column of the coefficient matrix which corresponds to the variable
