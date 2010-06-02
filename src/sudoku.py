@@ -492,7 +492,7 @@ def empty_puzzle_as_lp(boxsize):
 
 def puzzle_as_lp(fixed, boxsize):
     """Linear program for Sudoku with 'fixed' clues."""
-    lp = lp_empty(boxsize)
+    lp = empty_puzzle_as_lp(boxsize)
     for cell in fixed:
         symbol = fixed[cell]
         lp.rows.add(1)
@@ -551,7 +551,7 @@ def process_puzzle(puzzle_string, boxsize, solve = solve_as_CP):
 # File handling
 ####################################################################
 
-def solve_from_file(infile, outfile, boxsize, solve):
+def solve_from_file(infile, outfile, boxsize, solve = solve_as_CP):
     """solve_from_file(infile, outfile, boxsize)
 
     Outputs solutions to puzzles in file 'infile' to file 'outfile'."""
