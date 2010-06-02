@@ -1,5 +1,7 @@
 # Sean Davis, Matthew Henderson, Andrew Smith (Berea) 4.1.2010
 
+from __future__ import print_function
+
 from math import sqrt, floor
 from random import choice, seed, shuffle
 import itertools, string
@@ -124,13 +126,13 @@ def string_to_dict(puzzle, boxsize):
             d[cell] = int(puzzle[cell - 1])
     return d
 
-def print_puzzle(puzzle_string, boxsize):
+def print_puzzle(puzzle_string, boxsize, file = None):
     """Pretty printing of Sudoku puzzle strings."""
     nc = n_cols(boxsize)
     for row in rows_r(boxsize):
-        print puzzle_string[row*nc:(row + 1)*nc].replace('', ' ')
+        print(puzzle_string[row*nc:(row + 1)*nc].replace('', ' '), file = file)
 
-def print_puzzle_d(puzzle_d, boxsize, width = 2):
+def print_puzzle_d(puzzle_d, boxsize, width = 2, file = None):
     """Pretty printing of Sudoku puzzle dictionaries."""
     fs = ''
     format_string = '%' + str(width) + 'i'
@@ -139,12 +141,12 @@ def print_puzzle_d(puzzle_d, boxsize, width = 2):
         for col in cols_r(boxsize):
             symbol = puzzle_d.get(cell(row, col, boxsize))
             if symbol is not None:
-                print format_string % symbol,
+                print(format_string % symbol, end="", file = file)
             else:
-                print (width - 1)*' ' + '.',                 
-        print
+                print((width - 1)*' ' + '.', end="", file = file)
+        print(file = file)
 
-def print_puzzle_d_p(puzzle_d, boxsize):
+def print_puzzle_d_p(puzzle_d, boxsize, file = None):
     """Pretty printing of Sudoku puzzle dictionaries, using printable
     characters."""
     for row in rows_r(boxsize):
@@ -152,10 +154,10 @@ def print_puzzle_d_p(puzzle_d, boxsize):
         for col in cols_r(boxsize):
             symbol = puzzle_d.get(cell(row, col, boxsize))
             if symbol is not None:
-                print int_to_printable(symbol),
+                print(int_to_printable(symbol), end="", file = file)
             else:
-                print '.',                 
-        print
+                print('.',end="", file = file)                 
+        print(file = file)
 
 def dimacs_string(graph):
     """Returns a string in Dimacs-format representing 'graph'."""
