@@ -28,6 +28,12 @@ def cell(row, column, boxsize): return (row - 1)*n_rows(boxsize) + column
 def column(cell, boxsize): return (cell - 1) % n_rows(boxsize) + 1
 def row(cell, boxsize): return (cell - 1) / n_cols(boxsize) + 1
 
+def box_representatives(boxsize): 
+    """box_representatives(boxsize) -> list
+
+    Returns a list of cell labels of the top-left cell of each box."""
+    return [cell(i, j, boxsize) for i in range(1, n_rows(boxsize), boxsize) for j in range(1, n_cols(boxsize), boxsize)]
+
 ####################################################################
 # Convenient ranges
 ####################################################################
@@ -37,6 +43,20 @@ def symbols(boxsize): return range(1, n_symbols(boxsize) + 1)
 def rows_r(boxsize): return range(1, n_rows(boxsize) + 1)
 def cols_r(boxsize): return range(1, n_cols(boxsize) + 1)
 def cells_r(boxsize): return cells(boxsize)
+
+def row_r(row, boxsize):
+    nr = n_rows(boxsize)
+    return range(nr * (row - 1) + 1, nr * row + 1)
+
+def col_r(column, boxsize):
+    nc = n_cols(boxsize)
+    ncl = n_cells(boxsize)
+    return range(column, ncl + 1 - (nc - column), nc)
+
+def box_r(box_representative, boxsize):
+    nr = n_rows(boxsize)
+    nc = n_cols(boxsize)
+    return [box_representative + j + k - 1 for j in range(0, boxsize * nr, nc) for k in range(1, boxsize + 1)]
 
 ####################################################################
 # Convenient functions
@@ -57,42 +77,31 @@ def int_to_printable(i):
 # Cell dependencies
 ####################################################################
 
-def top_left_cells(boxsize): 
-    """top_left_cells(boxsize) -> list
-
-    Returns a list of cell labels of the top-left cell of each box."""
-    return [cell(i, j, boxsize) for i in range(1, n_rows(boxsize), boxsize) for j in range(1, n_cols(boxsize), boxsize)]
-
-def rows(boxsize):
-    """rows(boxsize) -> list
+def cells_by_row(boxsize):
+    """cells_by_row(boxsize) -> list
 
     Returns a list of cell labels ordered by row for the given boxsize."""
-    nr = n_rows(boxsize)
-    return [range(nr * (i - 1) + 1, nr * i + 1) for i in range(1, nr + 1)]
+    return [row_r(row, boxsize) for row in rows_r(boxsize)]
 
-def cols(boxsize):
-    """cols(boxsize) -> list
+def cells_by_col(boxsize):
+    """cells_by_col(boxsize) -> list
 
     Returns a list of cell labels ordered by column for the given boxsize."""
-    nc = n_cols(boxsize)
-    ncl = n_cells(boxsize)
-    return [range(i, ncl + 1 - (nc - i), nc) for i in range(1, nc + 1)]
+    return [col_r(column, boxsize) for column in cols_r(boxsize)]
 
-def boxes(boxsize):
-    """boxes(boxsize) -> list
+def cells_by_box(boxsize):
+    """cells_by_box(boxsize) -> list
 
     Returns a list of cell labels ordered by box for the given boxsize."""
-    nr = n_rows(boxsize)
-    nc = n_cols(boxsize)
-    return [[i + j + k for j in range(0, boxsize * nr, nc) for k in range(0, boxsize)] for i in top_left_cells(boxsize)]
+    return [box_r(box_representative, boxsize) for box_representative in box_representatives(boxsize)]
 
 def dependent_cells(boxsize):
     """List of all pairs (x, y) with x < y such that x and y either lie in the 
     same row, same column or same box."""
-    return list(set(flatten(map(list,map(ordered_pairs, rows(boxsize) + cols(boxsize) + boxes(boxsize))))))
+    return list(set(flatten(map(list,map(ordered_pairs, cells_by_row(boxsize) + cells_by_col(boxsize) + cells_by_box(boxsize))))))
 
 ####################################################################
-# String handling
+# String/Dictionary handling
 ####################################################################
 
 def strip_nl(puzzle_string):
@@ -118,6 +127,11 @@ def string_to_dict(puzzle, boxsize):
         if puzzle[cell - 1] != '.':
             d[cell] = int(puzzle[cell - 1])
     return d
+
+def graph_to_dict(graph):
+    """Colored graph to dictionary conversion."""
+    nodes = graph.node
+    return dict([(vertex, nodes[vertex].get('color')) for vertex in nodes])
 
 ####################################################################
 # Puzzle printing
@@ -168,11 +182,6 @@ def dimacs_string(graph):
         s += "e " + str(edge[0]) + " " + str(edge[1]) + "\n"
     return s
 
-def graph_to_dict(graph):
-    """Colored graph to dictionary conversion."""
-    nodes = graph.node
-    return dict([(vertex, nodes[vertex].get('color')) for vertex in nodes])
-
 ####################################################################
 # Constraint models
 ####################################################################
@@ -181,21 +190,21 @@ def add_row_constraints(problem, boxsize):
     """add_row_constraints(problem, boxsize)
 
     Adds to constraint problem 'problem', all_different constraints on rows."""
-    for row in rows(boxsize):
+    for row in cells_by_row(boxsize):
         problem.addConstraint(AllDifferentConstraint(), row)
 
 def add_col_constraints(problem, boxsize):
     """add_col_constraints(problem, boxsize)
 
     Adds to constraint problem 'problem', all_different constraints on columns."""
-    for col in cols(boxsize):    
+    for col in cells_by_col(boxsize):    
         problem.addConstraint(AllDifferentConstraint(), col)
 
 def add_box_constraints(problem, boxsize):
     """add_box_constraints(problem, boxsize)
 
     Adds to constraint problem 'problem', all_different constraints on boxes."""
-    for box in boxes(boxsize):
+    for box in cells_by_box(boxsize):
         problem.addConstraint(AllDifferentConstraint(), box)
 
 def empty_puzzle(boxsize):
@@ -451,7 +460,7 @@ def lp_nonempty_eqs(boxsize):
 def lp_coeffs(boxsize):
     """Linear equations (as lists of coefficients) which correspond to 
     the empty Sudoku puzzle."""
-    return lp_occ_eqs(rows(boxsize), boxsize) + lp_occ_eqs(cols(boxsize), boxsize) + lp_occ_eqs(boxes(boxsize), boxsize) + lp_nonempty_eqs(boxsize)
+    return lp_occ_eqs(cells_by_row(boxsize), boxsize) + lp_occ_eqs(cells_by_col(boxsize), boxsize) + lp_occ_eqs(cells_by_box(boxsize), boxsize) + lp_nonempty_eqs(boxsize)
 
 def lp_empty(boxsize):
     """Linear program for empty Sudoku puzzle."""
