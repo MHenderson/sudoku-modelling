@@ -61,14 +61,14 @@ def top_left_cells(boxsize):
     """top_left_cells(boxsize) -> list
 
     Returns a list of cell labels of the top-left cell of each box."""
-    return [cell(i,j,boxsize) for i in range(1,n_rows(boxsize),boxsize) for j in range(1,n_cols(boxsize),boxsize)]
+    return [cell(i, j, boxsize) for i in range(1, n_rows(boxsize), boxsize) for j in range(1, n_cols(boxsize), boxsize)]
 
 def rows(boxsize):
     """rows(boxsize) -> list
 
     Returns a list of cell labels ordered by row for the given boxsize."""
     nr = n_rows(boxsize)
-    return [range(nr*(i-1)+1,nr*i+1) for i in range(1,nr+1)]
+    return [range(nr * (i - 1) + 1, nr * i + 1) for i in range(1, nr + 1)]
 
 def cols(boxsize):
     """cols(boxsize) -> list
@@ -76,7 +76,7 @@ def cols(boxsize):
     Returns a list of cell labels ordered by column for the given boxsize."""
     nc = n_cols(boxsize)
     ncl = n_cells(boxsize)
-    return [range(i,ncl+1-(nc-i),nc) for i in range(1,nc+1)]
+    return [range(i, ncl + 1 - (nc - i), nc) for i in range(1, nc + 1)]
 
 def boxes(boxsize):
     """boxes(boxsize) -> list
@@ -84,7 +84,7 @@ def boxes(boxsize):
     Returns a list of cell labels ordered by box for the given boxsize."""
     nr = n_rows(boxsize)
     nc = n_cols(boxsize)
-    return [[i+j+k for j in range(0,boxsize*nr,nc) for k in range(0,boxsize)] for i in top_left_cells(boxsize)]
+    return [[i + j + k for j in range(0, boxsize * nr, nc) for k in range(0, boxsize)] for i in top_left_cells(boxsize)]
 
 def dependent_cells(boxsize):
     """List of all pairs (x, y) with x < y such that x and y either lie in the 
@@ -95,15 +95,8 @@ def dependent_cells(boxsize):
 # String handling
 ####################################################################
 
-def convert_to_sage(number_string):
-    """convert_to_sage(number_string) -> string
-
-    Returns a converted sudoku puzzle string.
-    After conversion an empty cell is represented by period instead of 0."""
-    return number_string.replace('0','.')
-
 def strip_nl(puzzle_string):
-    return puzzle_string.replace('\n','')
+    return puzzle_string.replace('\n', '')
 
 def dict_to_string(fixed, boxsize):
     """Returns a puzzle string of dimension 'boxsize' from a dictionary of 
@@ -134,7 +127,7 @@ def print_puzzle(puzzle_string, boxsize, file = None):
     """Pretty printing of Sudoku puzzle strings."""
     nc = n_cols(boxsize)
     for row in rows_r(boxsize):
-        print(puzzle_string[row*nc:(row + 1)*nc].replace('', ' '), file = file)
+        print(puzzle_string[row * nc:(row + 1) * nc].replace('', ' '), file = file)
 
 def print_puzzle_d(puzzle_d, boxsize, width = 2, rowend = "\n", file = None):
     """Pretty printing of Sudoku puzzle dictionaries."""
@@ -145,9 +138,9 @@ def print_puzzle_d(puzzle_d, boxsize, width = 2, rowend = "\n", file = None):
         for col in cols_r(boxsize):
             symbol = puzzle_d.get(cell(row, col, boxsize))
             if symbol is not None:
-                print(format_string % symbol, end="", file = file)
+                print(format_string % symbol, end = "", file = file)
             else:
-                print((width - 1)*' ' + '.', end="", file = file)
+                print((width - 1)*' ' + '.', end = "", file = file)
         print(end = rowend, file = file)
 
 def print_puzzle_d_p(puzzle_d, boxsize, rowend = "\n", file = None):
@@ -160,7 +153,7 @@ def print_puzzle_d_p(puzzle_d, boxsize, rowend = "\n", file = None):
             if symbol is not None:
                 print(int_to_printable(symbol), end="", file = file)
             else:
-                print('.',end="", file = file)                 
+                print('.', end = "", file = file)                 
         print(end = rowend, file = file)
 
 ####################################################################
