@@ -2,8 +2,6 @@
 
 import sudoku
 
-c = sudoku.make_sudoku_constraint("1234432131422410",2)
-
 assert sudoku.cells(0)==[]
 assert sudoku.cells(1)==[1]
 assert sudoku.cells(2)==[1 ,2 ,3 ,4,

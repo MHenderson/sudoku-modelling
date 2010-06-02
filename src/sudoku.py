@@ -217,26 +217,15 @@ def empty_puzzle(boxsize):
     add_box_constraints(p, boxsize)
     return p
 
-def puzzle(boxsize, clues):
-    """puzzle(boxsize, clues) -> constraint.Problem
+def puzzle_as_CP(fixed, boxsize):
+    """puzzle_as_CP(fixed, boxsize) -> constraint.Problem
 
-    Returns a constraint problem representing a Sudoku puzzle, where the fixed
-    cells are specified by 'clues' dictionary."""
+    Returns a constraint problem representing a Sudoku puzzle, based on 
+    'fixed' cell dictionary."""
     p = empty_puzzle(boxsize)
-    for clue in clues:
-        p.addConstraint(ExactSumConstraint(clues[clue]), [clue])
+    for cell in fixed:
+        p.addConstraint(ExactSumConstraint(fixed[cell]), [cell])
     return p
-
-def make_sudoku_constraint(puzzle_string, boxsize):
-    """make_sudoku_constraint(puzzle_string, boxsize) -> constraint.Problem
-
-    Returns a constraint problem representing a Sudoku puzzle from the 
-    'puzzle_string' Sudoku puzzle string.
-    
-    >>> p = "79....3.......69..8...3..76.....5..2..54187..4..7.....61..9...8..23.......9....54"
-    >>> c = make_sudoku_constraint(p,3) 
-    >>> s = dict_to_string(c.getSolution(),3) """
-    return puzzle(boxsize, string_to_dict(strip_nl(puzzle_string), boxsize))
 
 ####################################################################
 # Graph models
@@ -520,7 +509,7 @@ def process_puzzle(puzzle, boxsize):
     return dict_to_string(p.getSolution())
 
 def solve_as_CP(fixed, boxsize):
-    return puzzle(boxsize, fixed).getSolution()
+    return puzzle_as_CP(fixed, boxsize).getSolution()
 
 def solve_as_lp(fixed, boxsize):
     return solve_as_lp_(lp_puzzle(fixed, boxsize), boxsize)
