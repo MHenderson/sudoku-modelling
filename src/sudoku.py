@@ -70,6 +70,7 @@ def flatten(list_of_lists):
     return itertools.chain.from_iterable(list_of_lists)
 
 def int_to_printable(i):
+    """Convert an integer to a printable character."""
     return string.printable[i]
 
 ####################################################################
@@ -104,6 +105,7 @@ def dependent_cells(boxsize):
 ####################################################################
 
 def strip_nl(puzzle_string):
+    """Remove newline characters from a string."""
     return puzzle_string.replace('\n', '')
 
 def dict_to_string(fixed, boxsize):
@@ -206,7 +208,7 @@ def add_box_constraints(problem, boxsize):
     for box in cells_by_box(boxsize):
         problem.addConstraint(AllDifferentConstraint(), box)
 
-def empty_puzzle(boxsize):
+def empty_puzzle_as_CP(boxsize):
     """empty_puzzle(boxsize) -> constraint.Problem
 
     Returns a constraint problem representing an empty Sudoku puzzle of 
@@ -223,7 +225,7 @@ def puzzle_as_CP(fixed, boxsize):
 
     Returns a constraint problem representing a Sudoku puzzle, based on 
     'fixed' cell dictionary."""
-    p = empty_puzzle(boxsize)
+    p = empty_puzzle_as_CP(boxsize)
     for cell in fixed:
         p.addConstraint(ExactSumConstraint(fixed[cell]), [cell])
     return p
@@ -232,21 +234,21 @@ def puzzle_as_CP(fixed, boxsize):
 # Graph models
 ####################################################################
 
-def empty_sudoku_graph(boxsize):
-    """empty_sudoku_graph(boxsize) -> networkx.Graph
+def empty_puzzle_as_graph(boxsize):
+    """empty_puzzle_as_graph(boxsize) -> networkx.Graph
 
     Returns the Sudoku graph of dimension 'boxsize'.
     
-    >>> g = empty_sudoku_graph(3)
-    >>> g = empty_sudoku_graph(4)"""
+    >>> g = empty_puzzle_as_graph(3)
+    >>> g = empty_puzzle_as_graph(4)"""
     
     g = networkx.Graph()
     g.add_nodes_from(cells(boxsize))
     g.add_edges_from(dependent_cells(boxsize))
     return g
 
-def puzzle_graph(fixed, boxsize):
-    g = empty_sudoku_graph(boxsize)
+def puzzle_as_graph(fixed, boxsize):
+    g = empty_puzzle_as_graph(boxsize)
     for cell in fixed:
         g.node[cell]['color'] = fixed[cell]
     return g
@@ -337,7 +339,7 @@ def vertex_coloring(graph, nodes = InOrder, choose_color = FirstAvailableColor):
             graph.node[node]['color'] = choose_color()(graph, node)
     return graph
 
-def greedy_vertex_coloring(graph):
+def sequential_vertex_coloring(graph):
     """Color vertices sequentially, using first available color."""
     return vertex_coloring(graph)
 
@@ -379,7 +381,7 @@ def edge_polynomials(boxsize):
     """All dependency polynomials."""
     return [edge_polynomial(x, y, boxsize) for x, y in dependent_symbols(boxsize)]
 
-def polynomial_system_empty(boxsize):
+def empty_puzzle_as_polynomial_system(boxsize):
     """The polynomial system for an empty Sudoku puzzle of dimension 
     'boxsize'."""
     return node_polynomials(boxsize) + edge_polynomials(boxsize)
@@ -394,7 +396,7 @@ def fixed_cells_polynomials(fixed):
     'fixed' dictionary."""
     return [fixed_cell_polynomial(cell, symbol) for cell, symbol in fixed.iteritems()]
 
-def polynomial_system(fixed, boxsize):
+def puzzle_as_polynomial_system(fixed, boxsize):
     """Polynomial system for Sudoku puzzle of dimension 'boxsize' with fixed
     cells given by 'fixed' dictionary.
 
@@ -402,10 +404,10 @@ def polynomial_system(fixed, boxsize):
     ...          5:3, 6:4, 7:1, 8:2,
     ...          9:2, 10:1,11:4,12:3,
     ...          13:4,14:3,15:2}
-    >>> p = polynomial_system(fixed, 2)
+    >>> p = puzzle_as_polynomial_system(fixed, 2)
     >>> import sympy
-    >>> g = sympy.groebner(p,cell_symbols(2),order='lex') """
-    return polynomial_system_empty(boxsize) + fixed_cells_polynomials(fixed)
+    >>> g = sympy.groebner(p, cell_symbols(2), order='lex') """
+    return empty_puzzle_as_polynomial_system(boxsize) + fixed_cells_polynomials(fixed)
 
 ####################################################################
 # Linear program models
@@ -461,7 +463,7 @@ def lp_coeffs(boxsize):
     the empty Sudoku puzzle."""
     return lp_occ_eqs(cells_by_row(boxsize), boxsize) + lp_occ_eqs(cells_by_col(boxsize), boxsize) + lp_occ_eqs(cells_by_box(boxsize), boxsize) + lp_nonempty_eqs(boxsize)
 
-def lp_empty(boxsize):
+def empty_puzzle_as_lp(boxsize):
     """Linear program for empty Sudoku puzzle."""
     lp = glpk.LPX()
     lp.cols.add(lp_matrix_ncols(boxsize))
@@ -473,7 +475,7 @@ def lp_empty(boxsize):
     lp.matrix = list(flatten(lp_coeffs(boxsize)))
     return lp
 
-def lp_puzzle(fixed, boxsize):
+def puzzle_as_lp(fixed, boxsize):
     """Linear program for Sudoku with 'fixed' clues."""
     lp = lp_empty(boxsize)
     for cell in fixed:
@@ -485,7 +487,7 @@ def lp_puzzle(fixed, boxsize):
         lp.rows[-1].bounds = 1.0, 1.0
     return lp
 
-def solve_as_lp_(lp, boxsize):
+def solve_lp_puzzle(lp, boxsize):
     """Solve a linear program Sudoku and return puzzle dictionary."""
     lp.simplex()
     for col in lp.cols:
@@ -499,33 +501,36 @@ def solve_as_lp_(lp, boxsize):
     return sol
 
 ####################################################################
-# Puzzle solving and processing strategies
+# Puzzle solving strategies
 ####################################################################
-
-def process_puzzle(puzzle, boxsize):
-    """process_puzzle(puzzle, boxsize) -> string
-
-    Constraint processing strategy."""
-    p = make_sudoku_constraint(puzzle, boxsize)
-    return dict_to_string(p.getSolution())
 
 def solve_as_CP(fixed, boxsize):
     return puzzle_as_CP(fixed, boxsize).getSolution()
 
 def solve_as_lp(fixed, boxsize):
-    return solve_as_lp_(lp_puzzle(fixed, boxsize), boxsize)
+    return solve_lp_puzzle(puzzle_as_lp(fixed, boxsize), boxsize)
 
 def solve_as_groebner(fixed, boxsize):
-    g = polynomial_system(fixed, boxsize)
+    g = puzzle_as_polynomial_system(fixed, boxsize)
     h = sympy.groebner(g, cell_symbols(boxsize), order='lex')
     s = sympy.solve(h, cell_symbols(boxsize))
     return s 
 
 ####################################################################
+# Puzzle string processing
+####################################################################
+
+def process_puzzle(puzzle_string, boxsize, solve = solve_as_CP):
+    """process_puzzle(puzzle, boxsize) -> string
+
+    Constraint processing strategy."""
+    return dict_to_string(solve(string_to_dict(puzzle_string, boxsize), boxsize), boxsize)
+
+####################################################################
 # File handling
 ####################################################################
 
-def solve_from_file(infile, outfile, boxsize):
+def solve_from_file(infile, outfile, boxsize, solve):
     """solve_from_file(infile, outfile, boxsize)
 
     Outputs solutions to puzzles in file 'infile' to file 'outfile'."""
@@ -533,7 +538,7 @@ def solve_from_file(infile, outfile, boxsize):
     output = open(outfile, 'w')
     puzzles = input.readlines()
     for puzzle in puzzles:
-        s = process_puzzle(puzzle, boxsize)
+        s = process_puzzle(puzzle, boxsize, solve)
         output.write(s + "\n")
 
 def dimacs_file(boxsize, outfile):
@@ -559,7 +564,7 @@ def random_puzzle(puzzle, n_fixed, boxsize):
     return fixed
 
 def random_from_CP(n_fixed, boxsize):
-    p = empty_puzzle(boxsize)
+    p = empty_puzzle_as_CP(boxsize)
     s = p.getSolution()
     return random_puzzle(s, n_fixed, boxsize)
 
