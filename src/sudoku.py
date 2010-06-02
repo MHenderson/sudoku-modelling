@@ -299,11 +299,13 @@ def saturation_degree(graph, node):
     return len(set(neighboring_colors(graph, node)))
 
 class FirstAvailableColor():
+    """First available color choice visitor."""
 
     def __call__(self, graph, node):
         return first_available_color(graph, node)
 
 class InOrder():
+    """Natural vertex ordering strategy."""
 
     def __init__(self, graph):
         self.graph = graph
@@ -312,6 +314,7 @@ class InOrder():
         return self.graph.nodes_iter()
 
 class RandomOrder():
+    """Random vertex ordering strategy."""
 
     def __init__(self, graph):
         self.graph = graph
@@ -321,7 +324,8 @@ class RandomOrder():
         shuffle(self.nodes)
         return iter(self.nodes)
 
-class DSATIter():
+class DSATOrder():
+    """Saturation degree vertex ordering strategy."""
 
     def __init__(self, graph):
         self.graph = graph
@@ -339,14 +343,6 @@ class DSATIter():
 
     def __iter__(self):
         return self
-
-class DSATOrder():
-
-    def __init__(self, graph):
-        self.graph = graph
-
-    def __iter__(self):
-        return DSATIter(self.graph)
 
 def vertex_coloring(graph, nodes = InOrder, choose_color = FirstAvailableColor):
     """Generic vertex coloring algorithm. Node ordering specified by 'nodes'
