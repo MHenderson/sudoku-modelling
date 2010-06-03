@@ -11,7 +11,7 @@ Constraint models for Sudoku puzzles are discussed in \cite{simonissudoku}. The 
 
 In Listing \ref{constraintdemo}, an example is shown of how to model a Sudoku puzzle with \texttt{sudoku.py} and use the built-in constraint solver of \texttt{python-constraint} to find a solution.
 
-\lstinputlisting[firstline=45,lastline=59,caption=Solving a Sudoku via constraint model,label=constraintdemo]{../demos/article_demo.py}
+\lstinputlisting[firstline=45,lastline=59,caption=Solving a Sudoku via constraint model,label=constraintdemo]{../../demos/article_demo.py}
 
 \subsection{Graph models}
 \label{sec:models:graph}
@@ -21,7 +21,7 @@ A graph model for Sudoku is presented in \cite{gagovargaset}. In this model, eve
 \begin{figure}[h]
 \centering
 \begin{dot2tex}[circo,mathmode,options={--graphstyle "scale=0.40"}]
-  \input{../dot/empty_sudoku_graph_2.dot}
+  \input{../../dot/empty_sudoku_graph_2.dot}
 \end{dot2tex}
 \caption{The Shidoku graph}
 \end{figure}
@@ -82,6 +82,6 @@ and every symbol in every box:
  \sum_{j = mq - m + q}^{mq} \sum_{i = mp - m + 1}^{mp} x_{ijk} = 1, \quad 1 \leq k \leq n, 1 \leq p \leq m, 1 \leq q \leq m
 \end{equation}
 
-\lstinputlisting[firstline=60, lastline=76, caption=Solving a Sudoku via LP model,label=constraintdemo]{../demos/article_demo.py}
+\lstinputlisting[firstline=60, lastline=76, caption=Solving a Sudoku via LP model,label=constraintdemo]{../../demos/article_demo.py}
 
 
