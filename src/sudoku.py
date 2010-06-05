@@ -541,30 +541,19 @@ def solve_as_groebner(fixed, boxsize):
     return s 
 
 ####################################################################
-# Puzzle string processing
-####################################################################
-
-def process_puzzle(puzzle_string, boxsize, solve = solve_as_CP):
-    """process_puzzle(puzzle, boxsize) -> string
-
-    Constraint processing strategy."""
-    return solve(string_to_dict(puzzle_string, boxsize), boxsize)
-
-####################################################################
 # File handling
 ####################################################################
 
-def solve_from_file(infile, outfile, boxsize, solve = solve_as_CP):
-    """solve_from_file(infile, outfile, boxsize)
+def solve_from_file(infile, boxsize, solve = solve_as_CP, file = None):
+    """solve_from_file(infile, boxsize)
 
-    Outputs solutions to puzzles in file 'infile' to file 'outfile'."""
+    Outputs solutions to puzzles in file 'infile'."""
     input = open(infile, 'r')
-    output = open(outfile, 'a')
     puzzles = input.readlines()
     for puzzle in puzzles:
-        s = process_puzzle(puzzle, boxsize, solve)
-        print_puzzle_d_p(s, boxsize, padding = 0, rowend="", file=output)
-    output.close()
+        s = solve(string_to_dict(puzzle, boxsize), boxsize)
+        print_puzzle_d_p(s, boxsize, padding = 0, rowend = "", file = file)
+        print(file = file)
 
 def dimacs_file(boxsize, outfile):
     """Output to 'outfile' an empty Sudoku graph of dimension 'boxsize'."""
