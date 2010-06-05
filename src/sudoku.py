@@ -24,7 +24,7 @@ def n_cells(boxsize): return n_rows(boxsize)*n_cols(boxsize)
 # Cell label functions
 ####################################################################
 
-def cell(row, column, boxsize): return (row - 1)*n_rows(boxsize) + column
+def cell(row, column, boxsize): return (row - 1) * n_rows(boxsize) + column
 def column(cell, boxsize): return (cell - 1) % n_rows(boxsize) + 1
 def row(cell, boxsize): return (cell - 1) / n_cols(boxsize) + 1
 
@@ -76,6 +76,9 @@ def int_to_printable(i):
     """Convert an integer to a printable character."""
     return string.printable[i]
 
+def printable_to_int(c):
+    return string.printable.index(c)
+
 ####################################################################
 # Cell dependencies
 ####################################################################
@@ -104,7 +107,7 @@ def dependent_cells(boxsize):
     return list(set(flatten(map(list,map(ordered_pairs, cells_by_row(boxsize) + cells_by_col(boxsize) + cells_by_box(boxsize))))))
 
 ####################################################################
-# String/Dictionary handling
+# String/dictionary conversions
 ####################################################################
 
 def strip_nl(puzzle_string):
@@ -129,7 +132,7 @@ def string_to_dict(puzzle, boxsize):
     d = {}
     for cell in cells(boxsize):
         if puzzle[cell - 1] != '.':
-            d[cell] = int(puzzle[cell - 1])
+            d[cell] = int(printable_to_int(puzzle[cell - 1]))
     return d
 
 def graph_to_dict(graph):
@@ -161,7 +164,7 @@ def print_puzzle_d(puzzle_d, boxsize, width = 2, rowend = "\n", file = None):
                 print((width - 1)*' ' + '.', end = "", file = file)
         print(end = rowend, file = file)
 
-def print_puzzle_d_p(puzzle_d, boxsize, rowend = "\n", file = None):
+def print_puzzle_d_p(puzzle_d, boxsize, padding = 1, rowend = "\n", file = None):
     """Pretty printing of Sudoku puzzle dictionaries, using printable
     characters."""
     for row in rows(boxsize):
@@ -169,9 +172,9 @@ def print_puzzle_d_p(puzzle_d, boxsize, rowend = "\n", file = None):
         for col in cols(boxsize):
             symbol = puzzle_d.get(cell(row, col, boxsize))
             if symbol is not None:
-                print(int_to_printable(symbol), end="", file = file)
+                print(" "*padding + int_to_printable(symbol) + " "*padding, end="", file = file)
             else:
-                print('.', end = "", file = file)                 
+                print(' '*padding + '.' + ' '*padding, end = "", file = file)                 
         print(end = rowend, file = file)
 
 ####################################################################
@@ -545,7 +548,7 @@ def process_puzzle(puzzle_string, boxsize, solve = solve_as_CP):
     """process_puzzle(puzzle, boxsize) -> string
 
     Constraint processing strategy."""
-    return dict_to_string(solve(string_to_dict(puzzle_string, boxsize), boxsize), boxsize)
+    return solve(string_to_dict(puzzle_string, boxsize), boxsize)
 
 ####################################################################
 # File handling
@@ -556,11 +559,12 @@ def solve_from_file(infile, outfile, boxsize, solve = solve_as_CP):
 
     Outputs solutions to puzzles in file 'infile' to file 'outfile'."""
     input = open(infile, 'r')
-    output = open(outfile, 'w')
+    output = open(outfile, 'a')
     puzzles = input.readlines()
     for puzzle in puzzles:
         s = process_puzzle(puzzle, boxsize, solve)
-        output.write(s + "\n")
+        print_puzzle_d_p(s, boxsize, padding = 0, rowend="", file=output)
+    output.close()
 
 def dimacs_file(boxsize, outfile):
     """Output to 'outfile' an empty Sudoku graph of dimension 'boxsize'."""
