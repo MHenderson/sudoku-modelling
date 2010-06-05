@@ -5,3 +5,4 @@ syntax: glob
 *.bak
 *.pyc
 doc/build/
+article/rst/output
