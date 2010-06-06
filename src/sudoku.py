@@ -152,10 +152,8 @@ def print_puzzle(puzzle_string, boxsize, file = None):
 
 def print_puzzle_d(puzzle_d, boxsize, width = 2, rowend = "\n", file = None):
     """Pretty printing of Sudoku puzzle dictionaries."""
-    fs = ''
     format_string = '%' + str(width) + 'i'
     for row in rows(boxsize):
-        s = ''
         for col in cols(boxsize):
             symbol = puzzle_d.get(cell(row, col, boxsize))
             if symbol is not None:
@@ -168,7 +166,6 @@ def print_puzzle_d_p(puzzle_d, boxsize, padding = 1, rowend = "\n", file = None)
     """Pretty printing of Sudoku puzzle dictionaries, using printable
     characters."""
     for row in rows(boxsize):
-        s = ''
         for col in cols(boxsize):
             symbol = puzzle_d.get(cell(row, col, boxsize))
             if symbol is not None:
@@ -356,10 +353,6 @@ def vertex_coloring(graph, nodes = InOrder, choose_color = FirstAvailableColor):
             graph.node[node]['color'] = choose_color()(graph, node)
     return graph
 
-def sequential_vertex_coloring(graph):
-    """Color vertices sequentially, using first available color."""
-    return vertex_coloring(graph)
-
 ####################################################################
 # Polynomial system models
 ####################################################################
@@ -540,11 +533,18 @@ def solve_as_groebner(fixed, boxsize):
     s = sympy.solve(h, cell_symbols(boxsize))
     return s 
 
+def solve_as_graph(fixed, boxsize):
+    """Use vertex coloring to solve Sudoku puzzle of dimension 'boxsize'
+    with 'fixed' cells."""
+    g = puzzle_as_graph(fixed, boxsize)
+    cg = vertex_coloring(g, DSATOrder)
+    return graph_to_dict(cg)
+
 ####################################################################
 # File handling
 ####################################################################
 
-def solve_from_file(infile, boxsize, solve = solve_as_CP, file = None):
+def solve_from_file(infile, boxsize, padding = 0, rowend = "", puzzleend = "", solve = solve_as_CP, file = None):
     """solve_from_file(infile, boxsize)
 
     Outputs solutions to puzzles in file 'infile'."""
@@ -552,20 +552,20 @@ def solve_from_file(infile, boxsize, solve = solve_as_CP, file = None):
     puzzles = input.readlines()
     for puzzle in puzzles:
         s = solve(string_to_dict(puzzle, boxsize), boxsize)
-        print_puzzle_d_p(s, boxsize, padding = 0, rowend = "", file = file)
-        print(file = file)
+        print_puzzle_d_p(s, boxsize, padding, rowend, file)
+        print(puzzleend, file = file)
 
-def dimacs_file(boxsize, outfile):
-    """Output to 'outfile' an empty Sudoku graph of dimension 'boxsize'."""
+def dimacs_file(graph, outfile):
+    """Output to 'outfile' a graph in Dimacs format."""
     out = open(outfile, 'w')
-    sg = empty_sudoku_graph(boxsize)
-    out.write(dimacs_string(sg))
+    out.write(dimacs_string(graph))
+    out.close()
 
 ####################################################################
 # Puzzle generators
 ####################################################################
 
-def random_puzzle(puzzle, n_fixed, boxsize):
+def random_puzzle_f(puzzle, n_fixed, boxsize):
     """Returns a puzzle dictionary of a random Sudoku puzzle of 'fixed' size
     based on the Sudoku 'puzzle' dictionary."""
     fixed = deepcopy(puzzle)
@@ -577,10 +577,9 @@ def random_puzzle(puzzle, n_fixed, boxsize):
         indices.remove(c)
     return fixed
 
-def random_from_CP(n_fixed, boxsize):
+def random_puzzle(n_fixed, boxsize, solve = solve_as_CP):
     """Random puzzle generator, based on constraint programming solution of
     empty puzzle."""
-    p = empty_puzzle_as_CP(boxsize)
-    s = p.getSolution()
-    return random_puzzle(s, n_fixed, boxsize)
+    s = solve({}, boxsize)
+    return random_puzzle_f(s, n_fixed, boxsize)
 
