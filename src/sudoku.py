@@ -36,6 +36,7 @@ def cells(boxsize): return range(1, n_cells(boxsize) + 1)
 def symbols(boxsize): return range(1, n_symbols(boxsize) + 1)
 def rows(boxsize): return range(1, n_rows(boxsize) + 1)
 def cols(boxsize): return range(1, n_cols(boxsize) + 1)
+def boxes(boxsize): return range(1, n_boxes(boxsize) + 1)
 
 def row_r(row, boxsize):
     """Cells in 'row' of Sudoku puzzle of dimension 'boxsize'."""
@@ -78,6 +79,15 @@ def int_to_printable(i):
 
 def printable_to_int(c):
     return string.printable.index(c)
+
+def are_different(pair):
+    return pair[0] != pair[1]
+
+def conjunction(l):
+    r = True
+    for e in l:
+        r = r and e
+    return r
 
 ####################################################################
 # Cell dependencies
@@ -578,8 +588,32 @@ def random_puzzle_f(puzzle, n_fixed, boxsize):
     return fixed
 
 def random_puzzle(n_fixed, boxsize, solve = solve_as_CP):
-    """Random puzzle generator, based on constraint programming solution of
-    empty puzzle."""
+    """Random puzzle generator, based on solution of empty puzzle."""
     s = solve({}, boxsize)
     return random_puzzle_f(s, n_fixed, boxsize)
+
+####################################################################
+# Verification
+####################################################################
+
+def are_all_different(l):
+    return conjunction(map(are_different, itertools.combinations(l, 2)))
+
+def is_row_latin(puzzle, boxsize):
+    return conjunction(map(are_all_different, [[puzzle[i] for i in cells_by_row(boxsize)[row - 1]] for row in rows(boxsize)]))
+
+def is_column_latin(puzzle, boxsize):
+    return conjunction(map(are_all_different, [[puzzle[i] for i in cells_by_col(boxsize)[col - 1]] for col in cols(boxsize)]))
+
+def is_box_latin(puzzle, boxsize):
+    return conjunction(map(are_all_different, [[puzzle[i] for i in cells_by_box(boxsize)[box - 1]] for box in boxes(boxsize)]))
+
+def is_sudoku(puzzle, boxsize):
+    return is_row_latin(puzzle, boxsize) and is_column_latin(puzzle, boxsize) and is_box_latin(puzzle, boxsize)
+
+def is_solution(fixed, puzzle, boxsize):
+    return conjunction([fixed[cell] == puzzle[cell] for cell in fixed])
+
+def is_sudoku_solution(fixed, puzzle, boxsize):
+    return is_sudoku(puzzle, boxsize) and is_solution(fixed, puzzle, boxsize)
 
