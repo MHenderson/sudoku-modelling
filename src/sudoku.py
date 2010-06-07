@@ -6,6 +6,7 @@ from math import sqrt, floor
 from random import choice, seed, shuffle
 import itertools, string
 from copy import deepcopy
+import operator
 
 from constraint import Problem, AllDifferentConstraint, ExactSumConstraint
 import networkx, sympy, glpk
@@ -39,18 +40,18 @@ def cols(boxsize): return range(1, n_cols(boxsize) + 1)
 def boxes(boxsize): return range(1, n_boxes(boxsize) + 1)
 
 def row_r(row, boxsize):
-    """Cells in 'row' of Sudoku puzzle of dimension 'boxsize'."""
+    """Cell labels in 'row' of Sudoku puzzle of dimension 'boxsize'."""
     nr = n_rows(boxsize)
     return range(nr * (row - 1) + 1, nr * row + 1)
 
 def col_r(column, boxsize):
-    """Cells in 'column' of Sudoku puzzle of dimension 'boxsize'."""
+    """Cell labels in 'column' of Sudoku puzzle of dimension 'boxsize'."""
     nc = n_cols(boxsize)
     ncl = n_cells(boxsize)
     return range(column, ncl + 1 - (nc - column), nc)
 
 def box_r(box_representative, boxsize):
-    """Cells in 'box' of Sudoku puzzle of dimension 'boxsize'."""
+    """Cell labels in 'box' of Sudoku puzzle of dimension 'boxsize'."""
     nr = n_rows(boxsize)
     nc = n_cols(boxsize)
     return [box_representative + j + k - 1 for j in range(0, boxsize * nr, nc) for k in range(1, boxsize + 1)]
@@ -111,17 +112,13 @@ def printable_to_int(c):
     """Convert a printable character to a integer."""
     return string.printable.index(c)
 
-def are_different(pair):
-    """Test inequality of a pair of items."""
-    return pair[0] != pair[1]
-
 def conjunction(l):
     """Conjunction of a range of Boolean values."""
-    return reduce(lambda x, y: x and y, l)
+    return reduce(operator.and_, l)
 
 def are_all_different(l):
     """Test whether all elements in range 'l' are different."""
-    return conjunction(map(are_different, itertools.combinations(l, 2)))
+    return conjunction(itertools.starmap(operator.ne, itertools.combinations(l, 2)))
 
 def are_all_different_nested(l):
     """Test whether every range in range 'l' is a range of all different
@@ -135,7 +132,7 @@ def are_all_different_nested(l):
 def dependent_cells(boxsize):
     """List of all pairs (x, y) with x < y such that x and y either lie in the 
     same row, same column or same box."""
-    return list(set(flatten(map(list,map(ordered_pairs, cells_by_row(boxsize) + cells_by_col(boxsize) + cells_by_box(boxsize))))))
+    return list(set(flatten(map(list, map(ordered_pairs, cells_by_row(boxsize) + cells_by_col(boxsize) + cells_by_box(boxsize))))))
 
 ####################################################################
 # String/dictionary conversions
@@ -297,6 +294,10 @@ def puzzle_as_graph(fixed, boxsize):
         g.node[cell]['color'] = fixed[cell]
     return g
 
+####################################################################
+# Vertex coloring algorithms
+####################################################################
+
 def neighboring_colors(graph, node):
     """Returns list of colors used on neighbors of 'node' in 'graph'."""
     colors = []
@@ -407,7 +408,7 @@ def dependent_symbols(boxsize):
 
 def node_polynomial(x, boxsize):
     """The polynomial representing a cell corresponding to symbol 'x'."""
-    return reduce(lambda x,y: x*y, [(x - i) for i in range(1, n_rows(boxsize) + 1)])
+    return reduce(operator.mul, [(x - row) for row in rows(boxsize)])
 
 def edge_polynomial(x, y, boxsize):
     """The polynomials representing the dependency of cells corresponding to
@@ -486,19 +487,12 @@ def lp_nonempty_eq(cell, boxsize):
 def lp_occ_eqs(cells_r, boxsize):
     """Linear equations (as lists of coefficients) which correspond to the
     cells in cells_r having one occurence of every symbol."""
-    eqns = []
-    for cells in cells_r:
-        for symbol in symbols(boxsize):
-            eqns.append(lp_occ_eq(cells, symbol, boxsize))
-    return eqns
+    return [lp_occ_eq(cells, symbol, boxsize) for cells in cells_r for symbol in symbols(boxsize)]
 
 def lp_nonempty_eqs(boxsize):
     """Linear equations (as lists of coefficients) which correspond to 
     every cell having one symbol."""
-    eqns = []
-    for cell in cells(boxsize):
-        eqns.append(lp_nonempty_eq(cell, boxsize))
-    return eqns
+    return [lp_nonempty_eq(cell, boxsize) for cell in cells(boxsize)]
 
 def lp_coeffs(boxsize):
     """Linear equations (as lists of coefficients) which correspond to 
