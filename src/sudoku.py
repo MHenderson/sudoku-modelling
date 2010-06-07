@@ -50,7 +50,7 @@ def col_r(column, boxsize):
     return range(column, ncl + 1 - (nc - column), nc)
 
 def box_r(box_representative, boxsize):
-    """Cells in 'column' of Sudoku puzzle of dimension 'boxsize'."""
+    """Cells in 'box' of Sudoku puzzle of dimension 'boxsize'."""
     nr = n_rows(boxsize)
     nc = n_cols(boxsize)
     return [box_representative + j + k - 1 for j in range(0, boxsize * nr, nc) for k in range(1, boxsize + 1)]
@@ -61,17 +61,35 @@ def box_representatives(boxsize):
     Returns a list of cell labels of the top-left cell of each box."""
     return [cell(i, j, boxsize) for i in range(1, n_rows(boxsize), boxsize) for j in range(1, n_cols(boxsize), boxsize)]
 
+def cells_by_row(boxsize):
+    """cells_by_row(boxsize) -> list
+
+    Returns a list of cell labels ordered by row for the given boxsize."""
+    return [row_r(row, boxsize) for row in rows(boxsize)]
+
+def cells_by_col(boxsize):
+    """cells_by_col(boxsize) -> list
+
+    Returns a list of cell labels ordered by column for the given boxsize."""
+    return [col_r(column, boxsize) for column in cols(boxsize)]
+
+def cells_by_box(boxsize):
+    """cells_by_box(boxsize) -> list
+
+    Returns a list of cell labels ordered by box for the given boxsize."""
+    return [box_r(box_representative, boxsize) for box_representative in box_representatives(boxsize)]
+
 def puzzle_rows(puzzle, boxsize):
     """Cell values, ordered by row."""
-    return [[puzzle[i] for i in cells_by_row(boxsize)[row - 1]] for row in rows(boxsize)]
+    return [map(puzzle.get, cells_by_row(boxsize)[row - 1]) for row in rows(boxsize)]
 
 def puzzle_columns(puzzle, boxsize):
     """Cell values, ordered by column."""
-    return [[puzzle[i] for i in cells_by_col(boxsize)[col - 1]] for col in cols(boxsize)]
+    return [map(puzzle.get, cells_by_col(boxsize)[column - 1]) for column in cols(boxsize)]
 
 def puzzle_boxes(puzzle, boxsize):
     """Cell values, ordered by box."""
-    return [[puzzle[i] for i in cells_by_box(boxsize)[box - 1]] for box in boxes(boxsize)]
+    return [map(puzzle.get, cells_by_box(boxsize)[box - 1]) for box in boxes(boxsize)]
 
 ####################################################################
 # Convenient functions
@@ -94,9 +112,11 @@ def printable_to_int(c):
     return string.printable.index(c)
 
 def are_different(pair):
+    """Test inequality of a pair of items."""
     return pair[0] != pair[1]
 
 def conjunction(l):
+    """Conjunction of a range of Boolean values."""
     return reduce(lambda x, y: x and y, l)
 
 def are_all_different(l):
@@ -111,24 +131,6 @@ def are_all_different_nested(l):
 ####################################################################
 # Cell dependencies
 ####################################################################
-
-def cells_by_row(boxsize):
-    """cells_by_row(boxsize) -> list
-
-    Returns a list of cell labels ordered by row for the given boxsize."""
-    return [row_r(row, boxsize) for row in rows(boxsize)]
-
-def cells_by_col(boxsize):
-    """cells_by_col(boxsize) -> list
-
-    Returns a list of cell labels ordered by column for the given boxsize."""
-    return [col_r(column, boxsize) for column in cols(boxsize)]
-
-def cells_by_box(boxsize):
-    """cells_by_box(boxsize) -> list
-
-    Returns a list of cell labels ordered by box for the given boxsize."""
-    return [box_r(box_representative, boxsize) for box_representative in box_representatives(boxsize)]
 
 def dependent_cells(boxsize):
     """List of all pairs (x, y) with x < y such that x and y either lie in the 
@@ -629,14 +631,14 @@ def is_sudoku(puzzle, boxsize):
 
 def is_solution(fixed, puzzle, boxsize):
     """Test whether 'fixed' cells have same values in 'puzzle'."""
-    return conjunction(itertools.imap(lambda x, y: x == y, fixed, puzzle))
+    return conjunction(map(lambda x: fixed[x] == puzzle[x], fixed))
 
 def is_sudoku_solution(fixed, puzzle, boxsize):
-    """Test whether 'puzzle' is a solution of 'puzzle'."""
+    """Test whether 'puzzle' is a solution of 'fixed'."""
     return is_sudoku(puzzle, boxsize) and is_solution(fixed, puzzle, boxsize)
 
 def is_sudoku_solution_s(fixed_s, puzzle_s, boxsize):
-    """Test whether 'puzzle' is a solution of 'puzzle'."""
+    """Test whether 'puzzle_s' string is a solution of 'fixed_s' string."""
     fixed = string_to_dict(fixed_s, boxsize)
     puzzle = string_to_dict(puzzle_s, boxsize)
     return is_sudoku_solution(fixed, puzzle, boxsize)
