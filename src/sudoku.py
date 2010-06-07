@@ -78,16 +78,14 @@ def int_to_printable(i):
     return string.printable[i]
 
 def printable_to_int(c):
+    """Convert a printable character to a integer."""
     return string.printable.index(c)
 
 def are_different(pair):
     return pair[0] != pair[1]
 
 def conjunction(l):
-    r = True
-    for e in l:
-        r = r and e
-    return r
+    return reduce(lambda x, y: x and y, l)
 
 ####################################################################
 # Cell dependencies
@@ -154,7 +152,7 @@ def graph_to_dict(graph):
 # Puzzle printing
 ####################################################################
 
-def print_puzzle(puzzle_string, boxsize, file = None):
+def print_puzzle_s(puzzle_string, boxsize, file = None):
     """Pretty printing of Sudoku puzzle strings."""
     nc = n_cols(boxsize)
     for row in rows(boxsize):
@@ -166,19 +164,19 @@ def print_puzzle_d(puzzle_d, boxsize, width = 2, rowend = "\n", file = None):
     for row in rows(boxsize):
         for col in cols(boxsize):
             symbol = puzzle_d.get(cell(row, col, boxsize))
-            if symbol is not None:
+            if symbol:
                 print(format_string % symbol, end = "", file = file)
             else:
                 print((width - 1)*' ' + '.', end = "", file = file)
         print(end = rowend, file = file)
 
-def print_puzzle_d_p(puzzle_d, boxsize, padding = 1, rowend = "\n", file = None):
+def print_puzzle(puzzle_d, boxsize, padding = 1, rowend = "\n", file = None):
     """Pretty printing of Sudoku puzzle dictionaries, using printable
     characters."""
     for row in rows(boxsize):
         for col in cols(boxsize):
             symbol = puzzle_d.get(cell(row, col, boxsize))
-            if symbol is not None:
+            if symbol:
                 print(" "*padding + int_to_printable(symbol) + " "*padding, end="", file = file)
             else:
                 print(' '*padding + '.' + ' '*padding, end = "", file = file)                 
@@ -558,11 +556,10 @@ def solve_from_file(infile, boxsize, padding = 0, rowend = "", puzzleend = "", s
     """solve_from_file(infile, boxsize)
 
     Outputs solutions to puzzles in file 'infile'."""
-    input = open(infile, 'r')
-    puzzles = input.readlines()
+    puzzles = open(infile, 'r')
     for puzzle in puzzles:
         s = solve(string_to_dict(puzzle, boxsize), boxsize)
-        print_puzzle_d_p(s, boxsize, padding, rowend, file)
+        print_puzzle(s, boxsize, padding, rowend, file)
         print(puzzleend, file = file)
 
 def dimacs_file(graph, outfile):
@@ -597,23 +594,30 @@ def random_puzzle(n_fixed, boxsize, solve = solve_as_CP):
 ####################################################################
 
 def are_all_different(l):
+    """Test whether all elements in range 'l' are different."""
     return conjunction(map(are_different, itertools.combinations(l, 2)))
 
 def is_row_latin(puzzle, boxsize):
+    """Test latin-ness of 'puzzle' rows."""
     return conjunction(map(are_all_different, [[puzzle[i] for i in cells_by_row(boxsize)[row - 1]] for row in rows(boxsize)]))
 
 def is_column_latin(puzzle, boxsize):
+    """Test latin-ness of 'puzzle' columns."""
     return conjunction(map(are_all_different, [[puzzle[i] for i in cells_by_col(boxsize)[col - 1]] for col in cols(boxsize)]))
 
 def is_box_latin(puzzle, boxsize):
+    """Test latin-ness of 'puzzle' boxes."""
     return conjunction(map(are_all_different, [[puzzle[i] for i in cells_by_box(boxsize)[box - 1]] for box in boxes(boxsize)]))
 
 def is_sudoku(puzzle, boxsize):
+    """Test whether 'puzzle' is a Sudoku puzzle of dimension 'boxsize'."""
     return is_row_latin(puzzle, boxsize) and is_column_latin(puzzle, boxsize) and is_box_latin(puzzle, boxsize)
 
 def is_solution(fixed, puzzle, boxsize):
+    """Test whether 'fixed' cells have same values in 'puzzle'."""
     return conjunction([fixed[cell] == puzzle[cell] for cell in fixed])
 
 def is_sudoku_solution(fixed, puzzle, boxsize):
+    """Test whether 'puzzle' is a solution of 'puzzle'."""
     return is_sudoku(puzzle, boxsize) and is_solution(fixed, puzzle, boxsize)
 
