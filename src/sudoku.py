@@ -548,19 +548,16 @@ def solve_as_graph(fixed, boxsize):
     cg = vertex_coloring(g, DSATOrder)
     return graph_to_dict(cg)
 
-####################################################################
-# File handling
-####################################################################
-
-def solve_from_file(infile, boxsize, padding = 0, rowend = "", puzzleend = "", solve = solve_as_CP, file = None):
-    """solve_from_file(infile, boxsize)
-
-    Outputs solutions to puzzles in file 'infile'."""
-    puzzles = open(infile, 'r')
+def solve_puzzles(puzzles, boxsize, padding = 0, rowend = "", puzzleend = "", solve = solve_as_CP, file = None):
+    """Print a solution of each puzzle in iterable 'puzzles'."""
     for puzzle in puzzles:
         s = solve(string_to_dict(puzzle, boxsize), boxsize)
         print_puzzle(s, boxsize, padding, rowend, file)
         print(puzzleend, file = file)
+
+####################################################################
+# File handling
+####################################################################
 
 def dimacs_file(graph, outfile):
     """Output to 'outfile' a graph in Dimacs format."""
@@ -620,4 +617,15 @@ def is_solution(fixed, puzzle, boxsize):
 def is_sudoku_solution(fixed, puzzle, boxsize):
     """Test whether 'puzzle' is a solution of 'puzzle'."""
     return is_sudoku(puzzle, boxsize) and is_solution(fixed, puzzle, boxsize)
+
+def is_sudoku_solution_s(fixed_s, puzzle_s, boxsize):
+    """Test whether 'puzzle' is a solution of 'puzzle'."""
+    fixed = string_to_dict(fixed_s, boxsize)
+    puzzle = string_to_dict(puzzle_s, boxsize)
+    return is_sudoku_solution(fixed, puzzle, boxsize)
+
+def verify_solutions(puzzles, solutions, boxsize, verify_solution = is_sudoku_solution):
+    """Test whether the iterable 'puzzles' has a solution in the 
+    corresponding position of iterable 'solutions'."""
+    return conjunction(itertools.imap(lambda p, s: verify_solution(p, s, boxsize), puzzles, solutions))
 
