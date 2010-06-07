@@ -61,6 +61,18 @@ def box_representatives(boxsize):
     Returns a list of cell labels of the top-left cell of each box."""
     return [cell(i, j, boxsize) for i in range(1, n_rows(boxsize), boxsize) for j in range(1, n_cols(boxsize), boxsize)]
 
+def puzzle_rows(puzzle, boxsize):
+    """Cell values, ordered by row."""
+    return [[puzzle[i] for i in cells_by_row(boxsize)[row - 1]] for row in rows(boxsize)]
+
+def puzzle_columns(puzzle, boxsize):
+    """Cell values, ordered by column."""
+    return [[puzzle[i] for i in cells_by_col(boxsize)[col - 1]] for col in cols(boxsize)]
+
+def puzzle_boxes(puzzle, boxsize):
+    """Cell values, ordered by box."""
+    return [[puzzle[i] for i in cells_by_box(boxsize)[box - 1]] for box in boxes(boxsize)]
+
 ####################################################################
 # Convenient functions
 ####################################################################
@@ -86,6 +98,15 @@ def are_different(pair):
 
 def conjunction(l):
     return reduce(lambda x, y: x and y, l)
+
+def are_all_different(l):
+    """Test whether all elements in range 'l' are different."""
+    return conjunction(map(are_different, itertools.combinations(l, 2)))
+
+def are_all_different_nested(l):
+    """Test whether every range in range 'l' is a range of all different
+    elements."""
+    return conjunction(map(are_all_different, l))
 
 ####################################################################
 # Cell dependencies
@@ -128,7 +149,7 @@ def dict_to_string(fixed, boxsize):
     s = ''
     for cell in cells(boxsize):
         symbol = fixed.get(cell)
-        if symbol is not None:
+        if symbol:
             s += int_to_printable(symbol)
         else:
             s += '.'
@@ -279,7 +300,7 @@ def neighboring_colors(graph, node):
     colors = []
     for node in graph.neighbors(node):
         color = graph.node[node].get('color')
-        if color is not None:
+        if color:
             colors.append(color)
     return colors
 
@@ -357,7 +378,7 @@ def vertex_coloring(graph, nodes = InOrder, choose_color = FirstAvailableColor):
     iterator. Color choice strategy specified by 'choose_color'."""
     nodes = nodes(graph)
     for node in nodes:
-        if graph.node[node].get('color') is None:
+        if not graph.node[node].get('color'):
             graph.node[node]['color'] = choose_color()(graph, node)
     return graph
 
@@ -590,21 +611,17 @@ def random_puzzle(n_fixed, boxsize, solve = solve_as_CP):
 # Verification
 ####################################################################
 
-def are_all_different(l):
-    """Test whether all elements in range 'l' are different."""
-    return conjunction(map(are_different, itertools.combinations(l, 2)))
-
 def is_row_latin(puzzle, boxsize):
     """Test latin-ness of 'puzzle' rows."""
-    return conjunction(map(are_all_different, [[puzzle[i] for i in cells_by_row(boxsize)[row - 1]] for row in rows(boxsize)]))
+    return are_all_different_nested(puzzle_rows(puzzle, boxsize))
 
 def is_column_latin(puzzle, boxsize):
     """Test latin-ness of 'puzzle' columns."""
-    return conjunction(map(are_all_different, [[puzzle[i] for i in cells_by_col(boxsize)[col - 1]] for col in cols(boxsize)]))
+    return are_all_different_nested(puzzle_columns(puzzle, boxsize))
 
 def is_box_latin(puzzle, boxsize):
     """Test latin-ness of 'puzzle' boxes."""
-    return conjunction(map(are_all_different, [[puzzle[i] for i in cells_by_box(boxsize)[box - 1]] for box in boxes(boxsize)]))
+    return are_all_different_nested(puzzle_boxes(puzzle, boxsize))
 
 def is_sudoku(puzzle, boxsize):
     """Test whether 'puzzle' is a Sudoku puzzle of dimension 'boxsize'."""
@@ -612,7 +629,7 @@ def is_sudoku(puzzle, boxsize):
 
 def is_solution(fixed, puzzle, boxsize):
     """Test whether 'fixed' cells have same values in 'puzzle'."""
-    return conjunction([fixed[cell] == puzzle[cell] for cell in fixed])
+    return conjunction(itertools.imap(lambda x, y: x == y, fixed, puzzle))
 
 def is_sudoku_solution(fixed, puzzle, boxsize):
     """Test whether 'puzzle' is a solution of 'puzzle'."""
