@@ -82,11 +82,11 @@ def cells_by_box(boxsize):
 
 def puzzle_rows(puzzle, boxsize):
     """Cell values, ordered by row."""
-    return [map(puzzle.get, cells_by_row(boxsize)[row - 1]) for row in rows(boxsize)]
+    return [map(puzzle.get, row_r(row, boxsize)) for row in rows(boxsize)]
 
 def puzzle_columns(puzzle, boxsize):
     """Cell values, ordered by column."""
-    return [map(puzzle.get, cells_by_col(boxsize)[column - 1]) for column in cols(boxsize)]
+    return [map(puzzle.get, col_r(column, boxsize)) for column in cols(boxsize)]
 
 def puzzle_boxes(puzzle, boxsize):
     """Cell values, ordered by box."""
@@ -112,18 +112,14 @@ def printable_to_int(c):
     """Convert a printable character to a integer."""
     return string.printable.index(c)
 
-def conjunction(l):
-    """Conjunction of a range of Boolean values."""
-    return reduce(operator.and_, l)
-
 def are_all_different(l):
     """Test whether all elements in range 'l' are different."""
-    return conjunction(itertools.starmap(operator.ne, itertools.combinations(l, 2)))
+    return all(itertools.starmap(operator.ne, ordered_pairs(l)))
 
 def are_all_different_nested(l):
     """Test whether every range in range 'l' is a range of all different
     elements."""
-    return conjunction(map(are_all_different, l))
+    return all(map(are_all_different, l))
 
 ####################################################################
 # Cell dependencies
@@ -201,6 +197,11 @@ def print_puzzle(puzzle_d, boxsize, padding = 1, rowend = "\n", file = None):
             else:
                 print(' '*padding + '.' + ' '*padding, end = "", file = file)                 
         print(end = rowend, file = file)
+
+def print_puzzles(puzzles, boxsize, padding = 0, rowend = "", puzzleend = "", solve = solve_as_CP, file = None):
+    for puzzle in puzzles:
+        print_puzzle(puzzle, boxsize, padding, rowend, file)
+        print(puzzleend, file = file)
 
 ####################################################################
 # Graph output
@@ -300,12 +301,7 @@ def puzzle_as_graph(fixed, boxsize):
 
 def neighboring_colors(graph, node):
     """Returns list of colors used on neighbors of 'node' in 'graph'."""
-    colors = []
-    for node in graph.neighbors(node):
-        color = graph.node[node].get('color')
-        if color:
-            colors.append(color)
-    return colors
+    return filter(None, [graph.node[neighbor].get('color') for neighbor in graph.neighbors(node)])
 
 def n_colors(graph):
     """The number of distinct colors used on vertices of 'graph'."""
@@ -565,12 +561,13 @@ def solve_as_graph(fixed, boxsize):
     cg = vertex_coloring(g, DSATOrder)
     return graph_to_dict(cg)
 
-def solve_puzzles(puzzles, boxsize, padding = 0, rowend = "", puzzleend = "", solve = solve_as_CP, file = None):
-    """Print a solution of each puzzle in iterable 'puzzles'."""
-    for puzzle in puzzles:
-        s = solve(string_to_dict(puzzle, boxsize), boxsize)
-        print_puzzle(s, boxsize, padding, rowend, file)
-        print(puzzleend, file = file)
+def solve_puzzles(puzzles, boxsize, solve = solve_as_CP):
+    """Solve every puzzle in iterable 'puzzles'."""
+    return [solve(puzzle, boxsize) for puzzle in puzzles]
+
+def solve_puzzles_s(puzzles_s, boxsize, solve = solve_as_CP):
+    """Solve every puzzle string in iterable 'puzzles'."""
+    return solve_puzzles(map(lambda puzzle:string_to_dict(puzzle, boxsize), puzzles_s), boxsize, solve)
 
 ####################################################################
 # File handling
@@ -625,7 +622,7 @@ def is_sudoku(puzzle, boxsize):
 
 def is_solution(fixed, puzzle, boxsize):
     """Test whether 'fixed' cells have same values in 'puzzle'."""
-    return conjunction(map(lambda x: fixed[x] == puzzle[x], fixed))
+    return all(map(lambda x: fixed[x] == puzzle[x], fixed))
 
 def is_sudoku_solution(fixed, puzzle, boxsize):
     """Test whether 'puzzle' is a solution of 'fixed'."""
@@ -640,5 +637,5 @@ def is_sudoku_solution_s(fixed_s, puzzle_s, boxsize):
 def verify_solutions(puzzles, solutions, boxsize, verify_solution = is_sudoku_solution):
     """Test whether the iterable 'puzzles' has a solution in the 
     corresponding position of iterable 'solutions'."""
-    return conjunction(itertools.imap(lambda p, s: verify_solution(p, s, boxsize), puzzles, solutions))
+    return all(itertools.imap(lambda puzzle, solution: verify_solution(puzzle, solution, boxsize), puzzles, solutions))
 
