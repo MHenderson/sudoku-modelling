@@ -2,8 +2,7 @@
 
 from __future__ import print_function
 
-from math import sqrt, floor
-from random import choice, seed, shuffle
+from random import seed, shuffle
 import itertools, string
 from copy import deepcopy
 import operator
@@ -198,7 +197,7 @@ def print_puzzle(puzzle_d, boxsize, padding = 1, rowend = "\n", file = None):
                 print(' '*padding + '.' + ' '*padding, end = "", file = file)                 
         print(end = rowend, file = file)
 
-def print_puzzles(puzzles, boxsize, padding = 0, rowend = "", puzzleend = "", solve = solve_as_CP, file = None):
+def print_puzzles(puzzles, boxsize, padding = 0, rowend = "", puzzleend = "", file = None):
     for puzzle in puzzles:
         print_puzzle(puzzle, boxsize, padding, rowend, file)
         print(puzzleend, file = file)
@@ -587,12 +586,11 @@ def random_puzzle_f(puzzle, n_fixed, boxsize):
     """Returns a puzzle dictionary of a random Sudoku puzzle of 'fixed' size
     based on the Sudoku 'puzzle' dictionary."""
     fixed = deepcopy(puzzle)
-    ncl = n_cells(boxsize)
-    indices = range(1, ncl + 1)
-    for i in range(ncl - n_fixed):
-        c = choice(indices)
-        del fixed[c]
-        indices.remove(c)
+    keys = fixed.keys()
+    shuffle(keys)
+    indices = keys[:len(keys) - n_fixed]
+    for i in indices:
+        del fixed[i]
     return fixed
 
 def random_puzzle(n_fixed, boxsize, solve = solve_as_CP):
