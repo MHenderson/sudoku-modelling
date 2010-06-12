@@ -49,17 +49,17 @@ def col_r(column, boxsize):
     ncl = n_cells(boxsize)
     return range(column, ncl + 1 - (nc - column), nc)
 
-def box_r(box_representative, boxsize):
+def box_representative(box, boxsize):
+    i = boxsize * ((box - 1) / boxsize)
+    j = boxsize * ((box - 1) % boxsize) + 1
+    return boxsize**2*i + j
+
+def box_r(box, boxsize):
     """Cell labels in 'box' of Sudoku puzzle of dimension 'boxsize'."""
     nr = n_rows(boxsize)
     nc = n_cols(boxsize)
-    return [box_representative + j + k - 1 for j in range(0, boxsize * nr, nc) for k in range(1, boxsize + 1)]
-
-def box_representatives(boxsize): 
-    """box_representatives(boxsize) -> list
-
-    Returns a list of cell labels of the top-left cell of each box."""
-    return [cell(i, j, boxsize) for i in range(1, n_rows(boxsize), boxsize) for j in range(1, n_cols(boxsize), boxsize)]
+    br = box_representative(box, boxsize)
+    return [br + j + k - 1 for j in range(0, boxsize * nr, nc) for k in range(1, boxsize + 1)]
 
 def cells_by_row(boxsize):
     """cells_by_row(boxsize) -> list
@@ -77,7 +77,7 @@ def cells_by_box(boxsize):
     """cells_by_box(boxsize) -> list
 
     Returns a list of cell labels ordered by box for the given boxsize."""
-    return [box_r(box_representative, boxsize) for box_representative in box_representatives(boxsize)]
+    return [box_r(box, boxsize) for box in boxes(boxsize)]
 
 def puzzle_rows(puzzle, boxsize):
     """Cell values, ordered by row."""

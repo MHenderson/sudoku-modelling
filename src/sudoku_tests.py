@@ -23,10 +23,6 @@ assert sudoku.symbols(1)==[1]
 assert sudoku.symbols(2)==[1,2,3,4]
 assert sudoku.symbols(3)==[1,2,3,4,5,6,7,8,9]
 
-assert sudoku.box_representatives(1)==[]
-assert sudoku.box_representatives(2)==[1,3,9,11]
-assert sudoku.box_representatives(3)==[1,4,7,28,31,34,55,58,61]
-
 assert sudoku.cells_by_row(0)==[]
 assert sudoku.cells_by_row(1)==[[1]]
 assert sudoku.cells_by_row(2)==[[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]
@@ -53,7 +49,7 @@ assert sudoku.cells_by_col(3)==[[1, 10, 19, 28, 37, 46, 55, 64, 73],
                                 [8, 17, 26, 35, 44, 53, 62, 71, 80], 
                                 [9, 18, 27, 36, 45, 54, 63, 72, 81]]
 
-assert sudoku.cells_by_box(1)==[]
+assert sudoku.cells_by_box(1)==[[1]]
 assert sudoku.cells_by_box(2)==[[1,2,5,6],[3,4,7,8],[9,10,13,14],[11,12,15,16]]
 assert sudoku.cells_by_box(3)==[[1, 2, 3, 10, 11, 12, 19, 20, 21], 
                                 [4, 5, 6, 13, 14, 15, 22, 23, 24], 
