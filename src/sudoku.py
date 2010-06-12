@@ -28,6 +28,11 @@ def cell(row, column, boxsize): return (row - 1) * n_rows(boxsize) + column
 def column(cell, boxsize): return (cell - 1) % n_rows(boxsize) + 1
 def row(cell, boxsize): return (cell - 1) / n_cols(boxsize) + 1
 
+def box_representative(box, boxsize):
+    i = boxsize * ((box - 1) / boxsize)
+    j = boxsize * ((box - 1) % boxsize) + 1
+    return boxsize**2*i + j
+
 ####################################################################
 # Convenient ranges
 ####################################################################
@@ -48,11 +53,6 @@ def col_r(column, boxsize):
     nc = n_cols(boxsize)
     ncl = n_cells(boxsize)
     return range(column, ncl + 1 - (nc - column), nc)
-
-def box_representative(box, boxsize):
-    i = boxsize * ((box - 1) / boxsize)
-    j = boxsize * ((box - 1) % boxsize) + 1
-    return boxsize**2*i + j
 
 def box_r(box, boxsize):
     """Cell labels in 'box' of Sudoku puzzle of dimension 'boxsize'."""
@@ -89,7 +89,7 @@ def puzzle_columns(puzzle, boxsize):
 
 def puzzle_boxes(puzzle, boxsize):
     """Cell values, ordered by box."""
-    return [map(puzzle.get, cells_by_box(boxsize)[box - 1]) for box in boxes(boxsize)]
+    return [map(puzzle.get, box_r(box, boxsize)) for box in boxes(boxsize)]
 
 ####################################################################
 # Convenient functions
