@@ -16,8 +16,13 @@ Modeling Sudoku puzzles with Python
 
 .. class:: abstract
 
-   A short version of the long version that is way too long to be written as a
-   short version anyway.
+   The popular Sudoku puzzles which appear daily in newspapers the world over have, lately, attracted the attention of mathematicians and computer scientists. There are several, difficult, unsolved problems about these puzzles which make them especially interesting to mathematicians. And, as is well-known, the generalization of the Sudoku puzzle to larger dimension is an NP-complete problem and therefore is a problem of substantial interest to computer scientists.
+
+   Already, significant research has been done investigating both the automated generation of Sudoku and other related puzzles as well as on automating the solution of such puzzles. In both of these areas, a particularly important line of investigation has been the translation of these puzzles into the domains of constraint satisfaction and satisfiability.
+
+   In this article we discuss these, and other, translations and show how to use, already available, Python libraries and components to implement these translations and how to use off-the-shelf algorithmic components to solve the translated puzzles. The translations we discuss, which include translations to problems in the domains of constraint satisfaction, integer/linear programming, polynomial calculus and graph theory, are available in an open-source Python library developed by the authors.
+
+   Our intention in this article is to demonstrate the benefits of Python as an experimental framework for computer scientists and mathematicians and how to integrate modeling components with components for collecting and analyzing data. We compare this approach to the more traditional use of command-line tools which is commonplace in the constraints and satisfiability communities for such work. In particular, we discuss the modeling of Sudoku as satisfiability problems and analyse the relative performance of these translations against the translations we propose.
 
 Introduction
 ------------
@@ -129,6 +134,28 @@ and every symbol in every box:
    \[
     \sum_{j = mq - m + q}^{mq} \sum_{i = mp - m + 1}^{mp} x_{ijk} = 1, \quad 1 \leq k \leq n, 1 \leq p \leq m, 1 \leq q \leq m
    \]   
+
+Experimentation
+---------------
+
+In this section we demonstrate how to use XXX to create experimentation scripts. For the purposes of demonstration, we reproduce several results from the literature. We show how to enumerate Shidoku puzzles, how to color the Sudoku graph with the minimal number of colors, how to investigate minimally uniquely completable Sudoku puzzles, how to investigate phase transition phenomena in randomly generated Sudoku puzzles. Finally, we look at a competition, closely related to Sudoku puzzles, which was held by Mathworks in 2005. 
+
+The intention of this section is to show how XXX makes the task of writing these experimental investigation scripts very easy.
+
+Enumerating Shidoku
+~~~~~~~~~~~~~~~~~~~
+
+Coloring the Sudoku graph
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Minimally uniquely completable puzzles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Phase transition phenomena in random puzzles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Matlab Sudoku contest
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 References
 ----------
