@@ -522,9 +522,11 @@ def solve_as_groebner(fixed, boxsize):
     """Use groebner bases algorithm to solve Sudoku puzzle of dimension 
     'boxsize' with 'fixed' cells."""
     g = puzzle_as_polynomial_system(fixed, boxsize)
-    h = sympy.groebner(g, cell_symbols(boxsize), order='lex')
+    h = sympy.groebner(g, cell_symbols(boxsize), order = 'lex')
     s = sympy.solve(h, cell_symbols(boxsize))
-    return s 
+    keys = [int(symbol.name.replace('x','')) for symbol in s.keys()]
+    values = [i.__int__() for i in s.values()]
+    return dict(zip(keys, values))
 
 def solve_as_graph(fixed, boxsize):
     """Use vertex coloring to solve Sudoku puzzle of dimension 'boxsize'
@@ -533,13 +535,27 @@ def solve_as_graph(fixed, boxsize):
     cg = vertex_coloring(g, DSATOrder)
     return graph_to_dict(cg)
 
-def solve_puzzles(puzzles, boxsize, solve = solve_as_CP):
-    """Solve every puzzle in iterable 'puzzles'."""
-    return [solve(puzzle, boxsize) for puzzle in puzzles]
+def solve(fixed, boxsize, model = 'CP'):
+    """Solve 'fixed' dictionary, exploiting 'model' ('lp', 'graph', 'CP', 
+    'groebner'). """
+    if model == 'CP':
+        return solve_as_CP(fixed, boxsize)
+    elif model == 'lp':
+        return solve_as_lp(fixed, boxsize)
+    elif model == 'graph':
+        return solve_as_graph(fixed, boxsize)
+    elif model == 'groebner':
+        return solve_as_groebner(fixed, boxsize)
+    else:
+        raise NameError('No such model.')
 
-def solve_puzzles_s(puzzles_s, boxsize, solve = solve_as_CP):
+def solve_puzzles(puzzles, boxsize, model = 'CP'):
+    """Solve every puzzle in iterable 'puzzles'."""
+    return [solve(puzzle, boxsize, model) for puzzle in puzzles]
+
+def solve_puzzles_s(puzzles_s, boxsize, model = 'CP'):
     """Solve every puzzle string in iterable 'puzzles'."""
-    return solve_puzzles(map(lambda puzzle:string_to_dict(puzzle, boxsize), puzzles_s), boxsize, solve)
+    return solve_puzzles(map(lambda puzzle:string_to_dict(puzzle, boxsize), puzzles_s), boxsize, model)
 
 ####################################################################
 # File handling
@@ -566,9 +582,9 @@ def random_puzzle_f(puzzle, n_fixed, boxsize):
         del fixed[i]
     return fixed
 
-def random_puzzle(n_fixed, boxsize, solve = solve_as_CP):
+def random_puzzle(n_fixed, boxsize, model = 'CP'):
     """Random puzzle generator, based on solution of empty puzzle."""
-    s = solve({}, boxsize)
+    s = solve({}, boxsize, model)
     return random_puzzle_f(s, n_fixed, boxsize)
 
 ####################################################################
