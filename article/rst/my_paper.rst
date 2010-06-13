@@ -1,13 +1,17 @@
-:author: Gaius Caesar
-:email: jj@rome.it
-:institution: Senate House
+:author: Sean Davis
+:email: Sean_Davis@berea.edu
+:institution: Berea College
 
-:author: Mark Anthony
-:email: mark37@rome.it
-:institution: Egyptian Embassy
+:author: Matthew Henderson
+:email: Matthew_Henderson@berea.edu
+:institution: Berea College
+
+:author: Andrew Smith
+:email: Andrew_Smith@berea.edu
+:institution: Berea College
 
 ------------------------------------------------
-A Numerical Perspective to Terraforming a Desert
+Modeling Sudoku puzzles with Python
 ------------------------------------------------
 
 .. class:: abstract
@@ -18,45 +22,27 @@ A Numerical Perspective to Terraforming a Desert
 Introduction
 ------------
 
-Twelve hundred years ago, in a galaxy just across the hill...
+Everyone is familiar with Sudoku puzzles, which appear in newspapers daily the world over. A typical puzzle is shown in Figure XXX. To complete the puzzle requires the puzzler to fill the empty cells with numbers XXX in such a way as to have exactly one of every number in every row, every column and every of the small 3 by 3 boxes.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum sapien
-tortor, bibendum et pretium molestie, dapibus ac ante. Nam odio orci, interdum
-sit amet placerat non, molestie sed dui. Pellentesque eu quam ac mauris
-tristique sodales. Fusce sodales laoreet nulla, id pellentesque risus convallis
-eget. Nam id ante gravida justo eleifend semper vel ut nisi. Phasellus
-adipiscing risus quis dui facilisis fermentum. Duis quis sodales neque. Aliquam
-ut tellus dolor. Etiam ac elit nec risus lobortis tempus id nec erat. Morbi eu
-purus enim. Integer et velit vitae arcu interdum aliquet at eget purus. Integer
-quis nisi neque. Morbi ac odio et leo dignissim sodales. Pellentesque nec nibh
-nulla. Donec faucibus purus leo. Nullam vel lorem eget enim blandit ultrices.
-Ut urna lacus, scelerisque nec pellentesque quis, laoreet eu magna. Quisque ac
-justo vitae odio tincidunt tempus at vitae tortor.
+A well-formed Sudoku puzzle has a unique solution. This means that the puzzle can be solved by logic alone, without any guessing.
 
-Important Part
---------------
+Sudoku puzzles have a variety of different difficulty levels. Harder puzzles typically have fewer prescribed symbols. It is unknown to this day how few cells need to be filled for a Sudoku puzzle to have a unique solution. Well-formed Sudoku with 17 symbols exist. It is unknown whether or not there exists a well-formed puzzle with 16 clues.
 
-It is well known [Atr03]_ that Spice grows on the planet Dune.  Test
-some maths, for example :math:`$e^\pi + 3*\delta$`.  Or maybe an
-equation on a separate line:
+The authors have written an open-source library for modeling Sudoku puzzles in a variety of different mathematical domains. The source-code for XXX is available at XXX.
 
-.. raw:: latex
+Cells in the Sudoku puzzle are represented by integers. The cell in row XXX and column XXX of a puzzle of dimension XXX with XXX rows is represented by the integer XXX. Standard puzzles have XXX rows so the integer is XXX.
 
-   \[g(x) = \int_0^\infty f(x) dx\end{equation}\]
+In practice, the user mainly interacts with XXX either by creating specific puzzles instances through input of puzzle strings, directly or from a text file, or by using generator functions. 
 
-Mauris purus enim, volutpat non dapibus et, gravida sit amet sapien. In at
-consectetur lacus. Praesent orci nulla, blandit eu egestas nec, facilisis vel
-lacus. Fusce non ante vitae justo faucibus facilisis. Nam venenatis lacinia
-turpis. Donec eu ultrices mauris. Ut pulvinar viverra rhoncus. Vivamus
-adipiscing faucibus ligula, in porta orci vehicula in. Suspendisse quis augue
-arcu, sit amet accumsan diam. Vestibulum lacinia luctus dui. Aliquam odio arcu,
-faucibus non laoreet ac, condimentum eu quam. Quisque et nunc non diam
-consequat iaculis ut quis leo. Integer suscipit accumsan ligula. Sed nec eros a
-orci aliquam dictum sed ac felis. Suspendisse sit amet dui ut ligula iaculis
-sollicitudin vel id velit. Pellentesque hendrerit sapien ac ante facilisis
-lacinia. Nunc sit amet sem sem. In tellus metus, elementum vitae tincidunt ac,
-volutpat sit amet mauris. Maecenas diam turpis, placerat at adipiscing ac,
-pulvinar id metus.
+For example, the puzzle dictionary in Figure XXX can be built from a puzzle string through use of the XXX function.
+
+Or a random puzzle can be built by using the XXX function.
+
+XXX random puzzle demo listing XXX
+
+Simple functions are provided to access certain parameters associated with a puzzle.
+
+The main power behind XXX, however, is the modeling capability of the library. In the next section we introduce the different modeling concepts and show how to use existing Python components to build models of Sudoku puzzles.
 
 References
 ----------
