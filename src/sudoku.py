@@ -2,13 +2,9 @@
 
 from __future__ import print_function
 
-from random import seed, shuffle
-import itertools, string
-from copy import deepcopy
-import operator
+import random, itertools, string, operator, copy
 
-from constraint import Problem, AllDifferentConstraint, ExactSumConstraint
-import networkx, sympy, glpk
+import constraint, networkx, sympy, glpk
 
 ####################################################################
 # Basic parameters
@@ -56,10 +52,7 @@ def col_r(column, boxsize):
 
 def box_r(box, boxsize):
     """Cell labels in 'box' of Sudoku puzzle of dimension 'boxsize'."""
-    nr = n_rows(boxsize)
-    nc = n_cols(boxsize)
-    br = box_representative(box, boxsize)
-    return [br + j + k - 1 for j in range(0, boxsize * nr, nc) for k in range(1, boxsize + 1)]
+    return [box_representative(box, boxsize) + j + k - 1 for j in range(0, boxsize * n_rows(boxsize), n_cols(boxsize)) for k in range(1, boxsize + 1)]
 
 def cells_by_row(boxsize):
     """cells_by_row(boxsize) -> list
@@ -223,28 +216,28 @@ def add_row_constraints(problem, boxsize):
 
     Adds to constraint problem 'problem', all_different constraints on rows."""
     for row in cells_by_row(boxsize):
-        problem.addConstraint(AllDifferentConstraint(), row)
+        problem.addConstraint(constraint.AllDifferentConstraint(), row)
 
 def add_col_constraints(problem, boxsize):
     """add_col_constraints(problem, boxsize)
 
     Adds to constraint problem 'problem', all_different constraints on columns."""
     for col in cells_by_col(boxsize):    
-        problem.addConstraint(AllDifferentConstraint(), col)
+        problem.addConstraint(constraint.AllDifferentConstraint(), col)
 
 def add_box_constraints(problem, boxsize):
     """add_box_constraints(problem, boxsize)
 
     Adds to constraint problem 'problem', all_different constraints on boxes."""
     for box in cells_by_box(boxsize):
-        problem.addConstraint(AllDifferentConstraint(), box)
+        problem.addConstraint(constraint.AllDifferentConstraint(), box)
 
 def empty_puzzle_as_CP(boxsize):
     """empty_puzzle(boxsize) -> constraint.Problem
 
     Returns a constraint problem representing an empty Sudoku puzzle of 
     box-dimension 'boxsize'."""
-    p = Problem()
+    p = constraint.Problem()
     p.addVariables(cells(boxsize), symbols(boxsize)) 
     add_row_constraints(p, boxsize)
     add_col_constraints(p, boxsize)
@@ -258,7 +251,7 @@ def puzzle_as_CP(fixed, boxsize):
     'fixed' cell dictionary."""
     p = empty_puzzle_as_CP(boxsize)
     for cell in fixed:
-        p.addConstraint(ExactSumConstraint(fixed[cell]), [cell])
+        p.addConstraint(constraint.ExactSumConstraint(fixed[cell]), [cell])
     return p
 
 ####################################################################
@@ -268,11 +261,7 @@ def puzzle_as_CP(fixed, boxsize):
 def empty_puzzle_as_graph(boxsize):
     """empty_puzzle_as_graph(boxsize) -> networkx.Graph
 
-    Returns the Sudoku graph of dimension 'boxsize'.
-    
-    >>> g = empty_puzzle_as_graph(3)
-    >>> g = empty_puzzle_as_graph(4)"""
-    
+    Returns the Sudoku graph of dimension 'boxsize'."""   
     g = networkx.Graph()
     g.add_nodes_from(cells(boxsize))
     g.add_edges_from(dependent_cells(boxsize))
@@ -280,15 +269,7 @@ def empty_puzzle_as_graph(boxsize):
 
 def puzzle_as_graph(fixed, boxsize):
     """Graph model of Sudoku puzzle of dimension 'boxsize' with 'fixed'
-    cells.
-    
-    >>> fixed = {1:1, 4:4, 5:3, 6:4, 9:2, 11:4, 13:4, 15:2}
-    >>> p = puzzle_as_graph(fixed, 2)
-    >>> p.order()
-    16
-    >>> p.size()
-    56"""
-
+    cells."""
     g = empty_puzzle_as_graph(boxsize)
     for cell in fixed:
         g.node[cell]['color'] = fixed[cell]
@@ -348,7 +329,7 @@ class RandomOrder():
         self.nodes = self.graph.nodes()
 
     def __iter__(self):
-        shuffle(self.nodes)
+        random.shuffle(self.nodes)
         return iter(self.nodes)
 
 class DSATOrder():
@@ -435,15 +416,7 @@ def fixed_cells_polynomials(fixed):
 
 def puzzle_as_polynomial_system(fixed, boxsize):
     """Polynomial system for Sudoku puzzle of dimension 'boxsize' with fixed
-    cells given by 'fixed' dictionary.
-
-    >>> fixed = {1:1, 2:2, 3:3, 4:4,
-    ...          5:3, 6:4, 7:1, 8:2,
-    ...          9:2, 10:1,11:4,12:3,
-    ...          13:4,14:3,15:2}
-    >>> p = puzzle_as_polynomial_system(fixed, 2)
-    >>> import sympy
-    >>> g = sympy.groebner(p, cell_symbols(2), order='lex') """
+    cells given by 'fixed' dictionary."""
     return empty_puzzle_as_polynomial_system(boxsize) + fixed_cells_polynomials(fixed)
 
 ####################################################################
@@ -585,9 +558,9 @@ def dimacs_file(graph, outfile):
 def random_puzzle_f(puzzle, n_fixed, boxsize):
     """Returns a puzzle dictionary of a random Sudoku puzzle of 'fixed' size
     based on the Sudoku 'puzzle' dictionary."""
-    fixed = deepcopy(puzzle)
+    fixed = copy.deepcopy(puzzle)
     keys = fixed.keys()
-    shuffle(keys)
+    random.shuffle(keys)
     indices = keys[:len(keys) - n_fixed]
     for i in indices:
         del fixed[i]
