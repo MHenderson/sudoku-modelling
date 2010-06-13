@@ -27,19 +27,50 @@ Modeling Sudoku puzzles with Python
 Introduction
 ------------
 
+Sudoku puzzles
+~~~~~~~~~~~~~~
+
 Everyone is familiar with Sudoku puzzles, which appear in newspapers daily the world over. A typical puzzle is shown in Figure XXX. To complete the puzzle requires the puzzler to fill the empty cells with numbers XXX in such a way as to have exactly one of every number in every row, every column and every of the small 3 by 3 boxes.
+
+XXX Figure 1 XXX
 
 A well-formed Sudoku puzzle has a unique solution. This means that the puzzle can be solved by logic alone, without any guessing.
 
 Sudoku puzzles have a variety of different difficulty levels. Harder puzzles typically have fewer prescribed symbols. It is unknown to this day how few cells need to be filled for a Sudoku puzzle to have a unique solution. Well-formed Sudoku with 17 symbols exist. It is unknown whether or not there exists a well-formed puzzle with 16 clues.
 
-The authors have written an open-source library for modeling Sudoku puzzles in a variety of different mathematical domains. The source-code for XXX is available at XXX.
+sudoku.py
+~~~~~~~~~
 
-Cells in the Sudoku puzzle are represented by integers. The cell in row XXX and column XXX of a puzzle of dimension XXX with XXX rows is represented by the integer XXX. Standard puzzles have XXX rows so the integer is XXX.
+The authors have written an open-source library ``sudoku.py`` for modeling Sudoku puzzles in a variety of different mathematical domains. The source-code for sudoku.py is available at `http://bitbucket.org/matthew/scipy2010 <http://bitbucket.org/matthew/scipy2010>`_.
 
-In practice, the user mainly interacts with XXX either by creating specific puzzles instances through input of puzzle strings, directly or from a text file, or by using generator functions. 
+Cells in the Sudoku puzzle are represented by integers. The cell in row :math:`$i$` and column :math:`$j$` of a puzzle with :math:`$r$` rows is represented by the integer :math:`$(i - 1)r + j$`. Standard puzzles of boxsize :math:`$n$` have :math:`$n^2$` rows so the integer is :math:`$(i - 1)n^2 + j$`
 
-For example, the puzzle dictionary in Figure XXX can be built from a puzzle string through use of the XXX function.
+Sudoku puzzles are represented, in ``sudoku.py``, as dictionaries. So, for example, the puzzle shown in Figure XXX is represented by the dictionary ::
+
+    {1: 2, 2: 5, 5: 3, 7: 9, 9: 1,
+    11: 1, 15: 4, 19: 4, 21: 7, 25: 2,
+    27: 8, 30: 5, 31: 2, 41: 9, 42: 8,
+    43: 1, 47: 4, 51: 3, 58: 3, 59: 6,
+    62: 7, 63: 2, 65: 7, 72: 3, 73: 9,
+    75: 3, 79: 6, 81: 4}
+
+In practice, the user mainly interacts with ``sudoku.py`` either by creating specific puzzles instances through input of puzzle strings, directly or from a text file, or by using generator functions. 
+
+For example, the puzzle dictionary in Figure XXX can be built from a puzzle string through use of the ``string_to_dict`` function. ::
+
+    >>> import sudoku
+    >>> p = """
+    ... 25..3.9.1
+    ... .1...4...
+    ... 4.7...2.8
+    ... ..52.....
+    ... ....981..
+    ... .4...3...
+    ... ...36..72
+    ... .7......3
+    ... 9.3...6.4
+        """
+    >>> d = sudoku.string_to_dict(p, 3)
 
 Or a random puzzle can be built by using the XXX function.
 
@@ -47,34 +78,74 @@ XXX random puzzle demo listing XXX
 
 Simple functions are provided to access certain parameters associated with a puzzle.
 
-The main power behind XXX, however, is the modeling capability of the library. In the next section we introduce the different modeling concepts and show how to use existing Python components to build models of Sudoku puzzles.
+There are also simple command-line oriented scripts for handling input and output of puzzle strings to/from files.
+
+XXX file-handling example XXX
 
 Models
 ------
 
-In this section we introduce several models of Sudoku. The models introduced here are implemented in the open-source library (\texttt{sudoku.py}) developed by the authors. Demonstrations of the library components corresponding to each of the different models are given.
+The main power behind ``sudoku.py`` is the modeling capability of the library. In this section we introduce several models of Sudoku and show how to use existing Python components to build models of Sudoku puzzles. The models introduced here are implemented in the open-source library sudoku.py developed by the authors. Demonstrations of the library components corresponding to each of the different models are given. 
 
 Constraint models
 ~~~~~~~~~~~~~~~~~
 
-Constraint models for Sudoku puzzles are discussed in XXX. The simplest model uses the all_different constraint.
+Constraint models for Sudoku puzzles are discussed in [Sim05]_. The simplest model uses the ``all_different`` constraint.
 
-In Listing XXX, an example is shown of how to model a Sudoku puzzle with XXX and use the built-in constraint solver of XXX to find a solution.
+The Sudoku constraint model in sudoku.py is implemented using ``python-constraint v1.1``. This open-source library is available at `http://labix.org/python-constraint <http://labix.org/python-constraint>`_
+
+In Listing XXX, an example is shown of how to use the constraint model to find a solution to the Sudoku puzzle of Figure XXX. ::
+
+    >>> s = sudoku.solve(d, 3)
+    >>> sudoku.print_puzzle(s, 3)
+     2  5  8  7  3  6  9  4  1 
+     6  1  9  8  2  4  3  5  7 
+     4  3  7  9  1  5  2  6  8 
+     3  9  5  2  7  1  4  8  6 
+     7  6  2  4  9  8  1  3  5 
+     8  4  1  6  5  3  7  2  9 
+     1  8  4  3  6  9  5  7  2 
+     5  7  6  1  4  2  8  9  3 
+     9  2  3  5  8  7  6  1  4
 
 Graph models
 ~~~~~~~~~~~~
 
-A graph model for Sudoku is presented in XXX. In this model, every cell of the Sudoku grid is represented by a vertex. The edges of the graph are given by the cell dependency relations. In other words, if two cells lie in the same row, column or box, then their vertices are joined by an edge in the graph model.
+A graph model for Sudoku is presented in [Var05]_. In this model, every cell of the Sudoku grid is represented by a vertex. The edges of the graph are given by the cell dependency relations. In other words, if two cells lie in the same row, column or box, then their vertices are joined by an edge in the graph model.
+
+The Sudoku graph model in sudoku.py is implemented using ``networkx v1.1``. This open-source Python library is available at `http://networkx.lanl.gov/ <http://networkx.lanl.gov/>`_
+
+In Listing XXX, an example is shown of how to use the graph model to find a solution to the Sudoku puzzle of Figure XXX. ::
+
+    >>> s = sudoku.solve(d, 3, model = 'graph')
+    >>> sudoku.print_puzzle(s, 3)
+     2  5  8  7  3  6  9  4  1 
+     6  1  9  8  2  4  3  5  7 
+     4  3  7  9  a  5  2  6  8 
+     3  9  5  2  7  a  4  8  6 
+     7  6  2  4  9  8  1  3  5 
+     8  4  a  6  5  3  7  2  9 
+     a  8  4  3  6  9  5  7  2 
+     5  7  6  a  4  b  8  9  3 
+     9  2  3  5  8  7  6  a  4
+
 
 Polynomial system models
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The graph model in XXX can be used to model a Sudoku puzzle as a system of polynomial equations. The polynomial system model presented in XXX consists of a polynomial for every vertex in the graph model and a polynomial for every edge. The vertex polynomials have the form :math:`$F(x_j) = \prod_{i=1}^{9} (x_j - i)$`. The edge polynomials are :math:`$G(x_i, x_j) = \frac{F(x_i) - F(x_j)}{x_i - x_j}$`, where :math:`$x_i$` and :math:`$x_j$` are adjacent vertices in the graph model. 
+The graph model in [Var05]_ is mainly introduced as a prelude to modeling a Sudoku puzzle as a system of polynomial equations. The polynomial system model presented in [Var05]_ consists of a polynomial for every vertex in the graph model and a polynomial for every edge. The vertex polynomials have the form :math:`$F(x_j) = \prod_{i=1}^{9} (x_j - i)$`. The edge polynomials are :math:`$G(x_i, x_j) = \frac{F(x_i) - F(x_j)}{x_i - x_j}$`, where :math:`$x_i$` and :math:`$x_j$` are adjacent vertices in the graph model. 
+
+The Sudoku polynomial-system model in sudoku.py is implemented using ``sympy v0.6.7``. This open-source symbolic algebra Python library is available at `http://code.google.com/p/sympy/ <http://code.google.com/p/sympy/>`_
+
+In Listing XXX, an example is shown of how to use the polynomial-system model to find a solution to the Sudoku puzzle of Figure XXX. ::
+
+    >>> s = sudoku.solve(d, 3, model = 'groebner')
+    >>> sudoku.print_puzzle(s, 3)
 
 Integer programming models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In XXX a model of Sudoku as an integer programming problem is presented. In this model, the variables are all binary.
+In [Bar08]_ a model of Sudoku as an integer programming problem is presented. In this model, the variables are all binary.
 
 .. raw:: latex 
 
@@ -132,8 +203,27 @@ and every symbol in every box:
 .. raw:: latex
 
    \[
-    \sum_{j = mq - m + q}^{mq} \sum_{i = mp - m + 1}^{mp} x_{ijk} = 1, \quad 1 \leq k \leq n, 1 \leq p \leq m, 1 \leq q \leq m
+    \sum_{j = mq - m + q}^{mq} \sum_{i = mp - m + 1}^{mp} x_{ijk} = 1
+   \]
+   \[
+    1 \leq k \leq n, 1 \leq p \leq m, 1 \leq q \leq m
    \]   
+
+The Sudoku integer programming model is implemented in ``sudoku.py`` using ``pyglpk v0.3``. This open-source mixed integer/linear programming Python library is available at `http://tfinley.net/software/pyglpk/ <http://tfinley.net/software/pyglpk/>`_
+
+In Listing XXX, an example is shown of how to use the graph model to find a solution to the Sudoku puzzle of Figure XXX. ::
+
+    >>> s = sudoku.solve(d, 3, model = 'lp')
+    >>> sudoku.print_puzzle(s, 3)
+     2  5  8  7  3  6  9  4  1 
+     6  1  9  8  2  4  3  5  7 
+     4  3  7  9  1  5  2  6  8 
+     3  9  5  2  7  1  4  8  6 
+     7  6  2  4  9  8  1  3  5 
+     8  4  1  6  5  3  7  2  9 
+     1  8  4  3  6  9  5  7  2 
+     5  7  6  1  4  2  8  9  3 
+     9  2  3  5  8  7  6  1  4
 
 Experimentation
 ---------------
@@ -144,6 +234,18 @@ The intention of this section is to show how XXX makes the task of writing these
 
 Enumerating Shidoku
 ~~~~~~~~~~~~~~~~~~~
+
+To solve the enumeration problem for Shidoku, using the constraint model implemented in `sudoku.py`, is straightforward. ::
+
+    >>> experiment_string = """\
+    ... p = empty_puzzle(2)
+    ... s = p.getSolutions()
+    ... print len(s)"""
+    >>> from timeit import Timer
+    >>> t = Timer(experiment_string, setup_string)
+    >>> print t.timeit(1)
+    288
+    0.146998882294
 
 Coloring the Sudoku graph
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -159,7 +261,13 @@ The Matlab Sudoku contest
 
 References
 ----------
-.. [Atr03] P. Atreides. *How to catch a sandworm*,
-           Transactions on Terraforming, 21(3):261-300, August 2003.
+.. [Bar08] A. Bartlett, T. Chartier, A. Langville, T. Rankin. *An Integer Programming Model for the Sudoku Problem*,
+           J. Online Math. & Its Appl., 8(May 2008), May 2008
+.. [Var05] J. Gago-Vargas, I. Hartillo-Hermosa, J. Martin-Morales, J. M. Ucha- Enriquez, *Sudokus and Groebner Bases: not only a Divertimento*,
+           XXXXXXXXXXXXXXXX 2005
+.. [Lew05] R. Lewis. *Metaheuristics can solve Sudoku puzzles*,
+           XXXXXXXXXXXXXXXX 2005
+.. [Sim05] H. Simonis. *Sudoku as a Constraint Problem*, 
+           XXXXXXXXXXXXXXXX 2005
 
 
