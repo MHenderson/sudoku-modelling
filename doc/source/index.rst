@@ -18,3 +18,91 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+Tutorial
+========
+
+The Basics
+~~~~~~~~~~
+
+Sudoku puzzles are dictionaries, mapping cell labels to values. ::
+
+    >>> d = {1: 2, 2: 5, 5: 3, 7: 9, 9: 1,
+    ...     11: 1, 15: 4, 19: 4, 21: 7, 25: 2,
+    ...     27: 8, 30: 5, 31: 2, 41: 9, 42: 8,
+    ...     43: 1, 47: 4, 51: 3, 58: 3, 59: 6,
+    ...     62: 7, 63: 2, 65: 7, 72: 3, 73: 9,
+    ...     75: 3, 79: 6, 81: 4}
+
+A Sudoku puzzle can be constructed from a string where empty cells are represented by periods. ::   
+
+    >>> p = """
+    ... 25..3.9.1
+    ... .1...4...
+    ... 4.7...2.8
+    ... ..52.....
+    ... ....981..
+    ... .4...3...
+    ... ...36..72
+    ... .7......3
+    ... 9.3...6.4
+        """
+
+The ``string_to_dict`` function provides conversion from a puzzle string into a dictionary. ::
+
+    >>> import sudoku
+    >>> d = sudoku.string_to_dict(p, 3)
+
+Generating puzzles
+~~~~~~~~~~~~~~~~~~
+
+To generate a random puzzle, use the ``random_puzzle`` function. The first argument specifies the number of clues. ::
+
+    >>> q = sudoku.random_puzzle(15, 3)
+
+Puzzle printing
+~~~~~~~~~~~~~~~
+
+To print a Sudoku puzzle, use the ``print_puzzle`` function. ::
+
+    >>> sudoku.print_puzzle(q, 3)
+     .  .  .  .  .  .  3  .  . 
+     .  .  .  3  .  .  .  8  7 
+     .  .  .  9  .  .  .  5  . 
+     .  .  .  .  .  .  .  .  . 
+     .  .  .  .  .  .  .  .  6 
+     .  .  .  5  .  .  .  .  . 
+     7  .  .  8  .  .  .  .  . 
+     .  .  .  .  .  3  4  7  . 
+     .  .  .  7  .  9  .  .  .    
+
+Sudoku models and solvers
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Puzzle solving. ::
+
+    >>> s = sudoku.solve(q, 3)
+    >>> sudoku.print_puzzle(s, 3)
+     9  8  1  6  5  7  3  4  2 
+     5  4  6  3  2  1  9  8  7 
+     3  7  2  9  8  4  6  5  1 
+     8  1  3  4  7  6  5  2  9 
+     4  2  5  1  9  8  7  3  6 
+     6  9  7  5  3  2  8  1  4 
+     7  6  4  8  1  5  2  9  3 
+     1  5  9  2  6  3  4  7  8 
+     2  3  8  7  4  9  1  6  5
+
+Enumerating Shidoku
+~~~~~~~~~~~~~~~~~~~
+
+It is well-known that there are 288 Shidoku. ::
+
+    >>> experiment_string = """\
+    ... p = empty_puzzle(2)
+    ... s = p.getSolutions()
+    ... print len(s)"""
+    >>> from timeit import Timer
+    >>> t = Timer(experiment_string, setup_string)
+    >>> print t.timeit(1)
+    288
+    0.146998882294
