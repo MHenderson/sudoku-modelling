@@ -3,28 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Sudoku (SciPy 2010)'s documentation!
-===============================================
-
-Contents:
+sudoku.py - Tutorial
+====================
 
 .. toctree::
    :maxdepth: 2
 
-Indices and tables
-==================
+Puzzle dictionaries
+~~~~~~~~~~~~~~~~~~~
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-Tutorial
-========
-
-The Basics
-~~~~~~~~~~
-
-Sudoku puzzles are dictionaries, mapping cell labels to values. ::
+Sudoku puzzles are represented by dictionaries, mapping cell labels (cells are labeled :math:`$1,\ldots,n^4$` left to right along rows, starting at the top-left) to values. ::
 
     >>> d = {1: 2, 2: 5, 5: 3, 7: 9, 9: 1,
     ...     11: 1, 15: 4, 19: 4, 21: 7, 25: 2,
@@ -33,7 +21,27 @@ Sudoku puzzles are dictionaries, mapping cell labels to values. ::
     ...     62: 7, 63: 2, 65: 7, 72: 3, 73: 9,
     ...     75: 3, 79: 6, 81: 4}
 
-A Sudoku puzzle can be constructed from a string where empty cells are represented by periods. ::   
+Puzzle printing
+~~~~~~~~~~~~~~~
+
+To print a Sudoku puzzle, use the ``print_puzzle`` function. ::
+
+    >>> import sudoku
+    >>> sudoku.print_puzzle(d, 3)
+     2  5  .  .  3  .  9  .  1 
+     .  1  .  .  .  4  .  .  . 
+     4  .  7  .  .  .  2  .  8 
+     .  .  5  2  .  .  .  .  . 
+     .  .  .  .  9  8  1  .  . 
+     .  4  .  .  .  3  .  .  . 
+     .  .  .  3  6  .  .  7  2 
+     .  7  .  .  .  .  .  .  3 
+     9  .  3  .  .  .  6  .  4 
+
+Puzzle strings
+~~~~~~~~~~~~~~
+
+A Sudoku puzzle can also be constructed from a string where empty cells are represented by periods. ::   
 
     >>> p = """
     ... 25..3.9.1
@@ -47,9 +55,11 @@ A Sudoku puzzle can be constructed from a string where empty cells are represent
     ... 9.3...6.4
         """
 
+Conversions between strings and dictionaries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 The ``string_to_dict`` function provides conversion from a puzzle string into a dictionary. ::
 
-    >>> import sudoku
     >>> d = sudoku.string_to_dict(p, 3)
 
 Generating puzzles
@@ -58,12 +68,6 @@ Generating puzzles
 To generate a random puzzle, use the ``random_puzzle`` function. The first argument specifies the number of clues. ::
 
     >>> q = sudoku.random_puzzle(15, 3)
-
-Puzzle printing
-~~~~~~~~~~~~~~~
-
-To print a Sudoku puzzle, use the ``print_puzzle`` function. ::
-
     >>> sudoku.print_puzzle(q, 3)
      .  .  .  .  .  .  3  .  . 
      .  .  .  3  .  .  .  8  7 

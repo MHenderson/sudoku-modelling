@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Sudoku (SciPy 2010) documentation build configuration file, created by
+# sudoku.py documentation build configuration file, created by
 # sphinx-quickstart on Thu Apr 15 10:56:06 2010.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -22,7 +22,7 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = []
+extensions = ['sphinx.ext.pngmath']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -37,7 +37,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Sudoku (SciPy 2010)'
+project = u'sudoku.py'
 copyright = u'2010, Sean Davis, Matthew Henderson, Andrew Smith'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -172,7 +172,7 @@ htmlhelp_basename = 'SudokuSciPy2010doc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'SudokuSciPy2010.tex', u'Sudoku (SciPy 2010) Documentation',
+  ('index', 'sudoku.py.tex', u'sudoku.py Documentation',
    u'Sean Davis, Matthew Henderson, Andrew Smith', 'manual'),
 ]
 
