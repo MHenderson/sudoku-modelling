@@ -38,7 +38,7 @@ A well-formed Sudoku puzzle has a unique solution. This means that the puzzle ca
 
 Sudoku puzzles have a variety of different difficulty levels. Harder puzzles typically have fewer prescribed symbols. It is unknown to this day how few cells need to be filled for a Sudoku puzzle to have a unique solution. Well-formed Sudoku with 17 symbols exist. It is unknown whether or not there exists a well-formed puzzle with 16 clues.
 
-A few words about terminology. In this paper, a Sudoku 'puzzle' is understood to mean a partial assignment of :math:`$n^2$` values to the cells of an :math:`n^2 \times n^2$` grid in such a way that at most one of each symbols occurs in any row, column or box. A 'solution' is a complete assignment to the cells, satisfying the same conditions on row, columns and boxes, which agrees with the partial assignment.
+A few words about terminology. In this paper, a Sudoku 'puzzle' is understood to mean a partial assignment of :math:`$n^2$` values to the cells of an :math:`n^2 \times n^2$` grid in such a way that at most one of each symbols occurs in any row, column or box. A 'solution' of a Sudoku puzzle is a complete assignment to the cells, satisfying the same conditions on row, columns and boxes, which agrees with the partial assignment.
 
 sudoku.py
 ~~~~~~~~~
@@ -131,11 +131,30 @@ Constraint models
 
 Constraint models for Sudoku puzzles are discussed in [Sim05]_. The simplest model uses the ``all_different`` constraint.
 
+A constraint model is a collection of constraints, which restrict certain variables to have certain values inside their domain. The ``all_different`` constraint requires that all variables specified as parameters to the constraint take different values. This makes modeling Sudoku puzzles easy. We have an ``all_different`` constraint on every row, column and box.
+
 The Sudoku constraint model in ``sudoku.py`` is implemented using ``python-constraint v1.1`` by Gustavo Niemeyer. This open-source library is available at `http://labix.org/python-constraint <http://labix.org/python-constraint>`_
 
-In Listing XXX, an example is shown of how to use the constraint model to find a solution to the Sudoku puzzle of Figure XXX. ::
+``python-constraint`` implements the ``all_different`` constraint as ``AllDifferentConstraint()``. The ``addConstraint(constraint, variables)`` member function is used to add a  constraint on ``variables`` to a constraint problem object. So, to build an empty Sudoku puzzle constraint model we can do the following. ::
 
-    >>> s = sudoku.solve(d, 3, model = 'CP')
+    >>> import constraint
+    >>> p = constraint.Problem()
+    >>> p.addVariables(sudoku.cells(boxsize), sudoku.symbols(boxsize)) 
+    >>> for row in sudoku.cells_by_row(boxsize):
+    ...    problem.addConstraint(constraint.AllDifferentConstraint(), row)
+    >>> for col in sudoku.cells_by_col(boxsize):    
+    ...    problem.addConstraint(constraint.AllDifferentConstraint(), col)
+    >>> for box in sudoku.cells_by_box(boxsize):
+    ...    problem.addConstraint(constraint.AllDifferentConstraint(), box)
+
+To extend this model so that the clues are fixed we need to add an ExactSumConstraint for each clue. The ``exact_sum`` constraint restricts the value of a variable to a precise given value.
+
+    >>> for cell in fixed:
+    ...    p.addConstraint(constraint.ExactSumConstraint(fixed[cell]), [cell])
+
+To solve the Sudoku puzzle given by the ``fixed`` dictionary now can be done by solving the constraint model ``p``. The constraint propogation algorithm of ``python-constraint`` can be invoked by the ``getSolution`` member function. ::
+
+    >>> s = p.getSolution()
     >>> sudoku.print_puzzle(s, 3)
      2  5  8  7  3  6  9  4  1 
      6  1  9  8  2  4  3  5  7 
@@ -147,12 +166,32 @@ In Listing XXX, an example is shown of how to use the constraint model to find a
      5  7  6  1  4  2  8  9  3 
      9  2  3  5  8  7  6  1  4
 
+The general ``solve`` function provided by ``sudoku.py`` knows how to build a constraint model like above, solve it and translate the solution into a completed Sudoku puzzle. ::
+
+    >>> s = sudoku.solve(d, 3, model = 'CP')
+
+In fact, the model keyword argument in this case is redundant, as 'CP' is the default value.
+
 Graph models
 ~~~~~~~~~~~~
 
-A graph model for Sudoku is presented in [Var05]_. In this model, every cell of the Sudoku grid is represented by a vertex. The edges of the graph are given by the cell dependency relations. In other words, if two cells lie in the same row, column or box, then their vertices are joined by an edge in the graph model.
+A graph model for Sudoku is presented in [Var05]_. In this model, every cell of the Sudoku grid is represented by a vertex. The edges of the graph are given by the cell dependency relations. In other words, if two cells lie in the same row, column or box, then their vertices are joined by an edge in the graph model. A Sudoku puzzle is specified by a partial assignment of colors to the vertices of the graph and a solution to the puzzle is a minimal vertex coloring.
 
-The Sudoku graph model in sudoku.py is implemented using ``networkx v1.1``. This open-source Python library is available at `http://networkx.lanl.gov/ <http://networkx.lanl.gov/>`_
+The Sudoku graph model in ``sudoku.py`` is implemented using ``networkx v1.1``. This open-source Python library is available at `http://networkx.lanl.gov/ <http://networkx.lanl.gov/>`_
+
+In ``sudoku.py``, the dependent cells can be computed using the ``dependent_cells`` function. This function returns a list of all pairs (x, y) with x < y such that x and y either lie in the same row, same column or same box.
+
+So, to build the graph model of an empty Sudoku board using ``networkx`` is then simply a matter of adding a node for each cell and an edge for each pair of dependent cells. ::
+
+    >>> import networkx
+    >>> g = networkx.Graph()
+    >>> g.add_nodes_from(sudoku.cells(boxsize))
+    >>> g.add_edges_from(sudoku.dependent_cells(boxsize))
+
+An assignment of symbols to the cells of the Sudoku puzzle now corresponds to the assignment of symbols (or colors) to the vertices of our graph. ::
+
+    >>> for cell in fixed:
+    ...    g.node[cell]['color'] = fixed[cell]
 
 In Listing XXX, an example is shown of how to use the graph model to find a solution to the Sudoku puzzle of Figure XXX. ::
 
@@ -172,10 +211,33 @@ In Listing XXX, an example is shown of how to use the graph model to find a solu
 Polynomial system models
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The graph model above is mainly introduced in [Var05]_ as a prelude to modeling a Sudoku puzzle as a system of polynomial equations. The polynomial system model presented in [Var05]_ consists of a polynomial for every vertex in the graph model and a polynomial for every edge. The vertex polynomials have the form :math:`$F(x_j) = \prod_{i=1}^{9} (x_j - i)$`. The edge polynomials are :math:`$G(x_i, x_j) = \frac{F(x_i) - F(x_j)}{x_i - x_j}$`, where :math:`$x_i$` and :math:`$x_j$` are adjacent vertices in the graph model. 
+The graph model above is mainly introduced in [Var05]_ as a prelude to modeling a Sudoku puzzle as a system of polynomial equations. The polynomial system model presented in [Var05]_ consists of a polynomial for every vertex in the graph model and a polynomial for every edge. 
 
 The Sudoku polynomial-system model in sudoku.py is implemented using ``sympy v0.6.7``. This open-source symbolic algebra Python library is available at `http://code.google.com/p/sympy/ <http://code.google.com/p/sympy/>`_
 
+Vertex polynomials have the form:
+
+.. raw:: latex
+
+   \[F(x_j) = \prod_{i=1}^{9} (x_j - i)\]
+
+In ``sympy``, these look like: ::
+
+   >>> n = reduce(operator.mul, [(x - row) for row in rows(boxsize)])
+
+Edge polynomials, for adjacent vertices :math:`$x_i$` and :math:`$x_j$`, have the form: 
+
+.. raw:: latex
+
+   \[G(x_i, x_j) = \frac{F(x_i) - F(x_j)}{x_i - x_j}\]
+
+In ``sympy``: ::
+
+   >>> import sympy
+   >>> e = sympy.expand(sympy.cancel((node_polynomial(x, boxsize) - node_polynomial(y, boxsize))/(x - y)))
+
+XXX fixed cell polynomials XXX   
+   
 In Listing XXX, an example is shown of how to use the polynomial-system model to find a solution to the Sudoku puzzle of Figure XXX. ::
 
     >>> s = sudoku.solve(d, 3, model = 'groebner')
@@ -248,7 +310,29 @@ and every symbol in every box:
     1 \leq k \leq n, 1 \leq p \leq m, 1 \leq q \leq m
    \]   
 
-The Sudoku integer programming model is implemented in ``sudoku.py`` using ``pyglpk v0.3`` by Thomas Finley. This open-source mixed integer/linear programming Python library is available at `http://tfinley.net/software/pyglpk/ <http://tfinley.net/software/pyglpk/>`_
+The Sudoku integer programming model is implemented in ``sudoku.py`` using ``pyglpk v0.3`` by Thomas Finley. This open-source mixed integer/linear programming Python library is available at `http://tfinley.net/software/pyglpk/ <http://tfinley.net/software/pyglpk/>`_ ::
+
+    >>> import glpk
+    >>> lp = glpk.LPX()
+    >>> lp.cols.add(lp_matrix_ncols(boxsize))
+    >>> lp.rows.add(lp_matrix_nrows(boxsize))
+    >>> for c in lp.cols:
+    ...    c.bounds = 0.0, 1.0
+    >>> for r in lp.rows:
+    ...    r.bounds = 1.0, 1.0
+    >>> lp.matrix = list(flatten(lp_coeffs(boxsize)))
+
+Solving the linear relaxation first by the simplex algorithm and then using the ``glpk`` integer programming algorithm to solve the original integer programming problem: ::
+
+    >>> lp.simplex()
+    >>> for col in lp.cols:
+    ...    col.kind = int
+    >>> lp.integer()
+    >>> names = lp_vars(boxsize)
+    >>> sol = {}
+    >>> for c in lp.cols:
+    ...    if c.value == 1:
+    ...       sol[names[c.index][0]] = names[c.index][1]
 
 In Listing XXX, an example is shown of how to use the integer programming model to find a solution to the Sudoku puzzle of Figure XXX. ::
 
@@ -276,8 +360,9 @@ Enumerating Shidoku
 
 To solve the enumeration problem for Shidoku, using the constraint model implemented in `sudoku.py`, is straightforward. ::
 
+    >>> setup_string = "from sudoku import empty_puzzle_as_CP"
     >>> experiment_string = """\
-    ... p = empty_puzzle(2)
+    ... p = empty_puzzle_as_CP(2)
     ... s = p.getSolutions()
     ... print len(s)"""
     >>> from timeit import Timer
