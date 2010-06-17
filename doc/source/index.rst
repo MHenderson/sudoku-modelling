@@ -101,8 +101,9 @@ Enumerating Shidoku
 
 It is well-known that there are 288 Shidoku. ::
 
+    >>> setup_string = "from sudoku import empty_puzzle_as_CP"
     >>> experiment_string = """\
-    ... p = empty_puzzle(2)
+    ... p = empty_puzzle_as_CP(2)
     ... s = p.getSolutions()
     ... print len(s)"""
     >>> from timeit import Timer
@@ -110,3 +111,4 @@ It is well-known that there are 288 Shidoku. ::
     >>> print t.timeit(1)
     288
     0.146998882294
+
