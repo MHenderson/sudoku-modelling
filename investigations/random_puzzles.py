@@ -1,20 +1,9 @@
 import sudoku, timeit
 import matplotlib.pyplot as plt
 
-def random_by_CP(n_fixed, boxsize):
-    fixed = sudoku.random_from_CP(n_fixed, boxsize)
-    return sudoku.solve_as_CP(fixed, boxsize)
-
-def random_by_lp(n_fixed, boxsize):
-    fixed = sudoku.random_from_CP(n_fixed, boxsize)
-    return sudoku.solve_as_lp(fixed, boxsize)
-
-def random_by_groebner(n_fixed, boxsize):
-    fixed = sudoku.random_from_CP(n_fixed, boxsize)
-    return sudoku.solve_as_groebner(fixed, boxsize)
-
-def solve(n_fixed, boxsize):
-    return random_by_CP(n_fixed, boxsize)
+def solve(n_fixed, boxsize, model = 'CP'):
+    fixed = sudoku.random_puzzle(n_fixed, boxsize)
+    return sudoku.solve(fixed, boxsize, model)
 
 def average(values):
     return sum(values, 0.0) / len(values)
@@ -23,7 +12,7 @@ if __name__ == "__main__":
     boxsize = 3
     fixed_lower_bound = 0
     fixed_upper_bound = sudoku.n_cells(boxsize)
-    iterations = 10
+    iterations = 1
     setup_string = "from __main__ import solve"
     n_fixed_range = range(fixed_upper_bound, fixed_lower_bound - 1, -1)
     timings = []
