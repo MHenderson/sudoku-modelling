@@ -30,9 +30,11 @@ Introduction
 Sudoku puzzles
 ~~~~~~~~~~~~~~
 
-Everyone is familiar with Sudoku puzzles, which appear in newspapers daily the world over. A typical puzzle is shown in Figure XXX. To complete the puzzle requires the puzzler to fill the empty cells with numbers XXX in such a way as to have exactly one of every number in every row, every column and every of the small 3 by 3 boxes.
+Everyone is familiar with Sudoku puzzles, which appear in newspapers daily the world over. A typical puzzle is shown in Figure XXX. 
 
 XXX Figure 1 XXX
+
+To complete the puzzle in Figure XXX requires the puzzler to fill every empty cells with an integer between 1 and 9. The puzzle is only complete if all the empty cells are filled in such a way that every number appears once in every row, every column and every of the small 3 by 3 boxes.
 
 A well-formed Sudoku puzzle has a unique solution. This means that the puzzle can be solved by logic alone, without any guessing.
 
@@ -133,24 +135,28 @@ Constraint models for Sudoku puzzles are discussed in [Sim05]_. The simplest mod
 
 A constraint model is a collection of constraints, which restrict certain variables to have certain values inside their domain. The ``all_different`` constraint requires that all variables specified as parameters to the constraint take different values. This makes modeling Sudoku puzzles easy. We have an ``all_different`` constraint on every row, column and box.
 
-The Sudoku constraint model in ``sudoku.py`` is implemented using ``python-constraint v1.1`` by Gustavo Niemeyer. This open-source library is available at `http://labix.org/python-constraint <http://labix.org/python-constraint>`_
+The Sudoku constraint model in ``sudoku.py`` is implemented using ``python-constraint v1.1`` by Gustavo Niemeyer. This open-source library is available at `http://labix.org/python-constraint <http://labix.org/python-constraint>`_ ::
+
+    >>> from constraint import Problem
+    >>> from sudoku import cells, symbols
+    >>> p = Problem()
+    >>> p.addVariables(cells(boxsize), symbols(boxsize))
 
 ``python-constraint`` implements the ``all_different`` constraint as ``AllDifferentConstraint()``. The ``addConstraint(constraint, variables)`` member function is used to add a  constraint on ``variables`` to a constraint problem object. So, to build an empty Sudoku puzzle constraint model we can do the following. ::
-
-    >>> import constraint
-    >>> p = constraint.Problem()
-    >>> p.addVariables(sudoku.cells(boxsize), sudoku.symbols(boxsize)) 
+    
+    >>> from constraint import AllDifferentConstraint
     >>> for row in sudoku.cells_by_row(boxsize):
-    ...    problem.addConstraint(constraint.AllDifferentConstraint(), row)
+    ...    p.addConstraint(AllDifferentConstraint(), row)
     >>> for col in sudoku.cells_by_col(boxsize):    
-    ...    problem.addConstraint(constraint.AllDifferentConstraint(), col)
+    ...    p.addConstraint(AllDifferentConstraint(), col)
     >>> for box in sudoku.cells_by_box(boxsize):
-    ...    problem.addConstraint(constraint.AllDifferentConstraint(), box)
+    ...    p.addConstraint(AllDifferentConstraint(), box)
 
-To extend this model so that the clues are fixed we need to add an ExactSumConstraint for each clue. The ``exact_sum`` constraint restricts the value of a variable to a precise given value.
+To extend this model so that the clues are fixed we need to add an ExactSumConstraint for each clue. The ``exact_sum`` constraint restricts the value of a variable to a precise given value. ::
 
+    >>> from constraint import ExactSumConstraint as Exact
     >>> for cell in fixed:
-    ...    p.addConstraint(constraint.ExactSumConstraint(fixed[cell]), [cell])
+    ...    p.addConstraint(Exact(fixed[cell]), [cell])
 
 To solve the Sudoku puzzle given by the ``fixed`` dictionary now can be done by solving the constraint model ``p``. The constraint propogation algorithm of ``python-constraint`` can be invoked by the ``getSolution`` member function. ::
 
@@ -175,45 +181,36 @@ In fact, the model keyword argument in this case is redundant, as 'CP' is the de
 Graph models
 ~~~~~~~~~~~~
 
-A graph model for Sudoku is presented in [Var05]_. In this model, every cell of the Sudoku grid is represented by a vertex. The edges of the graph are given by the cell dependency relations. In other words, if two cells lie in the same row, column or box, then their vertices are joined by an edge in the graph model. A Sudoku puzzle is specified by a partial assignment of colors to the vertices of the graph and a solution to the puzzle is a minimal vertex coloring.
+A graph model for Sudoku is presented in [Var05]_. In this model, every cell of the Sudoku grid is represented by a vertex. The edges of the graph are given by the cell dependency relations. In other words, if two cells lie in the same row, column or box, then their vertices are joined by an edge in the graph model.
+
+XXX The Shidoku graph XXX
+
+A Sudoku puzzle is specified by a partial assignment of colors to the vertices of the graph and a solution to the puzzle is a minimal vertex coloring.
 
 The Sudoku graph model in ``sudoku.py`` is implemented using ``networkx v1.1``. This open-source Python library is available at `http://networkx.lanl.gov/ <http://networkx.lanl.gov/>`_
 
-In ``sudoku.py``, the dependent cells can be computed using the ``dependent_cells`` function. This function returns a list of all pairs (x, y) with x < y such that x and y either lie in the same row, same column or same box.
-
-So, to build the graph model of an empty Sudoku board using ``networkx`` is then simply a matter of adding a node for each cell and an edge for each pair of dependent cells. ::
+Building a graph model of an empty Sudoku puzzle using ``networkx`` requires ading a node for each cell and an edge for each pair of dependent cells. The cell labels can be obtained from ``sudoku.py``'s ``cells`` function. The dependent cells can be computed using the ``dependent_cells`` function. The ``dependent_cells`` function returns a list of all pairs (x, y) with x < y such that x and y either lie in the same row, same column or same box. To add nodes and edges to a graph, ``networkx`` helpfully provides the graph member functions ``add_nodes_from`` and ``add_edges_from``. ::
 
     >>> import networkx
     >>> g = networkx.Graph()
     >>> g.add_nodes_from(sudoku.cells(boxsize))
     >>> g.add_edges_from(sudoku.dependent_cells(boxsize))
 
-An assignment of symbols to the cells of the Sudoku puzzle now corresponds to the assignment of symbols (or colors) to the vertices of our graph. ::
+A Sudoku puzzle is a partial assignment of symbols, or colors, to the vertices of the graph. Graphs in ``networkx`` allow arbitrary data to be associated with graph nodes. ::
 
     >>> for cell in fixed:
     ...    g.node[cell]['color'] = fixed[cell]
 
-In Listing XXX, an example is shown of how to use the graph model to find a solution to the Sudoku puzzle of Figure XXX. ::
+A solution of the Sudoku puzzle is a minimal vertex coloring of the Sudoku graph which preserves the pre-assigned colors. There are many vertex coloring algorithms which we can use to try to find a solution of a puzzle. In ``sudoku.py`` we have implemented a general vertex coloring algorithm which can be customized to provide a variety of different algorithms. The effectiveness of these different algorithms is discussed in the later section about "Coloring the Sudoku graph"".
+
+To use the graph model to find a solution to the Sudoku puzzle of Figure XXX, we can again call the ``solve`` function, specifying ``graph`` as the model. ::
 
     >>> s = sudoku.solve(d, 3, model = 'graph')
-    >>> sudoku.print_puzzle(s, 3)
-     2  5  8  7  3  6  9  4  1 
-     6  1  9  8  2  4  3  5  7 
-     4  3  7  9  a  5  2  6  8 
-     3  9  5  2  7  a  4  8  6 
-     7  6  2  4  9  8  1  3  5 
-     8  4  a  6  5  3  7  2  9 
-     a  8  4  3  6  9  5  7  2 
-     5  7  6  a  4  b  8  9  3 
-     9  2  3  5  8  7  6  a  4
-
 
 Polynomial system models
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 The graph model above is mainly introduced in [Var05]_ as a prelude to modeling a Sudoku puzzle as a system of polynomial equations. The polynomial system model presented in [Var05]_ consists of a polynomial for every vertex in the graph model and a polynomial for every edge. 
-
-The Sudoku polynomial-system model in sudoku.py is implemented using ``sympy v0.6.7``. This open-source symbolic algebra Python library is available at `http://code.google.com/p/sympy/ <http://code.google.com/p/sympy/>`_
 
 Vertex polynomials have the form:
 
@@ -221,9 +218,12 @@ Vertex polynomials have the form:
 
    \[F(x_j) = \prod_{i=1}^{9} (x_j - i)\]
 
-In ``sympy``, these look like: ::
+The Sudoku polynomial-system model in sudoku.py is implemented using ``sympy v0.6.7``. This open-source symbolic algebra Python library is available at `http://code.google.com/p/sympy/ <http://code.google.com/p/sympy/>`_
 
-   >>> n = reduce(operator.mul, [(x - row) for row in rows(boxsize)])
+Vertex polynomials can be built using ``sympy`` as follows: ::
+
+    >>> def node_polynomial(x, boxsize):
+    ...    return reduce(operator.mul, [(x - symbol) for symbol in symbols(boxsize)])
 
 Edge polynomials, for adjacent vertices :math:`$x_i$` and :math:`$x_j$`, have the form: 
 
@@ -231,13 +231,23 @@ Edge polynomials, for adjacent vertices :math:`$x_i$` and :math:`$x_j$`, have th
 
    \[G(x_i, x_j) = \frac{F(x_i) - F(x_j)}{x_i - x_j}\]
 
-In ``sympy``: ::
+In ``sympy``, we build edge polynomials from the vertex polynomial function. ::
 
-   >>> import sympy
-   >>> e = sympy.expand(sympy.cancel((node_polynomial(x, boxsize) - node_polynomial(y, boxsize))/(x - y)))
+   >>> from sympy import cancel, expand
+   >>> e = expand(cancel((node_polynomial(x, boxsize) - node_polynomial(y, boxsize))/(x - y)))
 
-XXX fixed cell polynomials XXX   
+The polynomial model for the empty Sudoku puzzle now consists of the collection of all node polynomials for nodes in the Sudoku graph and all edge polynomials for node pairs ``(x,y) in dependent_symbols(boxsize)``, where the ``dependent_symbols`` function returns the list of dependent cells as pairs of ``sympy.Symobol`` objects.
+
+To specify a Sudoku puzzle requires adding polynomials to represent the clues, or fixed cells. According to the model from [Var05]_, if :math:`$F$` is the set of fixed cells (i.e. cell label, value pairs) then to the polynomial system we need to add polynomials 
    
+.. raw:: latex
+
+   \[F(x_i, j) = x_i - j\]
+
+Or, with ``sympy``: ::
+
+    >>> sympy.Symbol('x' + str(cell)) - symbol
+
 In Listing XXX, an example is shown of how to use the polynomial-system model to find a solution to the Sudoku puzzle of Figure XXX. ::
 
     >>> s = sudoku.solve(d, 3, model = 'groebner')
@@ -310,24 +320,38 @@ and every symbol in every box:
     1 \leq k \leq n, 1 \leq p \leq m, 1 \leq q \leq m
    \]   
 
-The Sudoku integer programming model is implemented in ``sudoku.py`` using ``pyglpk v0.3`` by Thomas Finley. This open-source mixed integer/linear programming Python library is available at `http://tfinley.net/software/pyglpk/ <http://tfinley.net/software/pyglpk/>`_ ::
+The Sudoku integer programming model is implemented in ``sudoku.py`` using ``pyglpk v0.3`` by Thomas Finley. This open-source mixed integer/linear programming Python library is available at `http://tfinley.net/software/pyglpk/ <http://tfinley.net/software/pyglpk/>`_ 
+
+In ``pyglpk``, the integer program is represented as a matrix of coefficients of the linear equations which make up the integer program. Two functions of ``sudoku.py`` provide the correct dimensions of the coefficient matrix. ::
 
     >>> import glpk
     >>> lp = glpk.LPX()
     >>> lp.cols.add(lp_matrix_ncols(boxsize))
     >>> lp.rows.add(lp_matrix_nrows(boxsize))
+
+Variables and equations are assigned bounds. ::
+
     >>> for c in lp.cols:
     ...    c.bounds = 0.0, 1.0
     >>> for r in lp.rows:
     ...    r.bounds = 1.0, 1.0
+
+The linear program matrix. ::
+
     >>> lp.matrix = list(flatten(lp_coeffs(boxsize)))
 
-Solving the linear relaxation first by the simplex algorithm and then using the ``glpk`` integer programming algorithm to solve the original integer programming problem: ::
+Solving the linear relaxation first by the simplex algorithm :: 
 
     >>> lp.simplex()
+
+and then using the ``glpk`` integer programming algorithm to solve the original integer programming problem: ::
+
     >>> for col in lp.cols:
     ...    col.kind = int
     >>> lp.integer()
+
+Finally, we need to extract the solution as a dictionary: XXX THIS SHOULD REALLY BE A LITTLE FUNCTION CALL XXX ::
+ 
     >>> names = lp_vars(boxsize)
     >>> sol = {}
     >>> for c in lp.cols:
@@ -374,17 +398,31 @@ To solve the enumeration problem for Shidoku, using the constraint model impleme
 Coloring the Sudoku graph
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+As discussed above in the graph model section, a completed Sudoku puzzle is equivalent to a minimal vertex coloring of the Sudoku graph. 
+
+We have experimented with several different vertex coloring algorithms to see which are more effective at coloring the Sudoku graph. At first, we used Joseph Culberson's graph coloring programs (available at XXXX) by writing the graph information to a file in Dimacs format (via the ``dimacs_string`` function of ``sudoku.py``). Observing the effectiveness of the saturation degree (DSatur) algorithm, we decided to implement a general verex coloring scheme directly in Python.
+
+The vertex coloring algorithm of ``sudoku.py``, ``vertex_coloring``, has keyword parameters ``nodes`` and ``choose_color`` which allow for customization of the general scheme. The ``nodes`` parameter specifies an ordering of vertices which ``choose_color`` is a visitor object for selecting the color of an uncolored vertex.
+
+For example, if ``nodes`` is assigned the ``InOrder`` class and ``choose_color`` the ``first_available_color`` function then ``vertex_coloring(graph, nodes, choose_color)`` is the basic sequential vertex coloring algorithm.
+
+We can get a random order by assigning ``RandomOrder`` to ``nodes``.
+
+The DSatur algorithm is obtained by choosing ``DSATOrder`` for ``nodes`` and ``first_available_color`` for ``choose_color``.
+
+XXX DSatur algorithm is an online algorithm XXX supported because ``nodes`` is an iterator.
+
 Minimal uniquely completable puzzles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Gordon Royle maintains a list of uniquely completable 17-hint Sudoku puzzles at `http://mapleta.maths.uwa.edu.au/~gordon/sudoku17 <http://mapleta.maths.uwa.edu.au/~gordon/sudoku17>`_
 
+XXX With ``sudoku.py`` we can write a short script for processing such puzzle collections XXX
 
-Phase transition phenomena in random puzzles
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Investigating hardness of random puzzles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Matlab Sudoku contest
-~~~~~~~~~~~~~~~~~~~~~~~~~
+XXX A script for timing runs on random puzzles XXX
 
 References
 ----------
