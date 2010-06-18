@@ -113,6 +113,10 @@ def are_all_different_nested(l):
     elements."""
     return all(map(are_all_different, l))
 
+def strip_nl(puzzle_string):
+    """Remove newline characters from a string."""
+    return puzzle_string.replace('\n', '')
+
 ####################################################################
 # Cell dependencies
 ####################################################################
@@ -125,10 +129,6 @@ def dependent_cells(boxsize):
 ####################################################################
 # String/dictionary conversions
 ####################################################################
-
-def strip_nl(puzzle_string):
-    """Remove newline characters from a string."""
-    return puzzle_string.replace('\n', '')
 
 def dict_to_string(fixed, boxsize):
     """Returns a puzzle string of dimension 'boxsize' from a dictionary of 
@@ -384,7 +384,7 @@ def dependent_symbols(boxsize):
 
 def node_polynomial(x, boxsize):
     """The polynomial representing a cell corresponding to symbol 'x'."""
-    return reduce(operator.mul, [(x - row) for row in rows(boxsize)])
+    return reduce(operator.mul, [(x - symbol) for symbol in symbols(boxsize)])
 
 def edge_polynomial(x, y, boxsize):
     """The polynomials representing the dependency of cells corresponding to
@@ -505,7 +505,7 @@ def solve_lp_puzzle(lp, boxsize):
     return sol
 
 ####################################################################
-# Puzzle solving strategies
+# Puzzle solving
 ####################################################################
 
 def solve_as_CP(fixed, boxsize):
