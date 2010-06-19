@@ -130,16 +130,19 @@ def dependent_cells(boxsize):
 # String/dictionary conversions
 ####################################################################
 
-def dict_to_string(fixed, boxsize):
+def dict_to_string(fixed, boxsize, padding = 0, rowend = ""):
     """Returns a puzzle string of dimension 'boxsize' from a dictionary of 
     'fixed' cells."""
     s = ''
-    for cell in cells(boxsize):
-        symbol = fixed.get(cell)
-        if symbol:
-            s += int_to_printable(symbol)
-        else:
-            s += '.'
+    for row in rows(boxsize):
+        for col in cols(boxsize):
+            symbol = fixed.get(cell(row, col, boxsize))
+            if symbol:
+                s += " "*padding + int_to_printable(symbol) + " "*padding
+            else:
+                s += ' '*padding + '.' + ' '*padding
+        if row != rows(boxsize)[-1]:
+            s += rowend
     return s
 
 def string_to_dict(puzzle, boxsize):
@@ -535,9 +538,8 @@ def solve_as_graph(fixed, boxsize):
     cg = vertex_coloring(g, DSATOrder)
     return graph_to_dict(cg)
 
-def solve(fixed, boxsize, model = 'CP'):
-    """Solve 'fixed' dictionary, exploiting 'model' ('lp', 'graph', 'CP', 
-    'groebner'). """
+def solve_puzzle(fixed, boxsize, model = 'CP'):
+    """Solve 'puzzle' exploiting 'model' ('lp', 'graph', 'CP', 'groebner')."""
     if model == 'CP':
         return solve_as_CP(fixed, boxsize)
     elif model == 'lp':
@@ -551,7 +553,7 @@ def solve(fixed, boxsize, model = 'CP'):
 
 def solve_puzzles(puzzles, boxsize, model = 'CP'):
     """Solve every puzzle in iterable 'puzzles'."""
-    return [solve(puzzle, boxsize, model) for puzzle in puzzles]
+    return [solve_puzzle(puzzle, boxsize, model) for puzzle in puzzles]
 
 def solve_puzzles_s(puzzles_s, boxsize, model = 'CP'):
     """Solve every puzzle string in iterable 'puzzles'."""
@@ -571,7 +573,7 @@ def dimacs_file(graph, outfile):
 # Puzzle generators
 ####################################################################
 
-def random_puzzle_f(puzzle, n_fixed, boxsize):
+def random_filter(puzzle, n_fixed, boxsize):
     """Returns a puzzle dictionary of a random Sudoku puzzle of 'fixed' size
     based on the Sudoku 'puzzle' dictionary."""
     fixed = copy.deepcopy(puzzle)
@@ -582,10 +584,10 @@ def random_puzzle_f(puzzle, n_fixed, boxsize):
         del fixed[i]
     return fixed
 
-def random_puzzle(n_fixed, boxsize, model = 'CP'):
+def random_fixed(n_fixed, boxsize, model = 'CP'):
     """Random puzzle generator, based on solution of empty puzzle."""
-    s = solve({}, boxsize, model)
-    return random_puzzle_f(s, n_fixed, boxsize)
+    s = solve_puzzle({}, boxsize, model)
+    return random_filter(s, n_fixed, boxsize)
 
 ####################################################################
 # Verification
@@ -611,7 +613,7 @@ def is_solution(fixed, puzzle, boxsize):
     """Test whether 'fixed' cells have same values in 'puzzle'."""
     return all(map(lambda x: fixed[x] == puzzle[x], fixed))
 
-def is_sudoku_solution(fixed, puzzle, boxsize):
+def is_sudoku_solution_d(fixed, puzzle, boxsize):
     """Test whether 'puzzle' is a solution of 'fixed'."""
     return is_sudoku(puzzle, boxsize) and is_solution(fixed, puzzle, boxsize)
 
@@ -619,10 +621,51 @@ def is_sudoku_solution_s(fixed_s, puzzle_s, boxsize):
     """Test whether 'puzzle_s' string is a solution of 'fixed_s' string."""
     fixed = string_to_dict(fixed_s, boxsize)
     puzzle = string_to_dict(puzzle_s, boxsize)
-    return is_sudoku_solution(fixed, puzzle, boxsize)
+    return is_sudoku_solution_d(fixed, puzzle, boxsize)
 
-def verify_solutions(puzzles, solutions, boxsize, verify_solution = is_sudoku_solution):
+def verify_solutions(puzzles, solutions, boxsize, verify_solution = is_sudoku_solution_d):
     """Test whether the iterable 'puzzles' has a solution in the 
     corresponding position of iterable 'solutions'."""
     return all(itertools.imap(lambda puzzle, solution: verify_solution(puzzle, solution, boxsize), puzzles, solutions))
+
+####################################################################
+# Puzzle
+####################################################################
+
+class Puzzle:
+
+    def __init__(self, fixed, boxsize, format = 'd'):
+        self.boxsize = boxsize
+        if format == 'd':
+            self.fixed = fixed
+        elif format == 's':
+            self.fixed = string_to_dict(fixed, boxsize)
+        else:
+            raise NameError('No such format: ' + format)
+
+    def __repr__(self):
+        return dict_to_string(self.fixed, self.boxsize, padding = 1, rowend = "\n")
+
+    def __str__(self):
+        return self.__repr__()
+
+    def get_boxsize(self):
+        return self.boxsize
+
+    def get_fixed(self):
+        return self.fixed
+
+def random_puzzle(n_fixed, boxsize, model = 'CP'):
+    return Puzzle(random_fixed(n_fixed, boxsize, model), boxsize)
+
+def solve(puzzle, model = 'CP'):
+    fixed = puzzle.get_fixed()
+    boxsize = puzzle.get_boxsize()
+    return Puzzle(solve_puzzle(fixed, boxsize, model), boxsize)
+
+def is_sudoku_solution(puzzle, solution):
+    puzzle_f = puzzle.get_fixed()
+    solution_f = solution.get_fixed()
+    boxsize = solution.get_boxsize()
+    return is_sudoku_solution_d(puzzle_f, solution_f, boxsize)
 
