@@ -1,9 +1,9 @@
 import sudoku, timeit
 import matplotlib.pyplot as plt
 
-def solve(n_fixed, boxsize, model = 'CP'):
+def solve(n_fixed, boxsize, model = 'lp'):
     fixed = sudoku.random_puzzle(n_fixed, boxsize)
-    return sudoku.solve(fixed, boxsize, model)
+    return sudoku.solve(fixed, model)
 
 def average(values):
     return sum(values, 0.0) / len(values)
