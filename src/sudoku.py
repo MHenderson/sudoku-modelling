@@ -113,9 +113,9 @@ def are_all_different_nested(l):
     elements."""
     return all(map(are_all_different, l))
 
-def strip_nl(puzzle_string):
-    """Remove newline characters from a string."""
-    return puzzle_string.replace('\n', '')
+def strip_ws(puzzle_string):
+    """Remove newline and space characters from a string."""
+    return puzzle_string.replace('\n', '').replace(' ','')
 
 ####################################################################
 # Cell dependencies
@@ -147,7 +147,7 @@ def dict_to_string(fixed, boxsize, padding = 0, rowend = ""):
 
 def string_to_dict(puzzle, boxsize):
     """Returns a dictionary based on a Sudoku puzzle string."""
-    puzzle = strip_nl(puzzle)
+    puzzle = strip_ws(puzzle)
     d = {}
     for cell in cells(boxsize):
         if puzzle[cell - 1] != '.':
@@ -387,7 +387,7 @@ def dependent_symbols(boxsize):
 
 def node_polynomial(x, boxsize):
     """The polynomial representing a cell corresponding to symbol 'x'."""
-    return reduce(operator.mul, [(x - symbol) for symbol in symbols(boxsize)])
+    return sympy.expand(reduce(operator.mul, [(x - symbol) for symbol in symbols(boxsize)]))
 
 def edge_polynomial(x, y, boxsize):
     """The polynomials representing the dependency of cells corresponding to
