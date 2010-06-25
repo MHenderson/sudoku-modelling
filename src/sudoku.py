@@ -470,6 +470,9 @@ def lp_coeffs(boxsize):
     the empty Sudoku puzzle."""
     return lp_occ_eqs(cells_by_row(boxsize), boxsize) + lp_occ_eqs(cells_by_col(boxsize), boxsize) + lp_occ_eqs(cells_by_box(boxsize), boxsize) + lp_nonempty_eqs(boxsize)
 
+def lp_matrix(boxsize):
+    return list(flatten(lp_coeffs(boxsize)))
+
 def empty_puzzle_as_lp(boxsize):
     """Linear program for empty Sudoku puzzle."""
     lp = glpk.LPX()
@@ -479,7 +482,7 @@ def empty_puzzle_as_lp(boxsize):
         c.bounds = 0.0, 1.0
     for r in lp.rows:
         r.bounds = 1.0, 1.0
-    lp.matrix = list(flatten(lp_coeffs(boxsize)))
+    lp.matrix = lp_matrix(boxsize)
     return lp
 
 def puzzle_as_lp(fixed, boxsize):
@@ -494,18 +497,21 @@ def puzzle_as_lp(fixed, boxsize):
         lp.rows[-1].bounds = 1.0, 1.0
     return lp
 
-def solve_lp_puzzle(lp, boxsize):
-    """Solve a linear program Sudoku and return puzzle dictionary."""
-    lp.simplex()
-    for col in lp.cols:
-        col.kind = int
-    lp.integer()
+def lp_to_dict(lp, boxsize):
     names = lp_vars(boxsize)
     sol = {}
     for c in lp.cols:
         if c.value == 1:
             sol[names[c.index][0]] = names[c.index][1]
     return sol
+
+def solve_lp_puzzle(lp, boxsize):
+    """Solve a linear program Sudoku and return puzzle dictionary."""
+    lp.simplex()
+    for col in lp.cols:
+        col.kind = int
+    lp.integer()
+    return lp_to_dict(lp, boxsize)
 
 ####################################################################
 # Puzzle solving
@@ -629,6 +635,26 @@ def verify_solutions(puzzles, solutions, boxsize, verify_solution = is_sudoku_so
     return all(itertools.imap(lambda puzzle, solution: verify_solution(puzzle, solution, boxsize), puzzles, solutions))
 
 ####################################################################
+# Enumeration
+####################################################################
+
+def count_solutions_d(puzzle_d, boxsize):
+    return len(puzzle_as_CP(puzzle_d, boxsize).getSolutions())
+
+def count_and_solve_d(puzzle_d, boxsize):
+    s = puzzle_as_CP(puzzle_d, boxsize).getSolutions()
+    return len(s), s[0]
+
+def well_formed_d(puzzle_d, boxsize):
+    return count_solutions_d(puzzle_d, boxsize) == 1
+
+def well_formed_solution_d(puzzle_d, boxsize):
+    n, s = count_and_solve_d(puzzle_d, boxsize)
+    if n != 1:
+        raise NameError("Not well-formed")
+    return s
+
+####################################################################
 # Puzzle
 ####################################################################
 
@@ -668,4 +694,19 @@ def is_sudoku_solution(puzzle, solution):
     solution_f = solution.get_fixed()
     boxsize = solution.get_boxsize()
     return is_sudoku_solution_d(puzzle_f, solution_f, boxsize)
+
+def count_solutions(puzzle):
+    puzzle_d = puzzle.get_fixed()
+    boxsize = puzzle.get_boxsize()
+    return count_solutions_d(puzzle_d, boxsize)
+
+def well_formed(puzzle):
+    puzzle_d = puzzle.get_fixed()
+    boxsize = puzzle.get_boxsize()
+    return well_formed_d(puzzle_d, boxsize)
+
+def well_formed_solution(puzzle):
+    puzzle_d = puzzle.get_fixed()
+    boxsize = puzzle.get_boxsize()
+    return Puzzle(well_formed_solution_d(puzzle_d, boxsize), boxsize)
 
