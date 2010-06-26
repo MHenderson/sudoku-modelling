@@ -151,6 +151,8 @@ def dict_to_string_(fixed, boxsize, padding = 0, rowend = "", row_sep = "", col_
     return s
 
 def dict_to_string(fixed, boxsize, padding = 0, rowend = ""):
+    """Returns a puzzle string of dimension 'boxsize' from a dictionary of 
+    'fixed' cells with some suitably chosen row/column seperators."""
     row_sep = boxsize*('+' + (2*boxsize + 1) * '-') + '+' + '\n'
     col_sep = '| '
     return dict_to_string_(fixed, boxsize, padding, rowend, row_sep, col_sep)
@@ -442,6 +444,8 @@ def lp_coeffs(boxsize):
     return lp_occ_eqs(cells_by_row(boxsize), boxsize) + lp_occ_eqs(cells_by_col(boxsize), boxsize) + lp_occ_eqs(cells_by_box(boxsize), boxsize) + lp_nonempty_eqs(boxsize)
 
 def lp_matrix(boxsize):
+    """Linear equations (as list of coefficients) which correspond to 
+    the empty Sudoku puzzle."""
     return list(flatten(lp_coeffs(boxsize)))
 
 def empty_puzzle_as_lp(boxsize):
@@ -456,16 +460,21 @@ def empty_puzzle_as_lp(boxsize):
     lp.matrix = lp_matrix(boxsize)
     return lp
 
+def add_clue_eqn(cell, symbol, boxsize, lp):
+    """Add to 'lp' the linear equation representing the assignment of 'symbol'
+    to 'cell'."""
+    lp.rows.add(1)
+    r = lp_matrix_ncols(boxsize)*[0]
+    r[lp_col_index(cell, symbol, boxsize)] = 1
+    lp.rows[-1].matrix = r
+    lp.rows[-1].bounds = 1.0, 1.0
+
 def puzzle_as_lp(fixed, boxsize):
     """Linear program for Sudoku with 'fixed' clues."""
     lp = empty_puzzle_as_lp(boxsize)
     for cell in fixed:
-        symbol = fixed[cell]
-        lp.rows.add(1)
-        r = lp_matrix_ncols(boxsize)*[0]
-        r[lp_col_index(cell, symbol, boxsize)] = 1
-        lp.rows[-1].matrix = r
-        lp.rows[-1].bounds = 1.0, 1.0
+        symbol = fixed[cell]       
+        add_clue_eqn(cell, symbol, boxsize, lp)
     return lp
 
 def lp_to_dict(lp, boxsize):
@@ -550,10 +559,10 @@ def dimacs_file(graph, outfile):
 # Puzzle generators
 ####################################################################
 
-def random_filter(puzzle, n_fixed, boxsize):
+def random_filter(puzzle_d, n_fixed, boxsize):
     """Returns a puzzle dictionary of a random Sudoku puzzle of 'fixed' size
     based on the Sudoku 'puzzle' dictionary."""
-    fixed = copy.deepcopy(puzzle)
+    fixed = copy.deepcopy(puzzle_d)
     keys = fixed.keys()
     random.shuffle(keys)
     indices = keys[:len(keys) - n_fixed]
@@ -616,7 +625,7 @@ def count_and_solve_d(puzzle_d, boxsize):
     s = puzzle_as_CP(puzzle_d, boxsize).getSolutions()
     return len(s), s[0]
 
-def well_formed_d(puzzle_d, boxsize):
+def is_well_formed_d(puzzle_d, boxsize):
     return count_solutions_d(puzzle_d, boxsize) == 1
 
 def well_formed_solution_d(puzzle_d, boxsize):
@@ -671,10 +680,10 @@ def count_solutions(puzzle):
     boxsize = puzzle.get_boxsize()
     return count_solutions_d(puzzle_d, boxsize)
 
-def well_formed(puzzle):
+def is_well_formed(puzzle):
     puzzle_d = puzzle.get_fixed()
     boxsize = puzzle.get_boxsize()
-    return well_formed_d(puzzle_d, boxsize)
+    return is_well_formed_d(puzzle_d, boxsize)
 
 def well_formed_solution(puzzle):
     puzzle_d = puzzle.get_fixed()
