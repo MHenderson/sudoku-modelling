@@ -130,20 +130,30 @@ def dependent_cells(boxsize):
 # String/dictionary conversions
 ####################################################################
 
-def dict_to_string(fixed, boxsize, padding = 0, rowend = ""):
+def dict_to_string_(fixed, boxsize, padding = 0, rowend = "", row_sep = "", col_sep = ""):
     """Returns a puzzle string of dimension 'boxsize' from a dictionary of 
     'fixed' cells."""
     s = ''
+    s += row_sep
     for row in rows(boxsize):
+        s += col_sep
         for col in cols(boxsize):
             symbol = fixed.get(cell(row, col, boxsize))
             if symbol:
-                s += " "*padding + int_to_printable(symbol) + " "*padding
+                s += int_to_printable(symbol) + " "*padding
             else:
-                s += ' '*padding + '.' + ' '*padding
-        if row != rows(boxsize)[-1]:
-            s += rowend
+                s += '.' + ' '*padding
+            if col % boxsize == 0:
+                s += col_sep
+        s += rowend               
+        if row % boxsize == 0:
+            s += row_sep
     return s
+
+def dict_to_string(fixed, boxsize, padding = 0, rowend = ""):
+    row_sep = boxsize*('+' + (2*boxsize + 1) * '-') + '+' + '\n'
+    col_sep = '| '
+    return dict_to_string_(fixed, boxsize, padding, rowend, row_sep, col_sep)
 
 def string_to_dict(puzzle, boxsize):
     """Returns a dictionary based on a Sudoku puzzle string."""
