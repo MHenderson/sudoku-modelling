@@ -170,45 +170,6 @@ def graph_to_dict(graph):
     return dict([(vertex, nodes[vertex].get('color')) for vertex in nodes])
 
 ####################################################################
-# Puzzle printing
-####################################################################
-
-def print_puzzle_s(puzzle_string, boxsize, file = None):
-    """Pretty printing of Sudoku puzzle strings."""
-    nc = n_cols(boxsize)
-    for row in rows(boxsize):
-        print(puzzle_string[row * nc:(row + 1) * nc].replace('', ' '), file = file)
-
-def print_puzzle_d(puzzle_d, boxsize, width = 2, rowend = "\n", file = None):
-    """Pretty printing of Sudoku puzzle dictionaries."""
-    format_string = '%' + str(width) + 'i'
-    for row in rows(boxsize):
-        for col in cols(boxsize):
-            symbol = puzzle_d.get(cell(row, col, boxsize))
-            if symbol:
-                print(format_string % symbol, end = "", file = file)
-            else:
-                print((width - 1)*' ' + '.', end = "", file = file)
-        print(end = rowend, file = file)
-
-def print_puzzle(puzzle_d, boxsize, padding = 1, rowend = "\n", file = None):
-    """Pretty printing of Sudoku puzzle dictionaries, using printable
-    characters."""
-    for row in rows(boxsize):
-        for col in cols(boxsize):
-            symbol = puzzle_d.get(cell(row, col, boxsize))
-            if symbol:
-                print(" "*padding + int_to_printable(symbol) + " "*padding, end="", file = file)
-            else:
-                print(' '*padding + '.' + ' '*padding, end = "", file = file)                 
-        print(end = rowend, file = file)
-
-def print_puzzles(puzzles, boxsize, padding = 0, rowend = "", puzzleend = "", file = None):
-    for puzzle in puzzles:
-        print_puzzle(puzzle, boxsize, padding, rowend, file)
-        print(puzzleend, file = file)
-
-####################################################################
 # Graph output
 ####################################################################
 
