@@ -12,44 +12,98 @@
 \end{frame}
 
 \begin{frame}
-\frametitle{Overview}
+\frametitle{Background - The OKlibrary}
  \begin{itemize}
-  \item<1-> Background and introduction
-  \item<2-> Modeling Sudoku in Python
-  \item<3-> Sudoku experimentation
-  \item<4-> Future directions
+  \item<1-> \url{http://www.ok-sat-library.org/}
+  \item<2-> Open-source research platform and generative library for generalised SAT solving
+  \item<3-> Developed by Oliver Kullmann at the University of Swansea since 2005.
+  \item<4-> Modeling of combinatorial puzzles via SAT (Latin squares/Sudoku)
+  \item<5-> C++/Lisp/Bash
  \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Background}
+\frametitle{Background - \texttt{sudoku.py}}
  \begin{itemize}
-  \item<1-> Investigating Sudoku -- experimental mathematics
-  \item<2-> The SAT approach and the OKlibrary
-  \item<3-> Berea College Computer Science
+  \item<1-> \url{http://bitbucket.org/matthew/scipy2010}
+  \item<2-> Open-source 
+  \item<3-> Developed by authors at Berea College since 2010
+  \item<4-> Modeling of Sudoku puzzles in a variety of domains
+  \item<5-> Python/IPython
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Overview}
+ \begin{itemize}
+  \item<1-> {Modeling Sudoku in Python
+    \begin{itemize}
+      \item<2-> Constraint models
+      \item<3-> IP models
+      \item<4-> Graph models
+      \item<5-> Polynomial models
+    \end{itemize}}
+  \item<6-> {Using \texttt{sudoku.py} 
+    \begin{itemize}
+      \item<7-> Creating puzzles
+      \item<8-> Solving puzzles
+      \item<9-> Writing scripts
+    \end{itemize}}
  \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{Introduction - Sudoku}
- \begin{figure}[h]
-  \centering
-  \sudokuexampleone
-  \caption{Sudoku puzzle}
- \end{figure} 
+  The latin property.
 \end{frame}
 
 \begin{frame}
-\frametitle{Introduction - \texttt{sudoku.py}}
+ \begin{columns}[c] 
+  \column{.5\textwidth} 
+   A \emph{traditional Sudoku puzzle} is a partial assignment of $1,\dots,9$ to the cells of a $9\times 9$ grid with the latin property on rows, columns and boxes.
+  \column{.5\textwidth}
+   \begin{figure}[h]
+    \centering
+    \sudokuexampleone
+    \caption{Sudoku puzzle}
+   \end{figure} 
+ \end{columns}
+\end{frame}
+
+\begin{frame}
+ \begin{columns}[c]
+  \column{.5\textwidth} 
+   A \emph{(generalized) Sudoku puzzle} of boxsize $n$ is a partial assignment of $1,\dots,n^2$ to the cells of an $n^2\times n^2$ grid with the latin property on rows, columns and boxes.
+  \column{.5\textwidth}
+   \begin{figure}[h]
+    \centering
+    \sudokuexampleone
+    \caption{Sudoku puzzle}
+   \end{figure} 
+ \end{columns}
+\end{frame}
+
+\begin{frame}
+ \begin{columns}[c] 
+  \column{.5\textwidth} 
+   A \emph{solution} of a Sudoku puzzle is a total assignment which extends the original partial assignment and satisfies the same latin properties.
+  \column{.5\textwidth}
+   \begin{figure}[h]
+    \centering
+    \sudokuexampletwo
+    \caption{Sudoku puzzle}
+   \end{figure} 
+ \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Modeling Sudoku -- Basics}
  \begin{figure}[h]
   \centering
   \librarytable
   \caption{Table}
  \end{figure} 
-\end{frame}
 
-\begin{frame}[fragile]
-\frametitle{Modeling Sudoku -- Basics}
  \begin{figure}[h]
   \centering
   \lstinputlisting[firstline=15,lastline=17,frame=tb]{../src/sudoku.py}
@@ -105,6 +159,10 @@
   \item <2-> Data-mining
   \item <3-> Hybrid/meta algorithms
  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  The End -- Thank You!
 \end{frame}
 
 \end{document} 
