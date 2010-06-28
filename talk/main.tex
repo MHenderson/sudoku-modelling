@@ -97,6 +97,149 @@
 \end{frame}
 
 \begin{frame}[fragile]
+\frametitle{Modeling Sudoku -- Constraints}
+
+A \emph{constraint satisfaction problem} is a collection of \emph{constraints}. Each constraint involves certain \emph{variables}. Variables have \emph{domains}.
+
+A \emph{solution} of a CSP is an assignment to the variables which satisfies all the constraints.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Modeling Sudoku -- Variables}
+
+For each cell $1\leq i \leq n^4$, we have a variable $x_i$ whose domain is $\{1,\ldots,n^2\}$.
+
+$x_i = j$ means that cell $i$ is assigned value $j$.
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Modeling Sudoku -- \texttt{python-constraint}}
+
+\url{http://labix.org/python-constraint}
+
+Developed by Gustavo Niemeyer.
+
+\begin{lstlisting}
+>>> from constraint import Problem
+>>> from sudoku import cells, symbols
+>>> cp = Problem()
+>>> cp.addVariables(cells(2), symbols(2))
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Modeling Sudoku -- The AllDifferent constraint}
+
+The \emph{AllDifferent constraint} is the CSP version of the latin condition. It forces a set of variables to have mutually different values.
+
+\[\mbox{AllDifferent}(x_{1}, x_{2}, x_{3}, x_{4})\]
+\[\mbox{AllDifferent}(x_{1}, x_{5}, x_{9}, x_{13})\]
+\[\mbox{AllDifferent}(x_{13}, x_{14}, x_{15}, x_{16})\]
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Modeling Sudoku -- The empty board}
+
+\begin{lstlisting}
+>>> from sudoku import \
+     cells_by_row, cells_by_col, cells_by_box
+>>> sudoku.cells_by_row(2)
+[[1, 2, 3, 4], [5, 6, 7, 8],
+ [9, 10, 11, 12], [13, 14, 15, 16]]
+>>> sudoku.cells_by_col(2)
+[[1, 5, 9, 13], [2, 6, 10, 14], 
+ [3, 7, 11, 15], [4, 8, 12, 16]]
+>>> sudoku.cells_by_box(2)
+[[1, 2, 5, 6], [3, 4, 7, 8], 
+ [9, 10, 13, 14], [11, 12, 15, 16]]
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Modeling Sudoku -- The empty board}
+
+\begin{lstlisting}
+>>> for row in cells_by_row(2):
+...   cp.addConstraint(AllDifferentConstraint(), row)
+... 
+>>> for col in cells_by_col(2):
+...   cp.addConstraint(AllDifferentConstraint(), col)
+... 
+>>> for box in cells_by_box(2):
+...   cp.addConstraint(AllDifferentConstraint(), box)
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Modeling Sudoku -- The ExactSum constraint}
+
+The \emph{ExactSum} constraint restricts the values of variables to have a given sum.
+
+XXX puzzle example XXX
+
+So, for cell 4 to have value 3, we need $\mbox{ExactSum}(4, 3)$
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Modeling Sudoku -- Puzzles}
+
+\begin{lstlisting}
+>>> d = {3: 2, 5: 2, 6: 1, 7: 4, \
+         8: 3, 10: 4, 12: 2, 13: 1}
+\end{lstlisting}
+
+\begin{lstlisting}
+>>> from constraint import ExactSumConstraint as Exact
+>>> for cell in d:
+...   cp.addConstraint(Exact(d[cell]), [cell])
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Modeling Sudoku -- Solving}
+
+\begin{lstlisting}
+>>> from sudoku import Puzzle
+>>> Puzzle(cp.getSolution(), 2)
++-----+-----+
+| 4 3 | 2 1 | 
+| 2 1 | 4 3 | 
++-----+-----+
+| 3 4 | 1 2 | 
+| 1 2 | 3 4 | 
++-----+-----+
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Modeling Sudoku -- The \texttt{solve} function}
+
+\begin{lstlisting}
+>>> p = Puzzle(d, 2)
+>>> from sudoku import solve
+>>> solve(p)
++-----+-----+
+| 4 3 | 2 1 | 
+| 2 1 | 4 3 | 
++-----+-----+
+| 3 4 | 1 2 | 
+| 1 2 | 3 4 | 
++-----+-----+
+\end{lstlisting}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
 \frametitle{Modeling Sudoku -- Basics}
  \begin{figure}[h]
   \centering
