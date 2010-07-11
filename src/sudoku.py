@@ -117,6 +117,20 @@ def strip_ws(puzzle_string):
     """Remove newline and space characters from a string."""
     return puzzle_string.replace('\n', '').replace(' ','')
 
+def colorize(c, color = '1'):
+    CSI = '\x1b['
+    reset = CSI + 'm'
+    return CSI + "3" + color + "m" + c + reset
+
+def diff_s(s1, s2):
+    s = ''
+    for i in range(len(s1)):
+        if s1[i]!=s2[i]:
+            s += colorize(s2[i])
+        else:
+            s += s2[i]
+    return s
+
 ####################################################################
 # Cell dependencies
 ####################################################################
@@ -229,6 +243,31 @@ def puzzle_as_CP(fixed, boxsize):
     for cell in fixed:
         p.addConstraint(constraint.ExactSumConstraint(fixed[cell]), [cell])
     return p
+
+def to_minion_3_string(fixed, boxsize):
+    n = n_rows(boxsize)
+    s = n_symbols(boxsize)
+    def header():
+        return "MINION 3\n"
+    def variables():
+        return "**VARIABLES**\nDISCRETE l[" + str(n) + "," + str(n) +"] {1.." + str(s) +"}\n"
+    def search():
+        return "**SEARCH**\nPRINT ALL\n"
+    def row_constraints():
+        return reduce(operator.add, ["alldiff(l[" + str(row - 1) + ",_])\n" for row in rows(boxsize)])
+    def column_constraints():
+        return reduce(operator.add, ["alldiff(l[_," + str(col - 1) + "])\n" for col in cols(boxsize)])
+    def box_constraint(box):
+        return 'alldiff([' + string.strip(reduce(operator.add, ['l[' + str(row(cell, boxsize) - 1) + ',' + str(column(cell, boxsize) - 1)+'],' for cell in box]),',') + '])\n'
+    def box_constraints():
+        return reduce(operator.add, [box_constraint(box) for box in cells_by_box(boxsize)])
+    def clue_constraints():
+        return reduce(operator.add, flatten(["eq(l[" + str(row(clue, boxsize) - 1) + "," + str(column(clue, boxsize) - 1) + "]," + str(fixed[clue]) +")\n" for clue in fixed]))
+    def constraints():
+        return "**CONSTRAINTS**\n" + row_constraints() + column_constraints() + box_constraints() + clue_constraints()
+    def footer():
+        return "**EOF**"
+    return header() + variables() + search() + constraints() + footer()
 
 ####################################################################
 # Graph models
@@ -689,4 +728,9 @@ def well_formed_solution(puzzle):
     puzzle_d = puzzle.get_fixed()
     boxsize = puzzle.get_boxsize()
     return Puzzle(well_formed_solution_d(puzzle_d, boxsize), boxsize)
+
+def diff(p1, p2):
+    p1_s = p1.__repr__()  
+    p2_s = p2.__repr__()
+    print(diff_s(p1_s, p2_s))
 
