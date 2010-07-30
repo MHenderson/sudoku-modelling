@@ -244,7 +244,7 @@ def puzzle_as_CP(fixed, boxsize):
         p.addConstraint(constraint.ExactSumConstraint(fixed[cell]), [cell])
     return p
 
-def to_minion_3_string(fixed, boxsize):
+def to_minion_3_string_s(fixed, boxsize):
     n = n_rows(boxsize)
     s = n_symbols(boxsize)
     def header():
@@ -253,16 +253,25 @@ def to_minion_3_string(fixed, boxsize):
         return "**VARIABLES**\nDISCRETE l[" + str(n) + "," + str(n) +"] {1.." + str(s) +"}\n"
     def search():
         return "**SEARCH**\nPRINT ALL\n"
-    def row_constraints():
-        return reduce(operator.add, ["alldiff(l[" + str(row - 1) + ",_])\n" for row in rows(boxsize)])
-    def column_constraints():
-        return reduce(operator.add, ["alldiff(l[_," + str(col - 1) + "])\n" for col in cols(boxsize)])
+    def row_constraint(row):
+        return "alldiff(l[" + str(row - 1) + ",_])\n"
+    def column_constraint(col):
+        return "alldiff(l[_," + str(col - 1) + "])\n"
     def box_constraint(box):
         return 'alldiff([' + string.strip(reduce(operator.add, ['l[' + str(row(cell, boxsize) - 1) + ',' + str(column(cell, boxsize) - 1)+'],' for cell in box]),',') + '])\n'
+    def clue_constraint(clue):
+        return "eq(l[" + str(row(clue, boxsize) - 1) + "," + str(column(clue, boxsize) - 1) + "]," + str(fixed[clue]) +")\n"
+    def row_constraints():
+        return reduce(operator.add, [row_constraint(row) for row in rows(boxsize)])
+    def column_constraints():
+        return reduce(operator.add, [column_constraint(col) for col in cols(boxsize)])
     def box_constraints():
         return reduce(operator.add, [box_constraint(box) for box in cells_by_box(boxsize)])
     def clue_constraints():
-        return reduce(operator.add, flatten(["eq(l[" + str(row(clue, boxsize) - 1) + "," + str(column(clue, boxsize) - 1) + "]," + str(fixed[clue]) +")\n" for clue in fixed]))
+        if len(fixed)==0:
+            return ""
+        else:
+            return reduce(operator.add, flatten([clue_constraint(clue) for clue in fixed]))
     def constraints():
         return "**CONSTRAINTS**\n" + row_constraints() + column_constraints() + box_constraints() + clue_constraints()
     def footer():
@@ -599,7 +608,7 @@ def dimacs_file(graph, outfile):
 ####################################################################
 
 def random_filter(puzzle_d, n_fixed, boxsize):
-    """Returns a puzzle dictionary of a random Sudoku puzzle of 'fixed' size
+    """A puzzle dictionary of a random Sudoku puzzle of 'fixed' size
     based on the Sudoku 'puzzle' dictionary."""
     fixed = copy.deepcopy(puzzle_d)
     keys = fixed.keys()
@@ -733,4 +742,9 @@ def diff(p1, p2):
     p1_s = p1.__repr__()  
     p2_s = p2.__repr__()
     print(diff_s(p1_s, p2_s))
+
+def to_minion_string(puzzle):
+    puzzle_d = puzzle.get_fixed()
+    boxsize = puzzle.get_boxsize()
+    return to_minion_3_string_s(puzzle_d, boxsize)
 
