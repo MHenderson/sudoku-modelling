@@ -1,72 +1,15 @@
-Modeling Sudoku puzzles with Python
-===================================
-
-Introduction
-------------
-
-### Sudoku puzzles
-
-A Sudoku puzzle is shown near the top of the second column on this page.
-
-To complete this puzzle requires the puzzler to fill every empty cell
-with an integer between 1 and 9 in such a way that every number from 1
-up to 9 appears once in every row, every column and every one of the
-small 3 by 3 boxes highlighted with thick borders.
-
-Sudoku puzzles vary widely in difficulty. Determining the hardness of
-Sudoku puzzles is a challenging research problem for computational
-scientists. Harder puzzles typically have fewer prescribed symbols.
-However, the number of prescribed cells is not alone responsible for the
-difficulty of a puzzle and it is not well-understood what makes a
-particular Sudoku puzzle hard, either for a human or for an algorithm to
-solve.
-
-The Sudoku puzzles which are published for entertainment invariably have
-unique solutions. A Sudoku puzzle is said to be *well-formed* if it has
-a unique solution. Another challenging research problem is to determine
-how few cells need to be filled for a Sudoku puzzle to be well-formed.
-Well-formed Sudoku with 17 symbols exist. It is unknown whether or not
-there exists a well-formed puzzle with only 16 clues. In this paper we
-consider all Sudoku puzzles, as defined in the next paragraph, not only
-the well-formed ones.
-
-By *Sudoku puzzle of boxsize* $n$, in this paper, is meant a partial
-assignment of values from $\{1,\ldots,n^2\}$ to the cells of an
-$n^2 \times n^2$ grid in such a way that at most one of each symbols
-occurs in any row, column or box. A *solution* of a Sudoku puzzle is a
-complete assignment to the cells, satisfying the same conditions on row,
-columns and boxes, which extends the original partial assignment.
-
 ### sudoku.py
 
-With `sudoku.py`, the process of building models of Sudoku puzzles,
-which can then be solved using algorithms for computing solutions of the
-models, is a simple matter. In order to understand how to build the
-models, first it is necessary to explain the two different
-representations of Sudoku puzzles in `sudoku.py`.
+A Sudoku puzzle object can be built from such a dictionary. Note that
+the boxsize is a parameter of the `Puzzle` object constructor. :
 
-The dictionary representation of a puzzle is a mapping between cell
-labels and cell values. Cell values are integers in the range
-$\{1, \ldots, n^2\}$ and cell labels are integers in the range
-$\{1, \ldots, n^4\}$. The labeling of a Sudoku puzzle of boxsize $n$
-starts with 1 in the top-left corner and moves along rows, continuing to
-the next row when a row is finished. So, the cell in row $i$ and
-column $j$ is labeled $(i - 1)n^2 + j$.
-
-For example, the puzzle from the introduction can be represented by the
-dictionary :
-
+    >>> from sudoku import Puzzle
     >>> d = {1: 2, 2: 5, 5: 3, 7: 9, 9: 1,
     ...     11: 1, 15: 4, 19: 4, 21: 7, 25: 2,
     ...     27: 8, 30: 5, 31: 2, 41: 9, 42: 8,
     ...     43: 1, 47: 4, 51: 3, 58: 3, 59: 6,
     ...     62: 7, 63: 2, 65: 7, 72: 3, 73: 9,
     ...     75: 3, 79: 6, 81: 4}
-
-A Sudoku puzzle object can be built from such a dictionary. Note that
-the boxsize is a parameter of the `Puzzle` object constructor. :
-
-    >>> from sudoku import Puzzle
     >>> p = Puzzle(d, 3)
     >>> p
      2  5  .  .  3  .  9  .  1
