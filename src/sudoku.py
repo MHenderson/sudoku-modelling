@@ -144,13 +144,13 @@ def dependent_cells(boxsize):
 # String/dictionary conversions
 ####################################################################
 
-def dict_to_string_(fixed, boxsize, padding = 0, rowend = "", row_sep = "", col_sep = ""):
+def dict_to_string_(fixed, boxsize, padding = 0, rowend = "", row_sep = "", box_sep = "", col_sep = "", last_row_hack = ""):
     """Returns a puzzle string of dimension 'boxsize' from a dictionary of 
     'fixed' cells."""
     s = ''
     s += row_sep
     for row in rows(boxsize):
-        s += col_sep
+        s += box_sep
         for col in cols(boxsize):
             symbol = fixed.get(cell(row, col, boxsize))
             if symbol:
@@ -158,18 +158,22 @@ def dict_to_string_(fixed, boxsize, padding = 0, rowend = "", row_sep = "", col_
             else:
                 s += '.' + ' '*padding
             if col % boxsize == 0:
-                s += col_sep
+                s += box_sep
+            if col < boxsize*boxsize:
+               s += col_sep
         s += rowend               
-        if row % boxsize == 0:
+        if (row % boxsize == 0 and row < boxsize*boxsize):
             s += row_sep
+        elif row == boxsize*boxsize:
+            s += last_row_hack
     return s
 
 def dict_to_string(fixed, boxsize, padding = 0, rowend = ""):
     """Returns a puzzle string of dimension 'boxsize' from a dictionary of 
     'fixed' cells with some suitably chosen row/column seperators."""
     row_sep = boxsize*('+' + (2*boxsize + 1) * '-') + '+' + '\n'
-    col_sep = '| '
-    return dict_to_string_(fixed, boxsize, padding, rowend, row_sep, col_sep)
+    box_sep = '| '
+    return dict_to_string_(fixed, boxsize, padding, rowend, row_sep, box_sep, "")
 
 def string_to_dict(puzzle, boxsize):
     """Returns a dictionary based on a Sudoku puzzle string."""
@@ -699,6 +703,13 @@ class Puzzle:
 
     def __repr__(self):
         return dict_to_string(self.fixed, self.boxsize, padding = 1, rowend = "\n")
+
+    def _repr_latex_(self):
+        s = r"""$$\begin{array}"""
+        s += '{' + self.boxsize*('|' + self.boxsize*'c') + '|' + '}'
+        s += dict_to_string_(self.fixed, self.boxsize, padding = 0, rowend = "\\\\ \n", row_sep = "\hline ", box_sep = "", col_sep = " & ", last_row_hack = "\hline")
+        s += r"""\end{array}$$"""
+        return s
 
     def __str__(self):
         return self.__repr__()
